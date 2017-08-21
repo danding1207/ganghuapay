@@ -1,0 +1,261 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fitsSystemWindows="true">
+
+    <data>
+
+        <import type="android.view.View"/>
+    </data>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/main_bg"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:context=".MainActivity">
+
+        <android.support.design.widget.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true">
+
+            <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@drawable/title_bg"
+                    app:layout_collapseMode="pin"/>
+        </android.support.design.widget.AppBarLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/invoice_detail_bg"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+        >
+
+            <TextView
+                    android:id="@+id/tv_invoice_payeeName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginTop="18dp"
+                    android:text="泰州港华有限责任公司"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_button"/>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="80dp"
+                    android:padding="6dp"
+            >
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="销方名称"
+                        android:textColor="@color/wdqb_gray"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <TextView
+                        android:id="@+id/tv_invoice_xiaofang"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="泰州港华有限责任公司"
+                        android:textColor="@color/black"
+                        android:layout_marginLeft="12dp"
+                        android:textSize="@dimen/font_size_Medium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="6dp"
+            >
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="购方名称"
+                        android:textColor="@color/wdqb_gray"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <TextView
+                        android:id="@+id/tv_invoice_taitou"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="12dp"
+                        android:text="雷杨"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="6dp"
+            >
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="发票金额"
+                        android:textColor="@color/wdqb_gray"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <TextView
+                        android:id="@+id/tv_invoice_amount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="134.3"
+                        android:layout_marginLeft="12dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="6dp"
+            >
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="开票时间"
+                        android:textColor="@color/wdqb_gray"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <TextView
+                        android:id="@+id/tv_invoice_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="2017-05-12"
+                        android:layout_marginLeft="12dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+            </LinearLayout>
+
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/wdqb_cutting_line"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"
+            />
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="6dp"
+            >
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="发票代码"
+                        android:textColor="@color/wdqb_gray"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <TextView
+                        android:id="@+id/tv_invoice_code"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0310016004114"
+                        android:layout_marginLeft="12dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="6dp"
+            >
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="发票号码"
+                        android:textColor="@color/wdqb_gray"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <TextView
+                        android:id="@+id/tv_invoice_num"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="65983792"
+                        android:layout_marginLeft="12dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+            </LinearLayout>
+
+            <TextView
+                    android:id="@+id/tv_xiazai"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/unity_blue_button"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:text="查看发票"
+                    android:textColor="@color/white"/>
+
+
+            <TextView
+                    android:id="@+id/tv_mail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/unity_white_button"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:text="下载发票"
+                    android:layout_marginBottom="30dp"
+                    android:textColor="#65AAF5"/>
+
+
+        </LinearLayout>
+    </LinearLayout>
+</layout>

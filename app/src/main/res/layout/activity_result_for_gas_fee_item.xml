@@ -1,0 +1,124 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/small_white_button"
+        android:orientation="vertical"
+        tools:context=".MainActivity" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp" >
+
+            <TextView
+                android:id="@+id/tv_gas_fee_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/dark_green_slow"
+                android:textSize="@dimen/font_size_Medium" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:background="@drawable/cutting_line_city_list" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp" >
+
+            <TextView
+                android:id="@+id/tv_gas_fee_use"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="使用：12m2燃气"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+
+            <TextView
+                android:id="@+id/tv_gas_fee_money"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="气费金额：80.00元"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp" >
+
+            <TextView
+                android:id="@+id/tv_gas_fee_late_amount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="违约金：20.00元"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+
+            <TextView
+                android:id="@+id/tv_gas_fee_other_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="其他费用：0元"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp" >
+
+            <TextView
+                android:id="@+id/tv_gas_fee_presave"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="上期预存 0元"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+
+            <TextView
+                android:id="@+id/tv_gas_fee_total_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="本期总额：50.00元"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

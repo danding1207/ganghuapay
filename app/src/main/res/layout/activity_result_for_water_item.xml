@@ -1,0 +1,126 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="12dp"
+        android:layout_marginLeft="12dp"      
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/water_title_lay"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp" >
+
+            <CheckBox
+                android:id="@+id/checkBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/water_feeMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="201408"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+			
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+				android:layout_weight="1" />
+            
+            <TextView
+                android:id="@+id/water_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:gravity="right"
+                android:text="￥0.00"
+                android:textSize="@dimen/font_size_Medium" />
+            
+            <TextView
+                android:id="@+id/water_show"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"             
+                android:background="@drawable/ic_action_filed"
+                android:gravity="right" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/water_detail_lay"
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
+            android:padding="6dp"
+            android:visibility="visible"
+            android:background="@drawable/small_white_button"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+                <TextView
+                    android:id="@+id/water_LastBal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="上期结余：￥0.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+
+                <TextView
+                    android:id="@+id/water_WaterNb"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="用水量：80/吨"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+                <TextView
+                    android:id="@+id/water_CurrentBal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="本期结余：￥0.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+
+                <TextView
+                    android:id="@+id/water_LateAmount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="违约金：￥0.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+            </LinearLayout>
+            
+        </LinearLayout>
+        
+    </LinearLayout>
+
+</LinearLayout>

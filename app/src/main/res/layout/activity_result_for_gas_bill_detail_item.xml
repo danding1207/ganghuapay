@@ -1,0 +1,200 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:context=".MainActivity" >
+
+    <ImageView
+        android:id="@+id/iv_gas_fee_status"
+        android:layout_width="wrap_content"
+        android:layout_height="168dp"
+        android:src="@drawable/bill_left_pic_done_short" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="217dp"
+        android:layout_marginRight="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/title_lay"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp" >
+
+            <TextView
+                android:id="@+id/tv_gas_fee_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="2014年8月"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+
+            <TextView
+                android:id="@+id/tv_gas_fee_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="未缴费"
+                android:visibility="invisible"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="132dp"
+            android:padding="6dp"
+            android:background="@drawable/small_white_button"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+                <TextView
+                    android:id="@+id/tv_gas_fee_use"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="使用：12m³"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="@dimen/font_size_Medium" />
+
+                <TextView
+                    android:id="@+id/tv_gas_fee_money"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="气费金额：￥80.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/gas_lay"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp"
+                android:visibility="gone" >
+
+                <TextView
+                    android:id="@+id/tv_gas_fee_price"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="气费单价；1元"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="@dimen/font_size_Medium" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+                <TextView
+                    android:id="@+id/tv_gas_fee_last_reading"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="上期止码：1223"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="@dimen/font_size_Medium" />
+
+                <TextView
+                    android:id="@+id/tv_gas_fee_current_reading"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="本期止码：1211"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="@dimen/font_size_Medium" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"
+                android:background="@drawable/cutting_line_city_list" />
+			
+            <LinearLayout
+                android:id="@+id/tv_gas_fee_pay_amount_lay"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp"
+                android:visibility="gone" >
+
+                <TextView
+                    android:id="@+id/tv_gas_fee_pay_amount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="已缴气费:￥12"                  
+                    android:textColor="@color/dark_gray"
+                    android:textSize="@dimen/font_size_Medium" />
+
+            </LinearLayout>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+
+                <TextView
+                    android:id="@+id/bill_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="本期气费应收总额:"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+                
+                <TextView
+                    android:id="@+id/tv_gas_fee_total_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="￥50.00"
+                    android:textColor="@color/dark_green_slow"
+                    android:textSize="@dimen/font_size_Medium" />                	                
+				
+                <TextView
+                    android:id="@+id/dzzd_text"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:gravity="right"
+					android:text="电子账单"
+					android:textColor="@color/red"
+					android:textSize="@dimen/font_size_Medium"
+					android:visibility="gone" />
+                
+            </LinearLayout>
+            
+        </LinearLayout>
+        
+    </LinearLayout>
+
+</LinearLayout>

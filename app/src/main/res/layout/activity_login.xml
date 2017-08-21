@@ -1,0 +1,223 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:fitsSystemWindows="true"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/login_bg"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:windowSoftInputMode="adjustResize"
+            tools:context=".MainActivity">
+
+        <ImageView
+                android:id="@+id/iv_login_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/login_logo"
+                android:layout_marginTop="40dp"
+                app:layout_constraintTop_toTopOf="parent" android:layout_marginStart="16dp"
+                app:layout_constraintLeft_toLeftOf="parent" android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp" app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginRight="16dp"/>
+
+        <com.mqt.ganghuazhifu.view.DropEditText
+                android:id="@+id/et_name"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:background="@drawable/small_edittext_bg"
+                android:drawableLeft="@drawable/login_username"
+                android:drawablePadding="24dp"
+                android:gravity="left|center_vertical"
+                android:hint=" 请输入手机号/登录名/邮箱"
+                android:maxLength="30"
+                android:padding="8dp"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_large"
+                android:layout_marginTop="40dp"
+                app:layout_constraintTop_toBottomOf="@+id/iv_login_logo"
+                android:layout_marginStart="16dp" app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginLeft="16dp" android:layout_marginEnd="16dp"
+                app:layout_constraintRight_toRightOf="parent" android:layout_marginRight="16dp"/>
+
+        <EditText
+                android:id="@+id/et_password"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:background="@drawable/small_edittext_bg"
+                android:drawableLeft="@drawable/login_password"
+                android:drawablePadding="24dp"
+                android:gravity="left|center_vertical"
+                android:hint="请输入密码"
+                android:inputType="textPassword"
+                android:maxLength="31"
+                android:padding="8dp"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_large"
+                app:layout_constraintLeft_toLeftOf="@+id/et_name"
+                app:layout_constraintRight_toRightOf="@+id/et_name"
+                app:layout_constraintHorizontal_bias="1.0" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/et_name"/>
+
+
+        <EditText
+                android:id="@+id/security_code"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:background="@drawable/small_edittext_bg"
+                android:digits="1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                android:drawableLeft="@drawable/yanzhengma"
+                android:drawablePadding="24dp"
+                android:gravity="left|center_vertical"
+                android:hint=" 请输入验证码"
+                android:inputType="text"
+                android:maxLength="4"
+                android:padding="8dp"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_large"
+                app:layout_constraintRight_toLeftOf="@+id/security_image"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/et_password"
+                app:layout_constraintLeft_toLeftOf="@+id/et_password"/>
+
+        <ImageView
+                android:id="@+id/security_image"
+                android:layout_width="100dp"
+                android:layout_height="44dp"
+                android:src="@drawable/fresh"
+                android:scaleType="fitCenter"
+                app:layout_constraintRight_toRightOf="@+id/et_password"
+                app:layout_constraintBottom_toBottomOf="@+id/security_code"
+                app:layout_constraintTop_toTopOf="@+id/security_code"/>
+
+
+        <CheckBox
+                android:id="@+id/checkBox_remenber_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="12dp"
+                android:paddingTop="12dp"
+                android:text="记住密码"
+                android:textColor="@color/dark_green"
+                android:textSize="@dimen/font_size_Medium"
+                app:layout_constraintTop_toBottomOf="@+id/security_code"
+                app:layout_constraintLeft_toLeftOf="@+id/security_code"/>
+
+        <TextView
+                android:id="@+id/tv_forget_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="12dp"
+                android:paddingTop="12dp"
+                android:text="忘记密码？"
+                android:textColor="@color/dark_green"
+                android:textSize="@dimen/font_size_Medium"
+                tools:layout_conversion_absoluteX="302dp"
+                tools:layout_conversion_absoluteY="326dp"
+                tools:layout_conversion_absoluteWidth="70dp"
+                tools:layout_conversion_absoluteHeight="40dp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/checkBox_remenber_password"
+                app:layout_constraintRight_toRightOf="@+id/security_image"/>
+
+
+        <android.support.v7.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="#46872B"
+                tools:layout_conversion_absoluteX="12dp"
+                tools:layout_conversion_absoluteY="400dp"
+                tools:layout_conversion_absoluteWidth="360dp"
+                tools:layout_conversion_absoluteHeight="50dp"
+                app:layout_constraintTop_toBottomOf="@+id/tv_forget_password"
+                app:layout_constraintLeft_toLeftOf="@+id/security_code"
+                app:layout_constraintRight_toRightOf="@+id/tv_forget_password">
+
+            <Button
+                    android:id="@+id/tv_login"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:text="登   录"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/font_size_large"/>
+
+        </android.support.v7.widget.CardView>
+
+
+        <ImageView
+                android:id="@+id/iv_weixin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/weixin" tools:layout_conversion_absoluteX="111dp"
+                tools:layout_conversion_absoluteY="496dp"
+                tools:layout_conversion_absoluteWidth="30dp"
+                tools:layout_conversion_absoluteHeight="30dp"
+                app:layout_constraintBottom_toTopOf="@+id/tv_regis"
+                android:layout_marginBottom="8dp" app:layout_constraintRight_toLeftOf="@+id/iv_qq"
+                android:layout_marginEnd="32dp" android:layout_marginRight="32dp"
+                android:visibility="invisible"/>
+
+        <ImageView
+                android:id="@+id/iv_qq"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/qq" tools:layout_conversion_absoluteX="177dp"
+                tools:layout_conversion_absoluteY="496dp"
+                tools:layout_conversion_absoluteWidth="30dp"
+                tools:layout_conversion_absoluteHeight="30dp"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tv_regis"
+                android:layout_marginBottom="8dp" android:visibility="invisible"/>
+
+        <ImageView
+                android:id="@+id/iv_alipay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/alipay" tools:layout_conversion_absoluteX="243dp"
+                tools:layout_conversion_absoluteY="496dp"
+                tools:layout_conversion_absoluteWidth="30dp"
+                tools:layout_conversion_absoluteHeight="30dp"
+                android:layout_marginStart="32dp" app:layout_constraintLeft_toRightOf="@+id/iv_qq"
+                android:layout_marginLeft="32dp"
+                app:layout_constraintBottom_toTopOf="@+id/tv_regis"
+                android:layout_marginBottom="8dp" android:visibility="invisible"/>
+
+
+        <TextView
+                android:id="@+id/tv_regis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="12dp"
+                android:text="还没有账户？去注册"
+                android:textColor="@color/dark_green"
+                android:textSize="@dimen/font_size_Medium"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"/>
+
+
+        <com.mqt.ganghuazhifu.view.ShuiyinView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/shuiyin"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintRight_toRightOf="parent"/>
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

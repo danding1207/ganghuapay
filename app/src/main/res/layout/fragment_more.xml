@@ -1,0 +1,90 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:background="@color/main_bg"
+            android:layout_height="match_parent"
+            android:scrollbars="none">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:context=".MainActivity">
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/list_more_funtions"
+                android:layout_width="match_parent"
+                android:layout_height="282dp"
+                android:layout_marginTop="12dp"
+                android:divider="@null"
+                android:dividerHeight="4dp"/>
+
+        <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="4dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="#EFEFEF"
+                app:cardElevation="2dp">
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="账单推送"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="2dp"
+                        android:gravity="right"
+                        android:orientation="horizontal">
+
+                    <com.mqt.ganghuazhifu.view.SwitchButton
+                            android:id="@+id/switchButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:enabled="true"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="#F67373">
+
+            <Button
+                    android:id="@+id/button_log_out"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:text="退出登录"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/font_size_Medium"/>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+
+</ScrollView>

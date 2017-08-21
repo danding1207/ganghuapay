@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.mqt.ganghuazhifu">
+
+    <supports-screens
+            android:anyDensity="true"
+            android:largeScreens="true"
+            android:normalScreens="true"
+            android:smallScreens="true"
+            android:xlargeScreens="true"/>
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+     
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <uses-feature android:name="android.hardware.camera"/> 
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
+    <uses-feature android:name="android.hardware.nfc"/>
+
+
+    <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER"/> 
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"/>  
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
+     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>  
+    <!-- Needed to use AccountManager --> 
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/> 
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+     <uses-permission android:name="android.permission.USE_CREDENTIALS"/> 
+    <!-- renren sso Permission for Unit Test --> 
+    <!-- QQ、QQ空间所需权限 --> 
+    <uses-permission android:name="android.permission.SET_DEBUG_APP"/>
+     
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+      <!-- 腾讯Bugly所需权限 --> 
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+      
+    <uses-permission android:name="android.permission.FLASHLIGHT"/>
+
+    <uses-permission
+            android:name="baidu.push.permission.WRITE_PUSHINFOPROVIDER.com.mqt.ganghuazhifu"/>
+
+    <permission
+            android:name="baidu.push.permission.WRITE_PUSHINFOPROVIDER.com.mqt.ganghuazhifu"
+            android:protectionLevel="normal"/>
+
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+     
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <!--android:name="com.mqt.ganghuazhifu.App"-->
+    <application
+            android:name="com.mqt.ganghuazhifu.App"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:persistent="true"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        <!-- 适配Android N系统必需的ContentProvider声明，写权限包含应用包名-->
+        <provider
+                android:name="com.baidu.android.pushservice.PushInfoProvider"
+                android:authorities="com.mqt.ganghuazhifu.bdpush"
+                android:exported="true"
+                android:protectionLevel="signature"
+                android:writePermission="baidu.push.permission.WRITE_PUSHINFOPROVIDER.com.mqt.ganghuazhifu"/>
+
+        <!--配置glide加载https所需要的GlideModule-->
+        <meta-data
+                android:name="com.mqt.ganghuazhifu.http.OkHttpGlideModule"
+                android:value="GlideModule"/>
+
+        <!-- 打包用key = fcc344d6b18cdfa17bb3f89367284be9 烧应用用key = 91b3324dd49b7313a706c0b45f61a287 -->
+        <meta-data
+                android:name="com.amap.api.v2.apikey"
+                android:value="fcc344d6b18cdfa17bb3f89367284be9"/>
+
+        <!-- 在百度开发者中心查询应用的API Key -->
+        <meta-data
+                android:name="com.baidu.push.apikey"
+                android:value="1olRgEGaKY2lkksGs9z0YMiN"/>
+
+        <!-- 主程序 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.MainActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 伪启动 -->
+        <!--<activity-->
+                <!--android:name="com.mqt.ganghuazhifu.activity.TaskActivity"-->
+                <!--android:configChanges="keyboardHidden|orientation|fontScale"-->
+                <!--android:taskAffinity="com.example.opentest.first"-->
+                <!--android:theme="@style/WindowIsTranslucent"-->
+                <!--android:windowSoftInputMode="adjustPan">-->
+
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN"/>-->
+                <!--<category android:name="android.intent.category.LAUNCHER"/>-->
+            <!--</intent-filter>-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.CREATE_SHORTCUT"/>-->
+            <!--</intent-filter>-->
+
+        <!--</activity>-->
+
+        <!-- 欢迎页 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.WelcomeActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:windowSoftInputMode="adjustPan|stateHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- 登录 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.LoginActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="stateHidden"/>
+        <!-- 注册 -->
+
+        <!-- 注册 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.NewRegistrationActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 注册选择单位 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.SelectUnityListActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 用户协议 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.UserAgreementActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 注册 设置用户名 -->
+
+        <!-- 注册 设置安保问题 -->
+
+        <!-- 忘记密码 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ForgetPasswordActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 验证安保问题 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.VerificationQuestionActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 验证手机短信 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.VerifyPhoneActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 验证手机短信 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ChangePhoneActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 设置新密码 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.SetNewPasswordActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 设置手势密码 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.SetLockPatternActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 手势密码 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.LockPatternActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 账户管理 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.AccountManagementActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 设置邮箱 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.SetEmailActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 设置邮箱 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.SetPhoneActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 验证密码 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.VerifyPasswordActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 关于我们 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.AboutUsActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 使用帮助 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.UsingHelpActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 意见反馈 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.FeedBackActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 意见反馈 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.FeedBackCenterActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联系我们 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ConnectUsActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 营业费预存 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.YucunActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 二维码扫描 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.CaptureActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 员工二维码 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.TwoWeiMaActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 缴纳气费 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.PayTheGasFeeActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="stateHidden"/>
+
+        <!-- 缴纳气费(营业费)欠费查询结果 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ResultForGasFeeActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 缴纳气费(营业费)欠费查询结果明细 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ResultForGasFeeDetailsActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 缴纳水费查询结果页面 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ResultForWaterFeeActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 水费账单查询结果页面 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ResultForWaterBillActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 缴纳气费(营业费)账单查询结果 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ResultForGasBillActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 快钱支付  landscape -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.PayActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 手势锁解锁界面 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ReLockPatternActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 气费当月账单查询结果页面 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ResultForGasBillDetailActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 读NFC燃气表 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ReadNFCActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- NFC燃气表读表数据显示 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.NFCInfoActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 蓝牙读卡器写CPU卡 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.BluetoothActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 蓝牙读卡器写表 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.BluetoothSheBeiActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 消息中心 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.MessageCenterActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:launchMode="singleTop"
+                android:screenOrientation="portrait"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 消息详情 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.MessageActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 推送户号设置 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.PushNumSettingActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 绑定推送户号 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.AddPushNumSettingActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 常用联系人 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.ChangYongUserActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!--&lt;!&ndash; 编辑常用联系人 &ndash;&gt;-->
+        <!--<activity-->
+        <!--android:name="com.mqt.ganghuazhifu.activity.UpdataGeneralContactActivity"-->
+        <!--android:configChanges="orientation"-->
+        <!--android:screenOrientation="portrait"-->
+        <!--android:windowSoftInputMode="adjustPan|stateHidden" >-->
+        <!--</activity>-->
+
+        <!-- 验证用户 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.VerifyUserActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联动优势支付——选择银行 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.RecordDetailActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联动优势支付——选择银行 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.KuaiQianPayActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联动优势支付——选择银行 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.UnitySelectBanksActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联动优势支付——输入信息 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.UnityNormalPayActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联动优势支付——订单详细 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.UnityOrderDetailActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联动优势支付——一键支付 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.UnityQuickPayActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联动优势支付——编辑签约银行 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.UnityChangeBanksActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联动优势支付——支付协议 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.UnityPaymentAgreementActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 联动优势支付——支付结果 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.UnityPayResultActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 活动 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.MovableActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 设置安保问题 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.RegistrationSetQuestionActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <activity
+                android:name=".wxapi.WXPayEntryActivity"
+                android:exported="true"
+                android:launchMode="singleTop"/>
+
+
+        <!-- 设置安保问题 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.FapiaoShowActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <!-- 设置安保问题 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.FapiaoTaitouActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden">
+
+        </activity>
+
+        <!-- 设置安保问题 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.FapiaoListActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden">
+
+        </activity>
+
+
+        <receiver android:name="com.mqt.ganghuazhifu.receiver.ApkInstallReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- push service start -->
+        <!-- 用于接收系统消息以保证PushService正常运行 -->
+        <receiver
+                android:name="com.baidu.android.pushservice.PushServiceReceiver"
+                android:process=":bdservice_v1">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <action android:name="com.baidu.android.pushservice.action.notification.SHOW"/>
+                <action android:name="com.baidu.android.pushservice.action.media.CLICK"/>
+                <!-- 以下四项为可选的action声明，可大大提高service存活率和消息到达速度 -->
+                <action android:name="android.intent.action.MEDIA_MOUNTED"/>
+                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Push服务接收客户端发送的各种请求-->
+        <receiver
+                android:name="com.baidu.android.pushservice.RegistrationReceiver"
+                android:process=":bdservice_v1">
+            <intent-filter android:priority="1000">
+                <action android:name="com.baidu.android.pushservice.action.METHOD"/>
+                <action android:name="com.baidu.android.pushservice.action.BIND_SYNC"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
+                <data android:scheme="package"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- 运行进程 -->
+        <service android:name="com.mqt.ganghuazhifu.service.RunningInfoService"/>
+
+        <!-- 守护进程 -->
+        <service android:name="com.mqt.ganghuazhifu.service.GuardService2"/>
+
+        <!-- 守护进程 -->
+        <service
+                android:name="com.mqt.ganghuazhifu.service.GuardService"
+                android:process=":bdservice_v1"/>
+
+        <service
+                android:name="com.baidu.android.pushservice.PushService"
+                android:exported="true"
+                android:process=":bdservice_v1">
+            <intent-filter android:priority="1000">
+                <action android:name="com.baidu.android.pushservice.action.PUSH_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <!-- 4.4版本新增的CommandService声明，提升小米和魅族手机上的实际推送到达率 -->
+        <service
+                android:name="com.baidu.android.pushservice.CommandService"
+                android:exported="true"/>
+        <!-- push结束 -->
+
+        <!-- 此处Receiver名字修改为当前包名路径 -->
+        <receiver
+                android:name="com.mqt.ganghuazhifu.receiver.PushReceiver"
+                android:process=":bdservice_v1">
+            <intent-filter android:priority="1000">
+                <!-- 接收push消息 -->
+                <action android:name="com.baidu.android.pushservice.action.MESSAGE"/>
+                <!-- 接收bind、setTags等method的返回结果-->
+                <action android:name="com.baidu.android.pushservice.action.RECEIVE"/>
+                <!-- 接收通知点击事件，和通知自定义内容 -->
+                <action android:name="com.baidu.android.pushservice.action.notification.CLICK"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- push富媒体，不使用富媒体推送不需要 -->
+        <activity
+                android:name="com.baidu.android.pushservice.richmedia.MediaViewActivity"
+                android:configChanges="orientation|keyboardHidden"
+                android:label="MediaViewActivity"/>
+        <activity
+                android:name="com.baidu.android.pushservice.richmedia.MediaListActivity"
+                android:configChanges="orientation|keyboardHidden"
+                android:label="MediaListActivity"
+                android:launchMode="singleTask"/>
+        <!-- push富媒体结束 -->
+
+
+        <service android:name="com.amap.api.location.APSService"/>
+
+        <!-- The authenticator service -->
+        <service
+                android:name="com.mqt.ganghuazhifu.service.AuthenticatorService"
+                android:enabled="true"
+                android:process=":auth"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                    android:name="android.accounts.AccountAuthenticator"
+                    android:resource="@xml/authenticator"/>
+        </service>
+
+        <activity
+                android:name="com.github.mzule.activityrouter.router.RouterActivity"
+                android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="mqt"/>
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

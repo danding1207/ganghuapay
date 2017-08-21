@@ -1,0 +1,119 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/invoice_bg"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="2dp"
+        tools:context=".MainActivity">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp">
+
+        <TextView
+                android:id="@+id/tv_invoice_payeeName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:layout_marginLeft="4dp"
+                android:text="泰州港华有限责任公司"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_button"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:padding="6dp"
+    >
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="购方名称："
+                android:textColor="@color/wdqb_gray"
+                android:textSize="@dimen/font_size_Medium"/>
+
+        <TextView
+                android:id="@+id/tv_invoice_taitou"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="雷杨"
+                android:gravity="right"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp"
+    >
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="发票金额："
+                android:textColor="@color/wdqb_gray"
+                android:textSize="@dimen/font_size_Medium"/>
+
+        <TextView
+                android:id="@+id/tv_invoice_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="134.3"
+                android:gravity="right"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp"
+    >
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="开票时间："
+                android:textColor="@color/wdqb_gray"
+                android:textSize="@dimen/font_size_Medium"/>
+
+        <TextView
+                android:id="@+id/tv_invoice_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2017-05-12"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium"/>
+    </LinearLayout>
+
+</LinearLayout>

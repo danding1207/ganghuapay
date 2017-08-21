@@ -1,0 +1,200 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:context=".MainActivity" >
+
+    <ImageView
+        android:id="@+id/iv_water_bill_status"
+        android:layout_width="wrap_content"
+        android:layout_height="240dp"
+        android:src="@drawable/bill_left_pic_done_short" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="253dp"
+        android:layout_marginRight="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/title_lay"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="6dp" >
+
+            <TextView
+                android:id="@+id/water_bill_FeeMonth"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="2014年8月"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="192dp"
+            android:padding="6dp"
+            android:background="@drawable/small_white_button"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+                <TextView
+                    android:id="@+id/water_bill_Index_Now"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="本期示度：503"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+
+                <TextView
+                    android:id="@+id/water_bill_WATER_NUM"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:gravity="left"
+                    android:text="水量：39.00..."
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium"
+                    android:visibility="visible" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+                <TextView
+                    android:id="@+id/water_bill_AMOUNT"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="账单金额：￥80.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+
+                <TextView
+                    android:id="@+id/water_bill_AMOUNT_YSF"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:gravity="left"
+                    android:text="用水费：￥80.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium"
+                    android:visibility="visible" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+                <TextView
+                    android:id="@+id/water_bill_AMOUNT_DZF"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="代征费用：￥90.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+
+                <TextView
+                    android:id="@+id/water_bill_AMOUNT_WYJ"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:gravity="left"
+                    android:text="违约金：￥80.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium"
+                    android:visibility="visible" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+                <TextView
+                    android:id="@+id/water_bill_DATE_Pay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="缴费日期：20151022"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+
+                <TextView
+                    android:id="@+id/water_bill_AMOUNT_Pay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:gravity="left"
+                    android:text="实缴金额：￥80.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium"
+                    android:visibility="visible" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="6dp" >
+
+                <TextView
+                    android:id="@+id/water_bill_AMOUNT_SQY"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="上期余额：￥80.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium" />
+
+                <TextView
+                    android:id="@+id/water_bill_AMOUNT_YE"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:gravity="left"
+                    android:text="气费余额：￥80.00"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium"
+                    android:visibility="visible" />
+            </LinearLayout>
+            
+        </LinearLayout>
+        
+    </LinearLayout>
+
+</LinearLayout>

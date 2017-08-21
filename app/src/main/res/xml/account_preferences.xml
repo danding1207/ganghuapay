@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="账号设置">
+        <CheckBoxPreference
+            android:key="checkbox_preference"
+            android:summary="选中后，登录时无需输入密码（修改密码后可能登陆失败）"
+            android:title="是否记住密码" />
+    </PreferenceCategory>
+</PreferenceScreen>

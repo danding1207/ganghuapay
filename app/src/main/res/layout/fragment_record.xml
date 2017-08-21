@@ -1,0 +1,103 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:background="@color/main_bg"
+             android:layout_height="match_parent"
+             android:orientation="vertical"
+             tools:context=".MainActivity">
+
+    <LinearLayout
+            android:id="@+id/linearLayout_frameLayout_1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+    >
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:background="@drawable/record_head_bg"
+                android:padding="1dp"
+        >
+
+            <TextView
+                    android:id="@+id/tv_unPay"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="待/已付款"
+                    android:textSize="@dimen/font_size_Medium"
+                    android:textColor="@color/white"
+                    android:background="@drawable/record_head_press"
+
+                    android:gravity="center"
+                    android:padding="6dp"
+            />
+
+            <TextView
+                    android:id="@+id/tv_all"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="全部"
+                    android:textSize="@dimen/font_size_Medium"
+                    android:textColor="@color/dark_green_slow"
+                    android:background="@null"
+                    android:gravity="center"
+                    android:padding="6dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginRight="6dp"
+            />
+
+
+            <LinearLayout
+                    android:id="@+id/linearLayout_fenlei"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:background="@null"
+            >
+
+                <TextView
+                        android:id="@+id/tv_fenlei"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="分类"
+                        android:textSize="@dimen/font_size_Medium"
+                        android:textColor="@color/dark_green_slow"
+                        android:gravity="center"
+                />
+
+                <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/record_head_field"
+                        android:layout_marginLeft="4dp"
+                />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <com.lhh.ptrrv.library.PullToRefreshRecyclerView
+                android:id="@+id/list_recorder"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:scrollbars="none"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                android:divider="@null"
+                android:dividerHeight="0px"
+        />
+
+    </LinearLayout>
+
+    <include layout="@layout/popupwindow"
+             android:visibility="gone"
+    />
+
+</FrameLayout>

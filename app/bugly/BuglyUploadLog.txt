@@ -1,0 +1,12 @@
+file=/Users/danding1207/Desktop/Ganghuazhifu/app/build/outputs/mapping/debug/mapping.txt
+sha1=b732668ea989e5dee69a56ecb5ca0ce443399f88
+appId=900027303
+
+file=/Users/danding1207/Desktop/Ganghuazhifu/app/build/outputs/mapping/debug/mapping.txt
+sha1=b732668ea989e5dee69a56ecb5ca0ce443399f88
+appId=900027303
+
+file=/Users/danding1207/Desktop/Ganghuazhifu/app/build/outputs/mapping/debug/mapping.txt
+sha1=b732668ea989e5dee69a56ecb5ca0ce443399f88
+appId=900027303
+

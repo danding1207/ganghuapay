@@ -1,0 +1,567 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fitsSystemWindows="true">
+
+    <data>
+
+        <import type="android.view.View"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/main_bg"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:context=".MainActivity">
+
+        <android.support.design.widget.AppBarLayout
+                android:id="@+id/appBarLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                tools:layout_constraintTop_creator="1"
+                tools:layout_constraintRight_creator="1"
+                app:layout_constraintRight_toRightOf="parent"
+                tools:layout_constraintLeft_creator="1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+        >
+
+            <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/title_bg"
+                    app:layout_collapseMode="pin"
+                    tools:layout_editor_absoluteX="0dp"
+                    tools:layout_editor_absoluteY="0dp">
+
+                <TextView
+                        android:id="@+id/tv_title_right"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|right"
+                        android:layout_marginRight="4dp"
+                        android:padding="6dp"
+                        android:text="明细"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_button"
+                        android:visibility="invisible"/>
+
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.AppBarLayout>
+
+
+        <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:scrollbars="none"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/button_payment"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+                android:layout_marginRight="8dp" app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginLeft="8dp" app:layout_constraintLeft_toLeftOf="parent">
+
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                <LinearLayout
+                        android:id="@+id/ll_account_number"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_account_number"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="户号：123213142131"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_phonography_number"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_phonography_number"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="速记号：123213142131"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_account_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_account_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="客户名：张无忌"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_account_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_account_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="地址：北京市海淀区**家园***102室"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_nanjing_FeeCount"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_nanjing_FeeCount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="账期数目：4"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_nanjing_QuerySeq"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_nanjing_QuerySeq"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="查询序列号：4632141325426"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_owe_amount"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_owe_amount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="应收总额：460.00元"
+                            android:textColor="@color/dark_green_slow"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_yu_amount"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:visibility="gone"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_yu_amount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="预存余额：560.00元"
+                            android:textColor="@color/dark_green_slow"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_money_all"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_money_all"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical|left"
+                            android:text="实缴总金额(￥) ："
+                            android:textColor="@color/dark_green_slow"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                    <com.mqt.ganghuazhifu.view.NullMenuEditText
+                            android:id="@+id/et_yucun"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:maxLength="8"
+                            android:inputType="numberDecimal"
+                            android:padding="8dp"
+                            android:singleLine="true"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_limit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp" android:visibility="gone">
+
+                    <TextView
+                            android:id="@+id/tv_limit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="请您注意预存部分不予开具发票，发票金额以实际账单金额为准"
+                            android:textColor="@color/red"
+                            android:textSize="@dimen/font_size_small"
+                            android:visibility="visible"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp"
+                        android:background="@color/main_bg" android:visibility="gone"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_fapiao"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp" android:visibility="gone">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="开具发票"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                    <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="2dp"
+                            android:gravity="right"
+                            android:orientation="horizontal">
+
+                        <com.mqt.ganghuazhifu.view.SwitchButton
+                                android:id="@+id/switchButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+
+                                android:enabled="true"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_fapiaoleixing"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:visibility="gone"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="发票类型"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                    <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="2dp"
+                            android:gravity="right"
+                            android:orientation="horizontal">
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="12dp"
+                                android:text="电子发票"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/font_size_Medium"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_fapiaoneirong"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:visibility="gone"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="发票内容"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                    <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="2dp"
+                            android:gravity="right"
+                            android:orientation="horizontal">
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="12dp"
+                                android:text="燃气费"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/font_size_Medium"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_fapiaotaitou"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:visibility="gone"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="发票抬头:"
+                            android:singleLine="true"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                    <EditText
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="请输入发票抬头，如：个人"
+                            android:background="@null"
+                            android:layout_marginLeft="8dp"
+                    />
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_yucun_tip"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:visibility="gone"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_yucun_tip"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="12dp"
+                            android:layout_marginRight="12dp"
+                            android:gravity="left|center"
+                            android:text="请先交清营业费，再次查询后可以进行预存"
+                            android:textColor="#f00"
+                            android:textSize="@dimen/font_size_large"/>
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <TextView
+                            android:id="@+id/tv_explainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="12dp"
+                            android:layout_marginRight="12dp"
+                            android:gravity="left|center"
+                            android:textColor="#f00"
+                            android:text=""
+                            android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <android.support.v7.widget.CardView
+                android:id="@+id/button_payment"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="0dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="#46872B"
+                tools:layout_constraintBottom_creator="1"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                    android:id="@+id/tv_button_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/font_size_Medium"/>
+        </android.support.v7.widget.CardView>
+
+        <com.mqt.ganghuazhifu.view.ShuiyinView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/shuiyin"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

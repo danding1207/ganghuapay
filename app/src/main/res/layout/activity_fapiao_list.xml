@@ -1,0 +1,73 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fitsSystemWindows="true">
+
+    <data>
+
+        <import type="android.view.View"/>
+    </data>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/main_bg"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:context=".MainActivity">
+
+        <android.support.design.widget.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true">
+
+            <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@drawable/title_bg"
+                    app:layout_collapseMode="pin"/>
+        </android.support.design.widget.AppBarLayout>
+
+        <LinearLayout
+                android:id="@+id/ll_fapiaoneirong"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="我的发票"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium"/>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="2dp"
+                    android:gravity="right"
+                    android:orientation="horizontal">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:text="共3张"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <com.lhh.ptrrv.library.PullToRefreshRecyclerView
+                android:id="@+id/list_fapiao"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="@null"
+        />
+
+    </LinearLayout>
+</layout>

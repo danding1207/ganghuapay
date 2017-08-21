@@ -1,0 +1,259 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fitsSystemWindows="true">
+
+    <data>
+
+        <import type="android.view.View"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/main_bg"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:context=".MainActivity">
+
+
+        <android.support.design.widget.AppBarLayout
+                android:id="@+id/appBarLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                tools:layout_constraintTop_creator="1"
+                tools:layout_constraintRight_creator="1"
+                app:layout_constraintRight_toRightOf="parent"
+                tools:layout_constraintLeft_creator="1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+        >
+
+            <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/title_bg"
+                    app:layout_collapseMode="pin"
+                    tools:layout_editor_absoluteX="0dp"
+                    tools:layout_editor_absoluteY="0dp"/>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <LinearLayout
+                android:id="@+id/webView_before_1"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                tools:layout_constraintTop_creator="1" tools:layout_constraintRight_creator="1"
+                tools:layout_constraintBottom_creator="1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent" android:layout_marginTop="0dp"
+                app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+                tools:layout_constraintLeft_creator="1" android:layout_marginBottom="0dp"
+                app:layout_constraintLeft_toLeftOf="parent" android:layout_marginLeft="0dp"
+                android:layout_marginRight="0dp">
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:id="@+id/tv_orderNb_before"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <TextView
+                        android:id="@+id/tv_name_before"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <TextView
+                        android:id="@+id/tv_orderSetTime_before"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+                <TextView
+                        android:id="@+id/tv_amount_before"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_Medium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/ll_pay_ways"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:visibility="invisible"
+                    android:orientation="vertical">
+
+                <LinearLayout
+                        android:visibility="visible"
+                        android:id="@+id/ll_weixin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="8dp"
+                >
+
+                    <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="34dp"
+                            android:src="@drawable/_weixin"/>
+
+                    <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_marginLeft="12dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                        <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:orientation="horizontal">
+
+                            <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="微信支付"
+                                    android:textColor="@color/black"
+                                    android:textSize="@dimen/font_size_large"
+                            />
+
+                            <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="14dp"
+                                    android:layout_marginLeft="4dp"
+                                    android:src="@drawable/wenxintuijian"/>
+
+                        </LinearLayout>
+
+
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="亿万用户选择，更快更安全"
+                                android:textColor="@color/gray"
+                                android:textSize="@dimen/font_size_small"/>
+
+                    </LinearLayout>
+
+                    <CheckBox
+                            android:id="@+id/checkBox_weixin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:clickable="false"
+                    />
+
+                </LinearLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/slow_gray"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_yinhang"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                    <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/yinhangka"/>
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="12dp"
+                            android:text="银行卡支付"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_large"/>
+
+                    <CheckBox
+                            android:id="@+id/checkBox_yinhang"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="false"
+                            android:clickable="false"
+                    />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <android.support.v7.widget.CardView
+                    android:id="@+id/cardView_go_pay_kuaiqian"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginTop="72dp"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="#46872B">
+
+                <TextView
+                        android:id="@+id/tv_go_pay_kuaiqian"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:gravity="center"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:text="支付"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/font_size_Medium"/>
+
+            </android.support.v7.widget.CardView>
+
+            <TextView
+                    android:id="@+id/tv_explainer_before_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:text="由于系统在23:00之后会自动取消当日的订单，请在提交订单后尽快完成支付。"
+                    android:textColor="#f00"
+                    android:textSize="@dimen/font_size_button"
+                    android:visibility="invisible"/>
+        </LinearLayout>
+
+        <com.mqt.ganghuazhifu.view.ShuiyinView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/shuiyin"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

@@ -1,0 +1,210 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fitsSystemWindows="true">
+
+    <data>
+
+        <import type="android.view.View"/>
+    </data>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/login_bg"
+            android:orientation="vertical"
+            tools:context=".MainActivity">
+
+        <android.support.design.widget.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true">
+
+            <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@drawable/title_bg"
+                    app:layout_collapseMode="pin"></android.support.v7.widget.Toolbar>
+        </android.support.design.widget.AppBarLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/dashed_line_bounding_box"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+            <TextView
+                    android:id="@+id/tv_explain"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="张三丰，您好！"
+                    android:textColor="@color/dark_green_slow"
+                    android:textSize="@dimen/font_size_large"/>
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="您正在找回密码，请验证手机号码，并设置新的密码。"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/font_size_large"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+            <EditText
+                    android:id="@+id/et_extra_code"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="50dp"
+                    android:background="@drawable/small_edittext_bg"
+                    android:digits="1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                    android:hint="请输入附加码"
+                    android:inputType="text"
+                    android:maxLength="4"
+                    android:padding="8dp"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium"
+            />
+
+            <ImageView
+                    android:id="@+id/forget_security_image"
+                    android:layout_width="140dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_height="50dp"
+                    android:background="#00ffffff"
+            />
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+            <EditText
+                    android:id="@+id/et_phonevalidate"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/small_edittext_bg"
+                    android:digits="1234567890"
+                    android:hint="请输入验证码"
+                    android:inputType="number"
+                    android:maxLength="6"
+                    android:padding="8dp"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_Medium"/>
+
+            <com.mqt.ganghuazhifu.view.ValidateButton
+                    android:id="@+id/tv_get_yzm"
+                    android:layout_width="140dp"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="12dp"
+                    android:background="@drawable/unity_green_button"
+                    android:gravity="center"
+                    android:padding="6dp"
+                    android:text="获取验证码"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/font_size_Medium"/>
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/phone_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="12dp"
+                android:text="您好，请注意查收发往手机139xxxxxxxx手机的验证码信息。"
+                android:textColor="@color/red"
+                android:textSize="@dimen/font_size_Medium"
+                android:visibility="gone"/>
+
+        <EditText
+                android:id="@+id/et_password"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/small_edittext_bg"
+                android:drawablePadding="4dp"
+                android:hint="输入新密码"
+                android:inputType="textWebPassword"
+                android:maxLength="30"
+                android:padding="8dp"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium"/>
+
+        <EditText
+                android:id="@+id/et_password_again"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/small_edittext_bg"
+                android:drawablePadding="4dp"
+                android:hint="再次输入新密码"
+                android:inputType="textWebPassword"
+                android:maxLength="30"
+                android:padding="8dp"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium"/>
+
+        <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="3"/>
+
+        <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="#46872B">
+
+            <TextView
+                    android:id="@+id/tv_next"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="提交"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/font_size_large"/>
+        </android.support.v7.widget.CardView>
+
+        <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="3"/>
+
+    </LinearLayout>
+</layout>

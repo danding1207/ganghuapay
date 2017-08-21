@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@drawable/loading_dialog_bg"
+              android:gravity="center"
+              android:orientation="vertical"
+              android:padding="12dp">
+    <ProgressBar android:id="@+id/dance_view" android:layout_width="30.0dip"
+                 android:layout_height="30.0dip"
+                 android:indeterminateDrawable="@drawable/white_color_progress_bar"
+                 android:layout_centerHorizontal="true"/>
+
+    <TextView android:textSize="@dimen/font_size_Medium"
+              android:textColor="@color/white"
+              android:ellipsize="end" android:gravity="center"
+              android:id="@+id/id_tv_loadingmsg"
+              android:visibility="visible"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="5.0dip"
+              android:text="加载中..." android:maxLines="2"/>
+
+</LinearLayout>

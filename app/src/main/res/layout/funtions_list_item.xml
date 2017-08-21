@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:layout_marginBottom="2dp"
+    android:layout_marginLeft="12dp"
+    android:layout_marginRight="12dp"
+    android:layout_marginTop="4dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardBackgroundColor="#EFEFEF"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:id="@+id/linearLayout_version"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/tv_funtions_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="版本检测"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_Medium" />
+
+        <TextView
+            android:id="@+id/tv_funtions_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/tip_bg"
+            android:gravity="center_vertical"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:text="new"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_size_Medium"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_funtions_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="right"
+            android:singleLine="true"
+            android:text="的功夫好看"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_Medium" />
+
+        <ImageView
+            android:id="@+id/iv_filed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:src="@drawable/ic_action_filed" />
+    </LinearLayout>
+</android.support.v7.widget.CardView>

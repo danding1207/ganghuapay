@@ -1,0 +1,179 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout_popwindows"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#70000000"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/linearLayout_container"
+        android:layout_width="match_parent"
+        android:layout_height="348dp"
+        android:background="@drawable/login_small_bg"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:gravity="center_vertical"
+            android:text="时间筛选"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_Medium" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_start_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/small_edittext_bg"
+                android:gravity="center"
+                android:padding="6dp" />
+
+            <TextView
+                android:id="@+id/tv_end_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/small_edittext_bg"
+                android:gravity="center"
+                android:padding="6dp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:text="业务类型"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_Medium" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup_category"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButton_category_0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/popwindow_radiobutton_bg"
+                android:button="@null"
+                android:checked="true"
+                android:gravity="center"
+                android:padding="6dp"
+                android:text="全部"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+
+            <RadioButton
+                android:id="@+id/radioButton_category_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/popwindow_radiobutton_bg"
+                android:button="@null"
+                android:gravity="center"
+                android:padding="6dp"
+                android:text="气费"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+
+            <RadioButton
+                android:id="@+id/radioButton_category_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/popwindow_radiobutton_bg"
+                android:button="@null"
+                android:gravity="center"
+                android:padding="6dp"
+                android:text="营业费"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+
+            <RadioButton
+                android:id="@+id/radioButton_category_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/popwindow_radiobutton_bg"
+                android:button="@null"
+                android:gravity="center"
+                android:padding="6dp"
+                android:text="水费"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium" />
+
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:text="交易状态"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_Medium" />
+
+        <Spinner
+            android:id="@+id/spinner_popupwindow"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/small_white_button"
+            android:gravity="center"
+            android:spinnerMode="dropdown" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:text="关键字"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_Medium" />
+
+        <EditText
+            android:id="@+id/et_popwidow_search"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/small_edittext_bg"
+            android:hint="请输入订单号"
+            android:padding="6dp"
+            android:digits="0123456789"
+            android:maxLength="28"
+            android:singleLine="true"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_Medium" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout_ignole"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"></LinearLayout>
+
+
+</LinearLayout>

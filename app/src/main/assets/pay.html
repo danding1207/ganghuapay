@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript">
+	function setValueForKuaiQian(inputCharset, pageUrl, bgUrl, version,
+			language, signType, merchantAcctId, payerName, payerContactType,
+			payerContact, orderId, orderAmount, orderTime, productName,
+			productNum, productId, productDesc, ext1, ext2, payType, bankId,
+			redoFlag, pid, mobileGateway, payerIdType, payerId, signMsg,
+			SubmitURL) {
+		document.getElementById("inputCharset").value = inputCharset.toString();
+
+		alert("inputCharset  :  "
+				+ document.getElementById("inputCharset").value);
+
+		document.getElementById("pageUrl").value = pageUrl.toString();
+
+		alert("pageUrl  :  " + document.getElementById("pageUrl").value);
+
+		document.getElementById("bgUrl").value = bgUrl.toString();
+
+		alert("bgUrl  :  " + document.getElementById("bgUrl").value);
+
+		document.getElementById("version").value = version.toString();
+
+		alert("version  :  " + document.getElementById("version").value);
+
+		document.getElementById("language").value = language.toString();
+
+		alert("language  :  " + document.getElementById("language").value);
+
+		document.getElementById("signType").value = signType.toString();
+
+		alert("signType  :  " + document.getElementById("signType").value);
+
+		document.getElementById("merchantAcctId").value = merchantAcctId
+				.toString();
+
+		alert("merchantAcctId  :  "
+				+ document.getElementById("merchantAcctId").value);
+
+		document.getElementById("payerName").value = payerName.toString();
+
+		alert("payerName  :  " + document.getElementById("payerName").value);
+
+		document.getElementById("payerContactType").value = payerContactType
+				.toString();
+
+		alert("payerContactType  :  "
+				+ document.getElementById("payerContactType").value);
+
+		document.getElementById("payerContact").value = payerContact.toString();
+
+		alert("payerContact  :  "
+				+ document.getElementById("payerContact").value);
+
+		document.getElementById("orderId").value = orderId.toString();
+
+		alert("orderId  :  " + document.getElementById("orderId").value);
+
+		document.getElementById("orderAmount").value = orderAmount.toString();
+
+		alert("orderAmount  :  " + document.getElementById("orderAmount").value);
+
+		document.getElementById("orderTime").value = orderTime.toString();
+
+		alert("orderTime  :  " + document.getElementById("orderTime").value);
+
+		document.getElementById("productName").value = productName.toString();
+
+		alert("productName  :  " + document.getElementById("productName").value);
+
+		document.getElementById("productNum").value = productNum.toString();
+
+		alert("productNum  :  " + document.getElementById("productNum").value);
+
+		document.getElementById("productId").value = productId.toString();
+
+		alert("productId  :  " + document.getElementById("productId").value);
+
+		document.getElementById("productDesc").value = productDesc.toString();
+
+		alert("productDesc  :  " + document.getElementById("productDesc").value);
+
+		document.getElementById("ext1").value = ext1.toString();
+
+		alert("ext1  :  " + document.getElementById("ext1").value);
+
+		document.getElementById("ext2").value = ext2.toString();
+
+		alert("ext2  :  " + document.getElementById("ext2").value);
+
+		document.getElementById("payType").value = payType.toString();
+
+		alert("payType  :  " + document.getElementById("payType").value);
+
+		document.getElementById("bankId").value = bankId.toString();
+
+		alert("bankId  :  " + document.getElementById("bankId").value);
+
+		document.getElementById("redoFlag").value = redoFlag.toString();
+
+		alert("redoFlag  :  " + document.getElementById("redoFlag").value);
+
+		document.getElementById("pid").value = pid.toString();
+
+		alert("pid  :  " + document.getElementById("pid").value);
+
+		document.getElementById("mobileGateway").value = mobileGateway
+				.toString();
+
+		alert("mobileGateway  :  "
+				+ document.getElementById("mobileGateway").value);
+
+		document.getElementById("payerIdType").value = payerIdType.toString();
+
+		alert("payerIdType  :  " + document.getElementById("payerIdType").value);
+
+		document.getElementById("payerId").value = payerId.toString();
+
+		alert("payerId  :  " + document.getElementById("payerId").value);
+
+		document.getElementById("signMsg").value = signMsg.toString();
+
+		alert("signMsg  :  " + document.getElementById("signMsg").value);
+
+		alert("SubmitURL  :  " + SubmitURL.toString());
+
+		document.getElementById("kqPay").action = SubmitURL.toString();
+
+		document.kqPay.action = SubmitURL.toString();
+
+		alert("SubmitURL  :  " + document.getElementById("kqPay").action);
+
+		document.getElementById("kqPay").submit();
+
+		alert("Submit");
+	}
+
+	function setValueForGongHang(InterFaceName, InterFaceVersion, TranData,
+			MerSignMsg, MerCert, SubmitURL) {
+
+		document.getElementById("interfaceName").value = InterFaceName
+				.toString();
+		alert("InterFaceName  :  "
+				+ document.getElementById("interfaceName").value);
+
+		document.getElementById("interfaceVersion").value = InterFaceVersion
+				.toString();
+		alert("InterFaceVersion  :  "
+				+ document.getElementById("interfaceVersion").value);
+
+		document.getElementById("tranData").value = TranData.toString();
+		alert("TranData  :  " + document.getElementById("tranData").value);
+
+		document.getElementById("merSignMsg").value = MerSignMsg.toString();
+		alert("MerSignMsg  :  " + document.getElementById("merSignMsg").value);
+
+		document.getElementById("merCert").value = MerCert.toString();
+
+		alert("MerCert  :  " + document.getElementById("merCert").value);
+
+		alert("SubmitURL  :  " + SubmitURL.toString());
+
+		document.getElementById("ghPay").action = SubmitURL.toString();
+
+		document.ghPay.action = SubmitURL.toString();
+
+		alert("SubmitURL  :  " + document.getElementById("ghPay").action);
+
+		document.getElementById("ghPay").submit();
+
+		alert("Submit");
+	}
+
+	function myfun() {
+		alert("this window.onload");
+
+		document.getElementById("inputCharset").value = KuaiQianInterface
+				.getInputCharset();
+		;
+
+		alert("inputCharset  :  "
+				+ document.getElementById("inputCharset").value);
+
+		document.getElementById("pageUrl").value = KuaiQianInterface
+				.getPageUrl();
+
+		alert("pageUrl  :  " + document.getElementById("pageUrl").value);
+
+		document.getElementById("bgUrl").value = KuaiQianInterface.getBgUrl();
+
+		alert("bgUrl  :  " + document.getElementById("bgUrl").value);
+
+		document.getElementById("version").value = KuaiQianInterface
+				.getVersion();
+
+		alert("version  :  " + document.getElementById("version").value);
+
+		document.getElementById("language").value = KuaiQianInterface
+				.getLanguage();
+
+		alert("language  :  " + document.getElementById("language").value);
+
+		document.getElementById("signType").value = KuaiQianInterface
+				.getSignType();
+
+		alert("signType  :  " + document.getElementById("signType").value);
+
+		document.getElementById("merchantAcctId").value = KuaiQianInterface
+				.getMerchantAcctId();
+
+		alert("merchantAcctId  :  "
+				+ document.getElementById("merchantAcctId").value);
+
+		document.getElementById("payerName").value = KuaiQianInterface
+				.getPayerName();
+
+		alert("payerName  :  " + document.getElementById("payerName").value);
+
+		document.getElementById("payerContactType").value = KuaiQianInterface
+				.getPayerContactType();
+
+		alert("payerContactType  :  "
+				+ document.getElementById("payerContactType").value);
+
+		document.getElementById("payerContact").value = KuaiQianInterface
+				.getPayerContact();
+
+		alert("payerContact  :  "
+				+ document.getElementById("payerContact").value);
+
+		document.getElementById("orderId").value = KuaiQianInterface
+				.getOrderId();
+
+		alert("orderId  :  " + document.getElementById("orderId").value);
+
+		document.getElementById("orderAmount").value = KuaiQianInterface
+				.getOrderAmount();
+
+		alert("orderAmount  :  " + document.getElementById("orderAmount").value);
+
+		document.getElementById("orderTime").value = KuaiQianInterface
+				.getOrderTime();
+
+		alert("orderTime  :  " + document.getElementById("orderTime").value);
+
+		document.getElementById("productName").value = KuaiQianInterface
+				.getProductName();
+
+		alert("productName  :  " + document.getElementById("productName").value);
+
+		document.getElementById("productNum").value = KuaiQianInterface
+				.getProductNum();
+
+		alert("productNum  :  " + document.getElementById("productNum").value);
+
+		document.getElementById("productId").value = KuaiQianInterface
+				.getProductId();
+
+		alert("productId  :  " + document.getElementById("productId").value);
+
+		document.getElementById("productDesc").value = KuaiQianInterface
+				.getProductDesc();
+
+		alert("productDesc  :  " + document.getElementById("productDesc").value);
+
+		document.getElementById("ext1").value = KuaiQianInterface.getExt1();
+
+		alert("ext1  :  " + document.getElementById("ext1").value);
+
+		document.getElementById("ext2").value = KuaiQianInterface.getExt2();
+
+		alert("ext2  :  " + document.getElementById("ext2").value);
+
+		document.getElementById("payType").value = KuaiQianInterface
+				.getPayType();
+
+		alert("payType  :  " + document.getElementById("payType").value);
+
+		document.getElementById("bankId").value = KuaiQianInterface.getBankId();
+
+		alert("bankId  :  " + document.getElementById("bankId").value);
+
+		document.getElementById("redoFlag").value = KuaiQianInterface
+				.getRedoFlag();
+
+		alert("redoFlag  :  " + document.getElementById("redoFlag").value);
+
+		document.getElementById("pid").value = KuaiQianInterface.getPid();
+
+		alert("pid  :  " + document.getElementById("pid").value);
+
+		document.getElementById("mobileGateway").value = KuaiQianInterface
+				.getMobileGateway();
+
+		alert("mobileGateway  :  "
+				+ document.getElementById("mobileGateway").value);
+
+		document.getElementById("payerIdType").value = KuaiQianInterface
+				.getPayerIdType();
+
+		alert("payerIdType  :  " + document.getElementById("payerIdType").value);
+
+		document.getElementById("payerId").value = KuaiQianInterface
+				.getPayerId();
+
+		alert("payerId  :  " + document.getElementById("payerId").value);
+
+		document.getElementById("signMsg").value = KuaiQianInterface
+				.getSignMsg();
+
+		alert("signMsg  :  " + document.getElementById("signMsg").value);
+
+		alert("SubmitURL  :  " + KuaiQianInterface.getSubmitURL());
+
+		document.getElementById("kqPay").action = KuaiQianInterface
+				.getSubmitURL();
+
+		document.kqPay.action = KuaiQianInterface.getSubmitURL();
+
+		alert("SubmitURL  :  " + document.getElementById("kqPay").action);
+
+		document.getElementById("kqPay").submit();
+
+		alert("Submit");
+
+	}
+
+	document.onload = myfun;//此方法应在在这条语句之前就被定义。
+
+	window.onload = myfun;
+	
+</script>
+
+</head>
+<body>
+	<form id="kqPay" name="kqPay" action="" method="post">
+		<input type="hidden" id="inputCharset" name="inputCharset" /> <input
+			type="hidden" id="pageUrl" name="pageUrl" /> <input type="hidden"
+			id="bgUrl" name="bgUrl" /> <input type="hidden" id="version"
+			name="version" /> <input type="hidden" id="language" name="language" />
+		<input type="hidden" id="signType" name="signType" /> <input
+			type="hidden" id="signMsg" name="signMsg" /> <input type="hidden"
+			id="merchantAcctId" name="merchantAcctId" /> <input type="hidden"
+			id="payerName" name="payerName" /> <input type="hidden"
+			id="payerContactType" name="payerContactType" /> <input
+			type="hidden" id="payerContact" name="payerContact" /> <input
+			type="hidden" id="orderId" name="orderId" /> <input type="hidden"
+			id="orderAmount" name="orderAmount" /> <input type="hidden"
+			id="orderTime" name="orderTime" /> <input type="hidden"
+			id="productName" name="productName" /> <input type="hidden"
+			id="productNum" name="productNum" /> <input type="hidden"
+			id="productId" name="productId" /> <input type="hidden"
+			id="productDesc" name="productDesc" /> <input type="hidden"
+			id="ext1" name="ext1" /> <input type="hidden" id="ext2" name="ext2" />
+		<input type="hidden" id="payType" name="payType" /> <input
+			type="hidden" id="bankId" name="bankId" /> <input type="hidden"
+			id="redoFlag" name="redoFlag" /> <input type="hidden" id="pid"
+			name="pid" /> <input type="hidden" name="mobileGateway"
+			id="mobileGateway" /> <input type="hidden" id="payerIdType"
+			name="payerIdType" /> <input type="hidden" id="payerId"
+			name="payerId" />
+	</form>
+
+	<form id="ghPay" action="" name="ghPay" method="post">
+		<input type="hidden" id="interfaceName" name="interfaceName" /> <input
+			type="hidden" id="interfaceVersion" name="interfaceVersion" /> <input
+			type="hidden" id="tranData" name="tranData" /> <input type="hidden"
+			id="merSignMsg" name="merSignMsg" /> <input type="hidden"
+			id="merCert" name="merCert" /> <input type="hidden" id="clientType"
+			name="clientType" value="0" />
+	</form>
+
+</body>
+</html>

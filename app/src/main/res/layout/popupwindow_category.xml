@@ -1,0 +1,51 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".MainActivity" 
+    android:background="#D8D8D8"
+    android:gravity="center"
+    >
+    
+    <TextView 
+        android:id="@+id/tv_gas"
+        android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+        android:text="气费"
+        android:padding="4dp"
+        android:textColor="@color/dark_green_slow"
+        android:textSize="@dimen/font_size_Medium"
+        />
+    
+    <View 
+        android:layout_width="100dp"
+        android:layout_height="1px"
+        android:background="@drawable/cutting_line_city_list"
+        />
+    
+    <TextView 
+        android:id="@+id/tv_busi"
+        android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+        android:text="营业费"
+        android:padding="4dp"
+        android:textColor="@color/dark_green_slow"
+        android:textSize="@dimen/font_size_Medium"
+        />
+    <View 
+        android:layout_width="100dp"
+        android:layout_height="1px"
+        android:background="@drawable/cutting_line_city_list"
+        />
+    <TextView 
+        android:id="@+id/tv_water"
+        android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+        android:text="水费"
+        android:padding="4dp"
+        android:textColor="@color/dark_green_slow"
+        android:textSize="@dimen/font_size_Medium"
+        />
+    
+</LinearLayout>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="blue_bg">#1CC6EB</color>
+
+    <color name="main_bg">#E6E6E6</color>
+    <color name="default_bg">#F4F6F7</color>
+    <color name="dark_green">#004F61</color>
+    <color name="dark_green_slow">#46872B</color>
+    <color name="green_slow">#589E38</color>
+    <color name="slow_blue">#00C9E9</color>
+    <color name="dark_blue">#546979</color>
+    <color name="blue">#546979</color>
+    <color name="white">#fff</color>
+    <color name="black">#000</color>
+    <color name="red">#f00</color>
+    <color name="clarity">#0000</color>
+    <color name="main_menu_gray">#AAA</color>
+    <color name="gray">#909090</color>
+    
+    
+    <color name="dark_gray">#878A91</color>
+    <color name="orange">#EE6B57</color>
+    <color name="slow_gray">#D8D8D8</color>
+    <color name="slow_white">#eeeeee</color>
+    <!-- 标题栏 蓝色 -->
+    <color name="blue_title">#42CBF4</color>
+    <color name="home_page_button_yellow">#FFCE26</color>
+    <color name="home_page_button_blue">#26C2FF</color>
+
+    <color name="wdqb_cutting_line">#ede8e7</color>
+    <color name="wdqb_gray">#71767b</color>
+    <color name="wdqb_bg">#ffffff</color>
+    <color name="wdqb_black">#1b1b1b</color>
+
+    <color name="app2_blue2">#0000FF</color>
+    <color name="app2_grey1">#888888</color>
+    
+</resources>

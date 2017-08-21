@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/unity_list_touch_bg"
+    android:gravity="center_vertical"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ll_binded_bank"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp" >
+
+        <ImageView
+            android:id="@+id/iv_bank_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/abc" />
+
+        <TextView
+            android:id="@+id/tv_bank_num"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="农业银行借记卡（*0739）"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_Medium" />
+
+        <ImageView
+            android:id="@+id/iv_bank_setting"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="8dp"
+            android:src="@drawable/dialog_clarity" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/dark_gray" />
+
+</LinearLayout>
