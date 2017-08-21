@@ -43,7 +43,7 @@ class ResultForGasFeeActivity : BaseActivity() {
     private var type: Int = 0// 1:缴纳气费;2:缴纳营业费;7:NFC预存气费;8:营业费预存;
     // 9:蓝牙读卡器缴气费;11:IC卡气量表缴费;12:蓝牙表预存气费;13:气量表缴费蓝牙
     private var StaffPhone: String? = null
-//    private var flag: Boolean = false
+    //    private var flag: Boolean = false
     private var activityResultForGasFeeBinding: ActivityResultForGasFeeBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -514,10 +514,10 @@ class ResultForGasFeeActivity : BaseActivity() {
             2 ->
                 when (busiFeeResult!!.PayeeCode) {
                     "440000440100010072" -> {
-                        if(busiFeeResult!!.PRESAVING.isNotEmpty() &&
-                                busiFeeResult!!.PRESAVING.toDouble()>0 || (busiFeeResult!!.AllBusifee.isNotEmpty() &&
-                                busiFeeResult!!.AllBusifee.toDouble()==0.00)) {
-                        //预存
+                        if (busiFeeResult!!.PRESAVING.isNotEmpty() &&
+                                busiFeeResult!!.PRESAVING.toDouble() > 0 || (busiFeeResult!!.AllBusifee.isNotEmpty() &&
+                                busiFeeResult!!.AllBusifee.toDouble() == 0.00)) {
+                            //预存
                             activityResultForGasFeeBinding!!.tvButtonText.text = "预存"
                             activityResultForGasFeeBinding!!.etYucun.visibility = View.VISIBLE
                             activityResultForGasFeeBinding!!.tvMoneyAll.text = "实缴总金额：￥"
@@ -750,20 +750,27 @@ class ResultForGasFeeActivity : BaseActivity() {
         if (type == 1 || type == 9 || type == 10) {
             if (gasFeeResult != null && (gasFeeResult!!.PayeeCode == "320000320100019999" || gasFeeResult!!.PayeeCode == "320000321100019998")) {
                 if (!TextUtils.isEmpty(gasFeeResult!!.AllGasfee)) {
-                    amount = java.lang.Float.parseFloat(gasFeeResult!!.AllGasfee)
+                    amount = gasFeeResult!!.AllGasfee.toFloat()
                 } else {
                     amount = 0f
                 }
             } else {
                 if (!TextUtils.isEmpty(activityResultForGasFeeBinding!!.etYucun.text)) {
-                    amount = java.lang.Float.parseFloat(activityResultForGasFeeBinding!!.etYucun.text.toString())
+                    amount = activityResultForGasFeeBinding!!.etYucun.text.toString().toFloat()
                 } else {
                     amount = 0f
                 }
             }
+            if (amount <= 0) {
+                ToastUtil.toastWarning("请输入预存金额！")
+                return
+            } else if (amount < gasFeeResult!!.AllGasfee.toFloat()) {
+                ToastUtil.toastWarning("输入金额必须不小于欠费金额！")
+                return
+            }
         } else if (type == 7 || type == 12) {
             if (!TextUtils.isEmpty(activityResultForGasFeeBinding!!.etYucun.text)) {
-                amount = java.lang.Float.parseFloat(activityResultForGasFeeBinding!!.etYucun.text.toString())
+                amount = activityResultForGasFeeBinding!!.etYucun.text.toString().toFloat()
             } else {
                 amount = 0f
             }
@@ -778,7 +785,7 @@ class ResultForGasFeeActivity : BaseActivity() {
 
         } else if (type == 8) {
             if (!TextUtils.isEmpty(activityResultForGasFeeBinding!!.etYucun.text)) {
-                amount = java.lang.Float.parseFloat(activityResultForGasFeeBinding!!.etYucun.text.toString())
+                amount = activityResultForGasFeeBinding!!.etYucun.text.toString().toFloat()
             } else {
                 amount = 0f
             }
@@ -786,34 +793,31 @@ class ResultForGasFeeActivity : BaseActivity() {
                 ToastUtil.toastWarning("请输入预存金额！")
                 return
             }
-        } else {
-//            amount = java.lang.Float.parseFloat(busiFeeResult!!.AllBusifee)
+        } else if (type == 2) {
+            if (busiFeeResult!!.PayeeCode.equals("440000440100010072")) {
 
-            if(busiFeeResult!!.PayeeCode.equals("440000440100010072")) {
-
-                if(busiFeeResult!!.PRESAVING.isNotEmpty() &&
-                        busiFeeResult!!.PRESAVING.toDouble()>0 || (busiFeeResult!!.AllBusifee.isNotEmpty() &&
-                        busiFeeResult!!.AllBusifee.toDouble()==0.00)) {
+                if (busiFeeResult!!.PRESAVING.isNotEmpty() &&
+                        busiFeeResult!!.PRESAVING.toDouble() > 0 || (busiFeeResult!!.AllBusifee.isNotEmpty() &&
+                        busiFeeResult!!.AllBusifee.toDouble() == 0.00)) {
                     //预存
 
                     if (!TextUtils.isEmpty(activityResultForGasFeeBinding!!.etYucun.text)) {
-                        amount = java.lang.Float.parseFloat(activityResultForGasFeeBinding!!.etYucun.text.toString())
+                        amount = activityResultForGasFeeBinding!!.etYucun.text.toString().toFloat()
                     } else {
                         amount = 0f
                     }
                     if (amount <= 0) {
                         ToastUtil.toastWarning("请输入预存金额！")
                         return
-                    } else if(amount<(busiFeeResult!!.AllBusifee.toDouble()-busiFeeResult!!.PRESAVING.toDouble())) {
+                    } else if (amount < (busiFeeResult!!.AllBusifee.toFloat() - busiFeeResult!!.PRESAVING.toFloat())) {
                         ToastUtil.toastWarningLong("预存金额不能小于预存余额和欠费的差额！")
                         return
                     }
                 } else {
-                    amount = java.lang.Float.parseFloat(busiFeeResult!!.AllBusifee)
+                    amount = busiFeeResult!!.AllBusifee.toFloat()
                 }
 
             }
-
         }
 
         if (amount > 0) {
@@ -931,10 +935,10 @@ class ResultForGasFeeActivity : BaseActivity() {
                     PayeeCode = busiFeeResult!!.PayeeCode
                     UserAddr = busiFeeResult!!.UserAddr
                     QueryId = busiFeeResult!!.QueryId
-                    if(busiFeeResult!!.PayeeCode.equals("440000440100010072")) {
-                        if(busiFeeResult!!.PRESAVING.isNotEmpty() &&
-                                busiFeeResult!!.PRESAVING.toDouble()>0 || (busiFeeResult!!.AllBusifee.isNotEmpty() &&
-                                busiFeeResult!!.AllBusifee.toDouble()==0.00)) {
+                    if (busiFeeResult!!.PayeeCode.equals("440000440100010072")) {
+                        if (busiFeeResult!!.PRESAVING.isNotEmpty() &&
+                                busiFeeResult!!.PRESAVING.toDouble() > 0 || (busiFeeResult!!.AllBusifee.isNotEmpty() &&
+                                busiFeeResult!!.AllBusifee.toDouble() == 0.00)) {
                             //预存
                             Pmttp = "010003"
                         } else {
@@ -944,9 +948,6 @@ class ResultForGasFeeActivity : BaseActivity() {
                 }
             }
 
-//            if (flag) {
-//                Pmttp = "010003"
-//            }
             val user = EncryptedPreferencesUtils.getUser()
             val decimal = BigDecimal(amount.toDouble())
             val body = HttpRequestParams.getParamsForOrderSubmit(Pmttp,
