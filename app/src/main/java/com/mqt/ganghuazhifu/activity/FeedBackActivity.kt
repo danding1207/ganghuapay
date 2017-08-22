@@ -49,11 +49,9 @@ class FeedBackActivity : BaseActivity() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 activityFeedBackBinding!!.tvContentNum.text = String.format(getString(R.string.feed_back_num_tip), s.toString().length.toString())
             }
-
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int,
                                            after: Int) {
             }
-
             override fun afterTextChanged(s: Editable) {}
         })
     }

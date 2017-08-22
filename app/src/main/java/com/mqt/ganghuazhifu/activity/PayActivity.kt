@@ -207,7 +207,7 @@ open class PayActivity : BaseActivity() {
                 .show()
     }
 
-    private fun getKQPayData(orderNb: String) {
+    protected fun getKQPayData(orderNb: String) {
         val body = HttpRequestParams.getParamsForGetPayData(orderNb, "01", HttpURLS.BgPayUrl)
         post(HttpURLS.getPayData, true, "GetPayData", body, OnHttpRequestListener { isError, response, type, error ->
             if (isError) {
