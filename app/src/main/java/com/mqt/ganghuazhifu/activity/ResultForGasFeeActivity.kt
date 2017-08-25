@@ -590,25 +590,30 @@ class ResultForGasFeeActivity : BaseActivity() {
             }
             R.id.button_payment -> {
 
-                PaymentMethodDialog(this, PaymentMethodDialog.OnPaymentMethodSelectedListener {
-                    position ->
-                    run {
-                        when (position) {
-                            0 -> {
-                                when (type) {
-                                    13, 11 -> icChange()
-                                    else -> makeOrder()
-                                }
-                            }
-                            1 -> {
-                                when (type) {
-                                    13, 11 -> icChange()
-                                    else -> makeOrder()
-                                }
-                            }
-                        }
-                    }
-                }).showDialog()
+                when (type) {
+                    13, 11 -> icChange()
+                    else -> makeOrder()
+                }
+
+//                PaymentMethodDialog(this, PaymentMethodDialog.OnPaymentMethodSelectedListener {
+//                    position ->
+//                    run {
+//                        when (position) {
+//                            0 -> {
+//                                when (type) {
+//                                    13, 11 -> icChange()
+//                                    else -> makeOrder()
+//                                }
+//                            }
+//                            1 -> {
+//                                when (type) {
+//                                    13, 11 -> icChange()
+//                                    else -> makeOrder()
+//                                }
+//                            }
+//                        }
+//                    }
+//                }).showDialog()
 
             }
         }

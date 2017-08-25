@@ -577,9 +577,9 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                 BigDecimal toalBuyMoney = new BigDecimal(cardInfo.toalBuyMoney);
                 BigDecimal nfcTotalMoney = new BigDecimal(cardInfo.nfcTotalMoney);
 
-
                 BigDecimal toatalUseGas = new BigDecimal(cardInfo.toatalUseGas);
-                BigDecimal f = new BigDecimal(100);
+                BigDecimal f = new BigDecimal(1);
+//                BigDecimal f = new BigDecimal(100);
                 BigDecimal ten = new BigDecimal(10);
 
                 String nowPriceString = null;
@@ -674,7 +674,7 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
             return Observable.create((Observable.OnSubscribe<String>) subscriber -> {
                 CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "10",
                         serialNum[1], random8Hex1[1], null, null, null, null, null);
-                Logger.d(body.toString());
+                Logger.i(body.toString());
                 HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
                         "bluetooth", body, (isError, response, type, error) -> {
                             if (isError) {
@@ -899,7 +899,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
         BigDecimal toalBuyMoney = new BigDecimal(cardInfo.toalBuyMoney);
         BigDecimal toatalUseGas = new BigDecimal(cardInfo.toatalUseGas);
 
-        BigDecimal f = new BigDecimal(100);
+        BigDecimal f = new BigDecimal(1);
+//        BigDecimal f = new BigDecimal(100);
         BigDecimal ten = new BigDecimal(10);
 
         String thisMoneyString = null;

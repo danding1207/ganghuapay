@@ -262,7 +262,7 @@ public class ReadNFCActivity extends BaseActivity {
         if (isoDep != null) {
             try {
                 isoDep.connect();// 连接
-                PayResultBean bean = null;
+                PayResultBean bean;
                 Logger.d("encodeString=" + encodeString + "\ndesCmd=" + desCmd);
                 bean = SunNFC.addMoney(this, isoDep, encodeString, false, paramBean, desCmd);
                 // bean = SunNFC.addMoney(isoDep, encodeString);
@@ -552,7 +552,8 @@ public class ReadNFCActivity extends BaseActivity {
 
             BigDecimal toatalUseGas = new BigDecimal(bean.totalUse);
 
-            BigDecimal f = new BigDecimal(100);
+            BigDecimal f = new BigDecimal(1);
+//            BigDecimal f = new BigDecimal(100);
             BigDecimal ten = new BigDecimal(10);
 
             String nowPriceString = null;
@@ -687,7 +688,8 @@ public class ReadNFCActivity extends BaseActivity {
 
             BigDecimal toatalUseGas = new BigDecimal(bean.totalUse);
 
-            BigDecimal f = new BigDecimal(100);
+            BigDecimal f = new BigDecimal(1);
+//            BigDecimal f = new BigDecimal(100);
             BigDecimal ten = new BigDecimal(10);
 
             String nowPriceString = null;

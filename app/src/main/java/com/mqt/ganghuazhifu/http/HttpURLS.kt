@@ -81,7 +81,7 @@ object HttpURLS {
     val PushNotice = ip + "/ganghuazhifu/common/setPushNotice"
     /** 南京燃气费欠费查询（10011033） */
     val njGasArrearsQuery = ip + "/ganghuazhifu/gas/njGasArrearsQuery"
-    /** 南京燃气费欠费查询（10011054） */
+    /** 宝华燃气费欠费查询（10011054） */
     val bhGasArrearsQuery = ip + "/ganghuazhifu/gas/bhGasArrearsQuery"
     /** 水费欠费查询（10011028） */
     val waterFeeQuery = ip + "/ganghuazhifu/water/waterFeeQuery"

@@ -245,7 +245,7 @@
                     android:text="更换支付方式"
                     android:textColor="@color/green_slow"
                     android:textSize="@dimen/font_size_button"
-                    android:visibility="visible"/>
+                    android:visibility="gone"/>
 
             <TextView
                     android:id="@+id/tv_explainer_before_3"

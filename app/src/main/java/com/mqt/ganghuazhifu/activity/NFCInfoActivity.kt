@@ -39,7 +39,8 @@ class NFCInfoActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityNfcInfoBinding = DataBindingUtil.setContentView<ActivityNfcInfoBinding>(this, R.layout.activity_nfc_info)
+        activityNfcInfoBinding = DataBindingUtil.setContentView<ActivityNfcInfoBinding>(this,
+                R.layout.activity_nfc_info)
         bean = Parcels.unwrap<PayResultBean>(intent.getParcelableExtra<Parcelable>("PayResultBean"))
         ordernb = intent.getStringExtra("Ordernb")
         shebeiType = intent.getIntExtra("ShebeiType", 1)
@@ -114,7 +115,8 @@ class NFCInfoActivity : BaseActivity() {
             val toatalUseGas = BigDecimal(bean!!.totalUse)
             val remainMoney = BigDecimal(bean!!.remainMoney)
             val totalPay = BigDecimal(bean!!.totalPay)
-            val f = BigDecimal(100)
+            val f = BigDecimal(1)
+//            val f = BigDecimal(100)
             val ten = BigDecimal(10)
 
 
