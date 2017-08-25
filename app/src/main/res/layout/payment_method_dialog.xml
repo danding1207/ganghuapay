@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="300dp"
+              android:background="@color/white"
+              android:gravity="center_horizontal"
+              android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:background="@color/white"
+    >
+
+        <ImageView
+                android:id="@+id/iv_cancle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/unity_select_cancle"
+        />
+
+        <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="请选择支付方式"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium"
+                android:gravity="center"
+        />
+
+
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/unity_select_cancle"
+                android:visibility="invisible"
+        />
+
+    </LinearLayout>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/slow_gray"/>
+
+    <LinearLayout
+            android:id="@+id/ll_pay_ways"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:orientation="vertical">
+
+        <LinearLayout
+                android:visibility="visible"
+                android:id="@+id/ll_weixin"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@drawable/unity_list_touch_bg"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="8dp"
+        >
+
+            <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="34dp"
+                    android:src="@drawable/_weixin"/>
+
+            <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="微信支付"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_large"
+                    />
+
+                    <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="14dp"
+                            android:layout_marginLeft="4dp"
+                            android:src="@drawable/wenxintuijian"/>
+
+                </LinearLayout>
+
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="亿万用户选择，更快更安全"
+                        android:textColor="@color/gray"
+                        android:textSize="@dimen/font_size_small"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/slow_gray"/>
+
+        <LinearLayout
+                android:id="@+id/ll_yinhang"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@drawable/unity_list_touch_bg"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+            <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/yinhangka"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:text="银行卡支付"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_large"/>
+
+        </LinearLayout>
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/slow_gray"/>
+
+
+    </LinearLayout>
+
+</LinearLayout>

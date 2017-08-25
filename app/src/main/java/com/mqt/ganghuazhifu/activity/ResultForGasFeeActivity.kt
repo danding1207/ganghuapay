@@ -24,6 +24,7 @@ import com.mqt.ganghuazhifu.utils.EncryptedPreferencesUtils
 import com.mqt.ganghuazhifu.utils.ScreenManager
 import com.mqt.ganghuazhifu.utils.TextValidation
 import com.mqt.ganghuazhifu.utils.ToastUtil
+import com.mqt.ganghuazhifu.view.PaymentMethodDialog
 import com.orhanobut.logger.Logger
 import org.parceler.Parcels
 import java.math.BigDecimal
@@ -588,10 +589,27 @@ class ResultForGasFeeActivity : BaseActivity() {
                 startActivity(intent)
             }
             R.id.button_payment -> {
-                when (type) {
-                    13, 11 -> icChange()
-                    else -> makeOrder()
-                }
+
+                PaymentMethodDialog(this, PaymentMethodDialog.OnPaymentMethodSelectedListener {
+                    position ->
+                    run {
+                        when (position) {
+                            0 -> {
+                                when (type) {
+                                    13, 11 -> icChange()
+                                    else -> makeOrder()
+                                }
+                            }
+                            1 -> {
+                                when (type) {
+                                    13, 11 -> icChange()
+                                    else -> makeOrder()
+                                }
+                            }
+                        }
+                    }
+                }).showDialog()
+
             }
         }
     }

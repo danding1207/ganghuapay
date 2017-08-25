@@ -27,6 +27,7 @@ import com.mqt.ganghuazhifu.http.HttpURLS
 import com.mqt.ganghuazhifu.listener.OnHttpRequestListener
 import com.mqt.ganghuazhifu.utils.EncryptedPreferencesUtils
 import com.mqt.ganghuazhifu.utils.ToastUtil
+import com.mqt.ganghuazhifu.view.PaymentMethodDialog
 import com.orhanobut.logger.Logger
 import com.switfpass.pay.MainApplication
 import com.switfpass.pay.activity.PayPlugin
@@ -88,6 +89,31 @@ open class PayActivity : BaseActivity() {
             activityPayBinding!!.checkBoxWeixin.isChecked = false
             activityPayBinding!!.checkBoxYinhang.isChecked = true
         }
+
+        activityPayBinding!!.tvChangePaymentMethod.setOnClickListener { view ->
+            MaterialDialog.Builder(this@PayActivity)
+                    .title("提示")
+                    .content("更换支付方式会重新下单且取消原订单，请确定订单是否已支付（网络原因可能未显示已支付，请刷新订单列表）")
+                    .onPositive { dialog, which ->
+                        PaymentMethodDialog(this, PaymentMethodDialog.OnPaymentMethodSelectedListener {
+                            position ->
+                            run {
+                                when (position) {
+                                    0 -> {
+
+                                    }
+                                    1 -> {
+
+                                    }
+                                }
+                            }
+                        }).showDialog()
+                    }
+                    .negativeText("取消")
+                    .positiveText("确定")
+                    .show()
+        }
+
 
         when (EncryptedPreferencesUtils.getUser().ComVal) {
             "0" -> {

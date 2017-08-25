@@ -24,6 +24,7 @@ import com.mqt.ganghuazhifu.ext.post
 import com.mqt.ganghuazhifu.http.HttpRequestParams
 import com.mqt.ganghuazhifu.http.HttpURLS
 import com.mqt.ganghuazhifu.listener.OnHttpRequestListener
+import com.mqt.ganghuazhifu.utils.DataBaiduPush
 import com.mqt.ganghuazhifu.utils.ScreenManager
 import com.mqt.ganghuazhifu.utils.ToastUtil
 import com.orhanobut.logger.Logger
@@ -254,6 +255,25 @@ class UnityPayResultActivity : BaseActivity() {
 
                                 when (result!!.PayStatus) {
                                     "PR06" -> {
+
+                                        if(!result!!.PayeeName.equals("江苏宝华天然气有限公司")) {
+
+                                            MaterialDialog.Builder(this@UnityPayResultActivity)
+                                                    .title("提醒").content("请再次查询，查看有无欠费")
+                                                    .onPositive { dialog, which ->
+                                                        run {
+                                                            val intent = Intent(this@UnityPayResultActivity, PayTheGasFeeActivity::class.java)
+                                                            intent.putExtra("TYPE", 1)
+                                                            DataBaiduPush.setPmttp("010001")
+                                                            DataBaiduPush.setPmttpType("01")
+                                                            startActivity(intent)
+                                                            finish()
+                                                        }
+                                                    }
+                                                    .positiveText("确定").negativeText("取消").show()
+
+                                        }
+
                                         // 缴费成功
                                         activityUnityPayResultBinding!!.tvOrderStatus.text = "缴费状态：缴费成功"
                                     }

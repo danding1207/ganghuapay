@@ -154,7 +154,6 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
                                     BleLog.i("",
                                             "write descriptor Success, DATA: " + Arrays.toString(bluetoothGattDescriptor.getValue()));
                                 }
-
                                 @Override
                                 public void onFailure(BleException exception) {
                                     BleLog.i("", "write descriptor failure : " + exception);
