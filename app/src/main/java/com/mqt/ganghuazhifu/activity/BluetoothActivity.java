@@ -405,16 +405,16 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
             return;
         }
         //充值次数检查
-        if (NFCICSumCount != (cardInfo.buyTimes + 1)) {
-            new MaterialDialog.Builder(BluetoothActivity.this)
-                    .title("提醒")
-                    .cancelable(false)
-                    .positiveText("确定")
-                    .canceledOnTouchOutside(false)
-                    .content("卡片充值次数异常，请前往营业厅查询(系统次数：" + NFCICSumCount + ", 卡片次数：" + cardInfo.buyTimes + ")！")
-                    .show();
-            return;
-        }
+//        if (NFCICSumCount != (cardInfo.buyTimes + 1)) {
+//            new MaterialDialog.Builder(BluetoothActivity.this)
+//                    .title("提醒")
+//                    .cancelable(false)
+//                    .positiveText("确定")
+//                    .canceledOnTouchOutside(false)
+//                    .content("卡片充值次数异常，请前往营业厅查询(系统次数：" + NFCICSumCount + ", 卡片次数：" + cardInfo.buyTimes + ")！")
+//                    .show();
+//            return;
+//        }
 
         boolean enable = manager.isEnable(cardInfo);
         if (!enable) {
