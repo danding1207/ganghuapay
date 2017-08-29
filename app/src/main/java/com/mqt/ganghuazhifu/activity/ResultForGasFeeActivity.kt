@@ -60,6 +60,13 @@ class ResultForGasFeeActivity : BaseActivity() {
         Logger.d("type--->" + type)
         when (type) {
             13, 11 -> {
+                if (!TextUtils.isEmpty(gasFeeResult!!.NFCSecurAlert)) {
+                    MaterialDialog.Builder(this)
+                            .title("提示")
+                            .content(gasFeeResult!!.NFCSecurAlert)
+                            .positiveText("确定")
+                            .show()
+                }
                 activityResultForGasFeeBinding!!.tvMoneyAll.text = "预存气量(m³) :"
                 activityResultForGasFeeBinding!!.etYucun.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
                     (start..end - 1)
@@ -91,7 +98,7 @@ class ResultForGasFeeActivity : BaseActivity() {
                     setDatatoView()
                 }
             }
-            7 -> {
+            7, 9 -> {
                 if (!TextUtils.isEmpty(gasFeeResult!!.NFCSecurAlert)) {
                     MaterialDialog.Builder(this)
                             .title("提示")
@@ -316,7 +323,7 @@ class ResultForGasFeeActivity : BaseActivity() {
                     setDatatoView()
                 }
             }
-            8, 9, 10, 1 -> if (gasFeeResult != null) {
+            8, 10, 1 -> if (gasFeeResult != null) {
                 setDatatoView()
             }
             2 -> if (busiFeeResult != null) {
