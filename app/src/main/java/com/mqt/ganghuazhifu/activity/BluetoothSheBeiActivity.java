@@ -88,10 +88,6 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
     private static LiteBluetooth liteBluetooth;
     private static int TIME_OUT_SCAN = 10000;
     private final int SHOW_DEVICE_LIST = 0;// 显示蓝牙列表
-    private final int CONNECT_RESULT = 1;// 蓝牙连接
-    private final int READ_CARD_INFO = 2;// 读取卡信息
-    private final int PAY_MONEY = 3;// 充值
-    private final int POWER_OFF = 5;
 
     private static final int NFC_QUERY = 1;// 读表信息
     private static final int ADD_NUM = 2;// 充值
@@ -126,7 +122,7 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
 
     private Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
-            Logger.d("msg==" + msg.what);
+            Logger.i("msg==" + msg.what);
             closeProgress();
             MaterialDialog.Builder builder = new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
                     .title("提醒")

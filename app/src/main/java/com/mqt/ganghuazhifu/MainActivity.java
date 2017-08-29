@@ -131,7 +131,6 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
         viewPager = (ViewPager) findViewById(R.id.viewPager_main);
         bottom_navigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
 
-
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
 //		getSupportActionBar().setDisplayHomeAsUpEnabled(true);

@@ -578,8 +578,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                 BigDecimal nfcTotalMoney = new BigDecimal(cardInfo.nfcTotalMoney);
 
                 BigDecimal toatalUseGas = new BigDecimal(cardInfo.toatalUseGas);
-                BigDecimal f = new BigDecimal(1);
-//                BigDecimal f = new BigDecimal(100);
+//                BigDecimal f = new BigDecimal(1);
+                BigDecimal f = new BigDecimal(100);
                 BigDecimal ten = new BigDecimal(10);
 
                 String nowPriceString = null;
@@ -899,8 +899,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
         BigDecimal toalBuyMoney = new BigDecimal(cardInfo.toalBuyMoney);
         BigDecimal toatalUseGas = new BigDecimal(cardInfo.toatalUseGas);
 
-        BigDecimal f = new BigDecimal(1);
-//        BigDecimal f = new BigDecimal(100);
+//        BigDecimal f = new BigDecimal(1);
+        BigDecimal f = new BigDecimal(100);
         BigDecimal ten = new BigDecimal(10);
 
         String thisMoneyString = null;
