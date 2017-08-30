@@ -93,7 +93,6 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
     private static final int ADD_NUM = 2;// 充值
     private int clickBtNum;// 标记点击的按钮
 
-
     private String UUID_SERVICE = "0000FF12-0000-1000-8000-00805F9B34FB";
     private String UUID_WRITE = "0000FF01-0000-1000-8000-00805F9B34FB";
     private String UUID_NOTIFY = "0000FF02-0000-1000-8000-00805F9B34FB";
@@ -834,7 +833,8 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
                     null);
 //            time = System.currentTimeMillis();
             Logger.i("nfcTimes--->" + (bean.nfcTimes + 1));
-            HttpRequest.Companion.getInstance().httpPost(BluetoothSheBeiActivity.this, HttpURLS.INSTANCE.getNFCReadNumberLoopBackAndNFCSignMsg(), true, "NFCSignMsg",
+            HttpRequest.Companion.getInstance().httpPost(BluetoothSheBeiActivity.this,
+                    HttpURLS.INSTANCE.getNFCReadNumberLoopBackAndNFCSignMsg(), true, "NFCSignMsg",
                     body, (isError, response, type, error) -> {
                         if (isError) {
                             Logger.e(error.toString());

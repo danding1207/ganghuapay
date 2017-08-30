@@ -554,7 +554,8 @@ public class ReadNFCActivity extends BaseActivity {
 
             BigDecimal f = new BigDecimal(1);
 //            BigDecimal f = new BigDecimal(100);
-            BigDecimal ten = new BigDecimal(10);
+            BigDecimal ten = new BigDecimal(1);
+//            BigDecimal ten = new BigDecimal(10);
 
             String nowPriceString = null;
             String nowRemainMoneyString = null;
@@ -690,7 +691,8 @@ public class ReadNFCActivity extends BaseActivity {
 
             BigDecimal f = new BigDecimal(1);
 //            BigDecimal f = new BigDecimal(100);
-            BigDecimal ten = new BigDecimal(10);
+            BigDecimal ten = new BigDecimal(1);
+//            BigDecimal ten = new BigDecimal(10);
 
             String nowPriceString = null;
             String nowRemainMoneyString = null;
@@ -733,7 +735,8 @@ public class ReadNFCActivity extends BaseActivity {
                     nfcMoneyString,
                     nfcTotalMoneyString,
                     random);
-            HttpRequest.Companion.getInstance().httpPost(ReadNFCActivity.this, HttpURLS.INSTANCE.getNFCReadNumberLoopBackAndNFCSignMsg(), true, "DesCmd",
+            HttpRequest.Companion.getInstance().httpPost(ReadNFCActivity.this,
+                    HttpURLS.INSTANCE.getNFCReadNumberLoopBackAndNFCSignMsg(), true, "DesCmd",
                     body, (isError, response, type, error) -> {
                         if (isError) {
                             Logger.e(error.toString());

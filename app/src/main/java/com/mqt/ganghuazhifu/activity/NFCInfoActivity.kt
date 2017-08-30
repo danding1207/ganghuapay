@@ -117,7 +117,8 @@ class NFCInfoActivity : BaseActivity() {
             val totalPay = BigDecimal(bean!!.totalPay)
             val f = BigDecimal(1)
 //            val f = BigDecimal(100)
-            val ten = BigDecimal(10)
+            val ten = BigDecimal(1)
+//            val ten = BigDecimal(10)
 
 
             var toatalUseGasString: String? = null

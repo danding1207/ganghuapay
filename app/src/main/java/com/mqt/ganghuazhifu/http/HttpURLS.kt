@@ -117,7 +117,7 @@ object HttpURLS {
     val updateGeneralContact = ip + "/ganghuazhifu/common/updateGeneralContact"
     /** IC卡客户信息查询（10011055） */
     val gasICMesQuery = ip + "/ganghuazhifu/gas/gasICMesQuery"
-    /** IC卡客户信息查询（10011055） */
+    /** IC卡气价查询（10011056） */
     val gasICPayMesQuery = ip + "/ganghuazhifu/gas/gasICPayMesQuery"
     /** 注册获取登录名（10011057） */
     val loginAccount = ip + "/ganghuazhifu/user/getLoginAccount"

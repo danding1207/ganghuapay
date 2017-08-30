@@ -45,13 +45,16 @@ import com.xt.bluecard.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import rx.Observable;
-import rx.Subscriber;
 
 /**
  * 读NFC燃气表
@@ -450,7 +453,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
             CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "10",
                     serialNum[1], random8Hex[1], null, null, null, null, null);
             Logger.i("sendToAuth");
-            HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
+            HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
+                    HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
                     "bluetooth", body, (isError, response, type, error) -> {
                         if (isError) {
                             Logger.e(error.toString());
@@ -619,7 +623,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                         nfcTotalMoneyString
                 );
                 Logger.i(body.toString());
-                HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
+                HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
+                        HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
                         "bluetooth", body, (isError, response, type, error) -> {
                             if (isError) {
                                 Logger.t("CardManager").i(error.toString());
@@ -675,7 +680,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                 CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "10",
                         serialNum[1], random8Hex1[1], null, null, null, null, null);
                 Logger.i(body.toString());
-                HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
+                HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
+                        HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
                         "bluetooth", body, (isError, response, type, error) -> {
                             if (isError) {
                                 Logger.e(error.toString());
@@ -724,7 +730,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                 CusFormBody body = HttpRequestParams.INSTANCE.getParamsForUpdateNFCPayStatus(
                         orderNb, "11", Utils.getString(cardInfo.addjustBottom), Utils.getString(cardInfo.payBottom));
                 Logger.i(body.toString());
-                HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getUpdateNFCPayStatus(), false,
+                HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
+                        HttpURLS.INSTANCE.getUpdateNFCPayStatus(), false,
                         "NFCSignMsg", body, (isError, response, type, error) -> {
                             if (isError) {
                                 Logger.e(error.toString());
@@ -815,7 +822,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
             } else {
                 String errorMessage;
                 if (error1 != null && error1.getMessage() != null) {
-                    errorMessage = error1.getMessage();
+                    errorMessage = formatStackTrace(error1);
+//                    errorMessage = error1.getMessage() + error1.getCause();
                 } else {
                     errorMessage = "写卡失败,请确认将燃气CPU卡放在读卡器上，确认网络畅通，然后重试。";
                 }
@@ -1226,6 +1234,27 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                 powerOn(2);
                 break;
         }
+    }
+
+
+    public static String formatStackTrace(Throwable throwable) {
+        if (throwable == null)
+            return "";
+        String rtn = throwable.getStackTrace().toString();
+        try {
+            Writer writer = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(writer);
+            throwable.printStackTrace(printWriter);
+            printWriter.flush();
+            writer.flush();
+            rtn = writer.toString();
+            printWriter.close();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception ex) {
+        }
+        return rtn;
     }
 
 }
