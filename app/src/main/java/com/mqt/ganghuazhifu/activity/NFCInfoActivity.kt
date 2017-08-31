@@ -117,8 +117,8 @@ class NFCInfoActivity : BaseActivity() {
             val totalPay = BigDecimal(bean!!.totalPay)
             val f = BigDecimal(1)
 //            val f = BigDecimal(100)
-            val ten = BigDecimal(1)
-//            val ten = BigDecimal(10)
+//            val ten = BigDecimal(1)
+            val ten = BigDecimal(10)
 
 
             var toatalUseGasString: String? = null
@@ -135,8 +135,8 @@ class NFCInfoActivity : BaseActivity() {
                 }
                 2 -> {
                     toatalUseGasString = toatalUseGas.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString()
-                    remainMoneyString = remainMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString()
-                    totalPayString = totalPay.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString()
+                    remainMoneyString = remainMoney.multiply(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString()
+                    totalPayString = totalPay.multiply(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString()
                     tv_result.append("剩余气量（m³）：" + remainMoneyString + "\n")
                     tv_result.append("累计购气气量（m³）：" + totalPayString + "\n")
                 }

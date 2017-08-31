@@ -256,7 +256,7 @@ class UnityPayResultActivity : BaseActivity() {
                                 when (result!!.PayStatus) {
                                     "PR06" -> {
 
-                                        if(!result!!.PayeeName.equals("江苏宝华天然气有限公司")) {
+                                        if(result!!.PayeeName.equals("江苏宝华天然气有限公司")) {
 
                                             MaterialDialog.Builder(this@UnityPayResultActivity)
                                                     .title("提醒").content("请再次查询，查看有无欠费")
@@ -271,9 +271,7 @@ class UnityPayResultActivity : BaseActivity() {
                                                         }
                                                     }
                                                     .positiveText("确定").negativeText("取消").show()
-
                                         }
-
                                         // 缴费成功
                                         activityUnityPayResultBinding!!.tvOrderStatus.text = "缴费状态：缴费成功"
                                     }

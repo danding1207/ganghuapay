@@ -57,7 +57,7 @@ public class Record {
 				+ ", dbtracct=" + dbtracct + ", dbtrnm=" + dbtrnm + ", errormsg=" + errormsg + ", ustrd=" + ustrd
 				+ ", paystatus=" + paystatus + ", r=" + r + ", pid=" + pid + ", id=" + id + ", pic=" + pic + ", year="
 				+ year + ", month=" + month + ", tag=" + tag + ", icome=" + icome + ", pay=" + pay + ", nfcpayflag="
-				+ nfcpayflag + ", nfcflag=" + nfcflag + "]";
+				+ nfcpayflag + ", nfcflag=" + nfcflag+ ", mount=" + mount + "]";
 	}
 
 }
