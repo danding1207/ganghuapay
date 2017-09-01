@@ -505,10 +505,11 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                 return Observable.error(new Throwable("发送金额数据指令失败：错误码："));
             }
             String time = Utils.getNowTime();
+            final int finalFen = fen;
             return Observable.create((Observable.OnSubscribe<String[]>) subscriber -> {
 
                 CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "12",
-                        serialNum[1], null, null, null, time, sendMoney[1], money);
+                        serialNum[1], null, null, null, time, sendMoney[1], String.valueOf(finalFen));
                 Logger.i(body.toString());
                 HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
                         "bluetooth", body, (isError, response, type, error) -> {

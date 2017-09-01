@@ -8,7 +8,8 @@ import com.mqt.ganghuazhifu.BuildConfig
  * @date 2011.13.99
  */
 object HttpURLS {
-    /** 请求 ip   */
+
+    /** 请求 IP   */
     val ip = BuildConfig.Httpurlip
     /** 快钱接收  */
     val ReceivePayUrl1 = BuildConfig.Receivepayurl1
