@@ -38,7 +38,20 @@
                     android:background="@drawable/title_bg"
                     app:layout_collapseMode="pin"
                     tools:layout_editor_absoluteX="0dp"
-                    tools:layout_editor_absoluteY="0dp"/>
+                    tools:layout_editor_absoluteY="0dp">
+                <TextView
+                        android:id="@+id/tv_title_right"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|right"
+                        android:layout_marginRight="4dp"
+                        android:padding="6dp"
+                        android:text="操作指引"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_button"
+                        android:visibility="invisible"/>
+
+            </android.support.v7.widget.Toolbar>
 
         </android.support.design.widget.AppBarLayout>
 
@@ -171,7 +184,7 @@
                                     android:layout_height="wrap_content"
                                     android:textColor="@color/black"
                                     android:gravity="right"
-                                    android:text="和公交啊鼓风机答复哈地方很多分开过大家看法安徽"
+                                    tools:text="和公交啊鼓风机答复哈地方很多分开过大家看法安徽"
                                     android:textSize="@dimen/font_size_Medium"/>
                         </LinearLayout>
 

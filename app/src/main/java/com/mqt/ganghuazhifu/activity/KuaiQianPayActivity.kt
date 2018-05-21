@@ -3,21 +3,27 @@ package com.mqt.ganghuazhifu.activity
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
+import android.net.Uri
+import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
+import android.webkit.SslErrorHandler
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.afollestad.materialdialogs.MaterialDialog
+import com.hwangjr.rxbus.annotation.Subscribe
+import com.hwangjr.rxbus.thread.EventThread
 import com.mqt.ganghuazhifu.BaseActivity
 import com.mqt.ganghuazhifu.R
 import com.mqt.ganghuazhifu.bean.AndroidToastForJs
 import com.mqt.ganghuazhifu.bean.KuaiQian
 import com.mqt.ganghuazhifu.databinding.ActivityKuaiQianPayBinding
+import com.mqt.ganghuazhifu.event.NetworkChangedEvent
 import com.mqt.ganghuazhifu.http.HttpURLS
 import com.orhanobut.logger.Logger
 //import com.tencent.smtt.sdk.WebSettings
@@ -26,8 +32,8 @@ import com.orhanobut.logger.Logger
 import org.parceler.Parcels
 
 /**
- * 联动优势支付——一键支付
-
+ * 快钱支付
+ *
  * @author yang.lei
  * *
  * @date 2014-12-24
@@ -55,7 +61,6 @@ class KuaiQianPayActivity : BaseActivity() {
         setSupportActionBar(activityKuaiQianPayBinding!!.toolbar)
         supportActionBar!!.setTitle("支付订单")
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-
         // 设置将接收各种通知和请求的WebViewClient（在WebView加载所有的链接）
         activityKuaiQianPayBinding!!.webView.settings.javaScriptCanOpenWindowsAutomatically = true// 设置js可以直接打开窗口，如window.open()，默认为false
         activityKuaiQianPayBinding!!.webView.settings.javaScriptEnabled = true// 是否允许执行js，默认为false。设置true时，会提醒可能造成XSS漏洞
@@ -89,25 +94,7 @@ class KuaiQianPayActivity : BaseActivity() {
     override fun OnViewClick(v: View) {
         val intent: Intent?
         when (v.id) {
-//            R.id.ll_jine -> {
-//                intent = Intent(this, UnityOrderDetailActivity::class.java)
-//                intent.putExtra("LianDong", Parcels.wrap<LianDong>(lianDong))
-//                startActivity(intent)
-//            }
-//            R.id.iv_bank_setting -> {
-//                UnityChangeBanksActivity.startActivity(this, lianDong)
-//            }
-//            R.id.validateButton_unity_pay -> try {
-//                getPayData(if (TextUtils.isEmpty(lianDong!!.orderid)) "" else lianDong!!.orderid,
-//                        if (TextUtils.isEmpty(lianDong!!.paytype)) "" else lianDong!!.paytype,
-//                        if (TextUtils.isEmpty(lianDong!!.gateid)) "" else lianDong!!.gateid)
-//            } catch (e: UnsupportedEncodingException) {
-//                e.printStackTrace()
-//            }
-//
-//            R.id.tv_submit -> pay(lianDong!!.orderid, lianDong!!.paytype, lianDong!!.gateid, activityUnityQuickPayBinding!!.etPhoneYanzhengma.text.toString().trim { it <= ' ' })
-//            else -> {
-//            }
+
         }
     }
 
@@ -118,6 +105,10 @@ class KuaiQianPayActivity : BaseActivity() {
                 //支付成功跳转
                 UnityPayResultActivity.startActivity(this@KuaiQianPayActivity, kuaiQian!!.OrderId)
                 isSuccess = true
+            } else if(url.startsWith("https://www.99bill.com/seashell/html/activity/mkt-faquan1610/default.html")) {
+                val uri = Uri.parse(url)
+                val it = Intent(Intent.ACTION_VIEW, uri)
+                startActivity(it)
             } else {
                 showRoundProcessDialog()
                 view!!.loadUrl(url)// 当打开新链接时，使用当前的 WebView，不会使用系统其他浏览器
@@ -140,6 +131,11 @@ class KuaiQianPayActivity : BaseActivity() {
             super.onPageFinished(view, url)
             dismissRoundProcessDialog()
             Logger.e("onPageFinished-url:" + url!!)
+        }
+
+        override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler, error: SslError) {
+            //handler.cancel(); 默认的处理方式，WebView变成空白页
+            handler.proceed()//接受证书
         }
     }
 
@@ -193,6 +189,29 @@ class KuaiQianPayActivity : BaseActivity() {
             val intent = Intent(context, KuaiQianPayActivity::class.java)
             intent.putExtra("KuaiQian", Parcels.wrap(kuaiQian))
             context.startActivity(intent)
+        }
+    }
+
+    @Subscribe(thread = EventThread.MAIN_THREAD)
+    fun onRecordChangedEvent(event: NetworkChangedEvent) {
+        Logger.e("onEventMainThread")
+        if (event != null) {
+            MaterialDialog.Builder(this@KuaiQianPayActivity)
+                    .title("提醒")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .onPositive { dialog, which ->
+                        run {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                this.finishAfterTransition()
+                            } else {
+                                this.finish()
+                            }
+                        }
+                    }
+                    .content("检测到网络已断开,为保证支付安全，将退出支付界面！")
+                    .positiveText("确定")
+                    .show()
         }
     }
 

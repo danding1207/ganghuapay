@@ -21,7 +21,7 @@
             android:gravity="center_vertical"
             android:text="时间筛选"
             android:textColor="@color/black"
-            android:textSize="@dimen/font_size_Medium" />
+            android:textSize="@dimen/font_size_small" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,17 +36,17 @@
                 android:layout_weight="1"
                 android:background="@drawable/small_edittext_bg"
                 android:gravity="center"
-                android:padding="6dp" />
+                android:padding="2dp" />
 
             <TextView
                 android:id="@+id/tv_end_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="6dp"
+                android:layout_marginLeft="2dp"
                 android:layout_weight="1"
                 android:background="@drawable/small_edittext_bg"
                 android:gravity="center"
-                android:padding="6dp" />
+                android:padding="2dp" />
 
         </LinearLayout>
 
@@ -57,7 +57,7 @@
             android:gravity="center_vertical"
             android:text="业务类型"
             android:textColor="@color/black"
-            android:textSize="@dimen/font_size_Medium" />
+            android:textSize="@dimen/font_size_small" />
 
         <RadioGroup
             android:id="@+id/radioGroup_category"
@@ -75,52 +75,66 @@
                 android:button="@null"
                 android:checked="true"
                 android:gravity="center"
-                android:padding="6dp"
+                android:padding="2dp"
                 android:text="全部"
                 android:textColor="@color/black"
-                android:textSize="@dimen/font_size_Medium" />
+                android:textSize="@dimen/font_size_small" />
 
             <RadioButton
-                android:id="@+id/radioButton_category_1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="6dp"
-                android:layout_weight="1"
-                android:background="@drawable/popwindow_radiobutton_bg"
-                android:button="@null"
-                android:gravity="center"
-                android:padding="6dp"
-                android:text="气费"
-                android:textColor="@color/black"
-                android:textSize="@dimen/font_size_Medium" />
+                    android:id="@+id/radioButton_category_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/popwindow_radiobutton_bg"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:text="气费"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_small"/>
 
             <RadioButton
                 android:id="@+id/radioButton_category_2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="6dp"
+                android:layout_marginLeft="2dp"
                 android:layout_weight="1"
                 android:background="@drawable/popwindow_radiobutton_bg"
                 android:button="@null"
                 android:gravity="center"
-                android:padding="6dp"
+                android:padding="2dp"
                 android:text="营业费"
                 android:textColor="@color/black"
-                android:textSize="@dimen/font_size_Medium" />
+                android:textSize="@dimen/font_size_small" />
 
+            <RadioButton
+                    android:id="@+id/radioButton_category_4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/popwindow_radiobutton_bg"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:padding="2dp"
+                    android:text="营业费预存"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/font_size_small" />
+            
             <RadioButton
                 android:id="@+id/radioButton_category_3"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="6dp"
+                android:layout_marginLeft="2dp"
                 android:layout_weight="1"
                 android:background="@drawable/popwindow_radiobutton_bg"
                 android:button="@null"
                 android:gravity="center"
-                android:padding="6dp"
+                android:padding="2dp"
                 android:text="水费"
                 android:textColor="@color/black"
-                android:textSize="@dimen/font_size_Medium" />
+                android:textSize="@dimen/font_size_small" />
 
         </RadioGroup>
 
@@ -131,7 +145,7 @@
             android:gravity="center_vertical"
             android:text="交易状态"
             android:textColor="@color/black"
-            android:textSize="@dimen/font_size_Medium" />
+            android:textSize="@dimen/font_size_small" />
 
         <Spinner
             android:id="@+id/spinner_popupwindow"
@@ -149,7 +163,7 @@
             android:gravity="center_vertical"
             android:text="关键字"
             android:textColor="@color/black"
-            android:textSize="@dimen/font_size_Medium" />
+            android:textSize="@dimen/font_size_small" />
 
         <EditText
             android:id="@+id/et_popwidow_search"
@@ -158,12 +172,12 @@
             android:layout_marginTop="12dp"
             android:background="@drawable/small_edittext_bg"
             android:hint="请输入订单号"
-            android:padding="6dp"
+            android:padding="2dp"
             android:digits="0123456789"
             android:maxLength="28"
             android:singleLine="true"
             android:textColor="@color/black"
-            android:textSize="@dimen/font_size_Medium" />
+            android:textSize="@dimen/font_size_small" />
 
 
     </LinearLayout>

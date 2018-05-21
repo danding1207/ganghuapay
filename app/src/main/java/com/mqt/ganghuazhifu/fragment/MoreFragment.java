@@ -1,7 +1,9 @@
 package com.mqt.ganghuazhifu.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -29,6 +32,7 @@ import com.mqt.ganghuazhifu.http.CusFormBody;
 import com.mqt.ganghuazhifu.http.HttpRequest;
 import com.mqt.ganghuazhifu.http.HttpRequestParams;
 import com.mqt.ganghuazhifu.http.HttpURLS;
+import com.mqt.ganghuazhifu.listener.OnHttpRequestListener;
 import com.mqt.ganghuazhifu.listener.OnRecyclerViewItemClickListener;
 import com.mqt.ganghuazhifu.utils.DataBaiduPush;
 import com.mqt.ganghuazhifu.utils.EncryptedPreferencesUtils;
@@ -38,6 +42,7 @@ import com.mqt.ganghuazhifu.utils.UnitConversionUtils;
 import com.mqt.ganghuazhifu.view.SwitchButton;
 import com.orhanobut.logger.Logger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MoreFragment extends BaseFragment implements OnRecyclerViewItemClickListener, SwitchButton.SwitchButtonStateChangedListener {
@@ -49,7 +54,10 @@ public class MoreFragment extends BaseFragment implements OnRecyclerViewItemClic
     private long time;
     private SwitchButton switchButton;
 
-    public void newInstence() {
+    public Activity activity;
+
+    public void newInstence(Activity activity) {
+        this.activity = activity;
     }
 
     @Override
@@ -111,10 +119,13 @@ public class MoreFragment extends BaseFragment implements OnRecyclerViewItemClic
                 new MaterialDialog.Builder(getActivity())
                         .title("提醒")
                         .content("确定要退出登录？")
-                        .onPositive((dialog, which) -> {
-//                            startActivity(new Intent(getActivity(), LoginActivity.class));
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                //startActivity(new Intent(getActivity(), LoginActivity.class));
 //                            ScreenManager.getScreenManager().popAllActivity();
-                            getActivity().finish();
+                                getActivity().finish();
+                            }
                         })
                         .cancelable(false)
                         .canceledOnTouchOutside(false)
@@ -128,51 +139,54 @@ public class MoreFragment extends BaseFragment implements OnRecyclerViewItemClic
     private void checkVersion() {
         CusFormBody body = HttpRequestParams.INSTANCE.getParamsForAdvertisement("01", "01");
         HttpRequest.Companion.getInstance().httpPost(getActivity(), HttpURLS.INSTANCE.getProcessQuery(), false, "Advertisement", body,
-                (isError, response, type, error) -> {
-                    if (isError) {
-                        Logger.e(error.toString());
-                    } else {
-                        Logger.d(response.toString());
-                        JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                        JSONArray ResponseFields = response.getJSONArray("ResponseFields");
-                        String ProcessCode = ResponseHead.getString("ProcessCode");
-                        if (ProcessCode.equals("0000") && ResponseFields != null) {
-                            JSONObject QryResults1 = ResponseFields.getJSONObject(0);
-                            JSONObject QryResults2 = ResponseFields.getJSONObject(1);
-                            final String appPath = QryResults2.getString("comval");
-                            String comval = QryResults1.getString("comval");
-                            comval = comval.substring(1, comval.length());
-                            Logger.i(comval);
-                            String[] ss = comval.split("\\.");
-                            String[] sss = version.split("\\.");
-                            Logger.i("length--->" + ss.length);
+                new OnHttpRequestListener() {
+                    @Override
+                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                        if (isError) {
+                            Logger.e(error.toString());
+                        } else {
+                            Logger.d(response.toString());
+                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                            JSONArray ResponseFields = response.getJSONArray("ResponseFields");
+                            String ProcessCode = ResponseHead.getString("ProcessCode");
+                            if (ProcessCode.equals("0000") && ResponseFields != null) {
+                                JSONObject QryResults1 = ResponseFields.getJSONObject(0);
+                                JSONObject QryResults2 = ResponseFields.getJSONObject(1);
+                                final String appPath = QryResults2.getString("comval");
+                                String comval = QryResults1.getString("comval");
+                                comval = comval.substring(1, comval.length());
+                                Logger.i(comval);
+                                String[] ss = comval.split("\\.");
+                                String[] sss = version.split("\\.");
+                                Logger.i("length--->" + ss.length);
 
-                            int a = Integer.parseInt(ss[0]);
-                            int b = Integer.parseInt(ss[1]);
-                            int c = Integer.parseInt(ss[2]);
-                            int d = Integer.parseInt(ss[3]);
-                            int aa = Integer.parseInt(sss[0]);
-                            int bb = Integer.parseInt(sss[1]);
-                            int cc = Integer.parseInt(sss[2]);
-                            int dd = Integer.parseInt(sss[3]);
+                                int a = Integer.parseInt(ss[0]);
+                                int b = Integer.parseInt(ss[1]);
+                                int c = Integer.parseInt(ss[2]);
+                                int d = Integer.parseInt(ss[3]);
+                                int aa = Integer.parseInt(sss[0]);
+                                int bb = Integer.parseInt(sss[1]);
+                                int cc = Integer.parseInt(sss[2]);
+                                int dd = Integer.parseInt(sss[3]);
 
-                            if (a > aa) {
-                                Logger.i("新版本：" + comval + "当前版本：" + version + "  需要强制更新");
-                                mandatoryUpdate(comval, appPath);
-                            } else if (a >= aa && b > bb) {
-                                Logger.i("新版本：" + comval + "当前版本：" + version + "  需要强制更新");
-                                mandatoryUpdate(comval, appPath);
-                            } else if (a >= aa && b >= bb && c > cc) {
-                                Logger.i("新版本：" + comval + "当前版本：" + version + "  需要强制更新");
-                                mandatoryUpdate(comval, appPath);
-                            } else if (a >= aa && b >= bb && c >= cc && d > dd) {
-                                Logger.i("新版本：" + comval + "当前版本：" + version + "  需要提醒更新");
-                                proposedUpdate(comval, appPath);
-                            } else {
-                                Logger.i("新版本：" + comval + "当前版本：" + version + "  不需要更新");
-                                ToastUtil.Companion.toastInfo("已经是最新版本!");
+                                if (a > aa) {
+                                    Logger.i("新版本：" + comval + "当前版本：" + version + "  需要强制更新");
+                                    mandatoryUpdate(comval, appPath);
+                                } else if (a >= aa && b > bb) {
+                                    Logger.i("新版本：" + comval + "当前版本：" + version + "  需要强制更新");
+                                    mandatoryUpdate(comval, appPath);
+                                } else if (a >= aa && b >= bb && c > cc) {
+                                    Logger.i("新版本：" + comval + "当前版本：" + version + "  需要强制更新");
+                                    mandatoryUpdate(comval, appPath);
+                                } else if (a >= aa && b >= bb && c >= cc && d > dd) {
+                                    Logger.i("新版本：" + comval + "当前版本：" + version + "  需要提醒更新");
+                                    proposedUpdate(comval, appPath);
+                                } else {
+                                    Logger.i("新版本：" + comval + "当前版本：" + version + "  不需要更新");
+                                    ToastUtil.Companion.toastInfo("已经是最新版本!");
+                                }
+
                             }
-
                         }
                     }
                 });
@@ -185,18 +199,21 @@ public class MoreFragment extends BaseFragment implements OnRecyclerViewItemClic
         User user = EncryptedPreferencesUtils.getUser();
         CusFormBody body = HttpRequestParams.INSTANCE.getPushStatus(user.getLoginAccount(), DataBaiduPush.getPushStatus());
         HttpRequest.Companion.getInstance().httpPost(getActivity(), HttpURLS.INSTANCE.getPushNotice(), false, "PushNotice", body,
-                (isError, response, type, error) -> {
-                    if (isError) {
-                        Logger.e(error.toString());
-                    } else {
-                        String Response = response.getString("ResponseHead");
-                        if (Response != null) {
-                            ResponseHead head = JSONObject.parseObject(Response, ResponseHead.class);
-                            if (head != null && head.ProcessCode.equals("0000")) {
-                                if (DataBaiduPush.getPushStatus().endsWith("0")) {
-                                    ToastUtil.Companion.toastInfo("启用推送功能!");
-                                } else if (DataBaiduPush.getPushStatus().endsWith("1")) {
-                                    ToastUtil.Companion.toastInfo("关闭推送功能!");
+                new OnHttpRequestListener() {
+                    @Override
+                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                        if (isError) {
+                            Logger.e(error.toString());
+                        } else {
+                            String Response = response.getString("ResponseHead");
+                            if (Response != null) {
+                                ResponseHead head = JSONObject.parseObject(Response, ResponseHead.class);
+                                if (head != null && head.ProcessCode.equals("0000")) {
+                                    if (DataBaiduPush.getPushStatus().endsWith("0")) {
+                                        ToastUtil.Companion.toastInfo("启用推送功能!");
+                                    } else if (DataBaiduPush.getPushStatus().endsWith("1")) {
+                                        ToastUtil.Companion.toastInfo("关闭推送功能!");
+                                    }
                                 }
                             }
                         }
@@ -207,36 +224,47 @@ public class MoreFragment extends BaseFragment implements OnRecyclerViewItemClic
     /**
      * 强制更新
      */
-    private void mandatoryUpdate(String newVersion, String appPath) {
+    private void mandatoryUpdate(final String newVersion, final String appPath) {
         // 强制更新
         new MaterialDialog.Builder(getActivity())
                 .title("提醒")
                 .content("您当前版本过低，请您更新版本" + newVersion + "，享受新的体验。")
-                .onPositive((dialog, which) -> {
-                    String networkType = HttpRequest.Companion.getNetworkType(getActivity());
-                    if (networkType.equals("WIFI")) {
-                        WelcomeActivity.Companion.download(getActivity(), appPath, newVersion);
-                    } else {
-                        new MaterialDialog.Builder(getActivity())
-                                .title("提醒")
-                                .content("当前网络不是wifi，是否继续更新")
-                                .onPositive((dialog1, which1) -> {
-                                    WelcomeActivity.Companion.download(getActivity(), appPath, newVersion);
-                                })
-                                .onNegative((dialog1, which1) -> {
-                                    System.exit(0);
-                                    ScreenManager.getScreenManager().popAllActivity();
-                                    finish();
-                                })
-                                .cancelable(false).canceledOnTouchOutside(false)
-                                .positiveText("立即更新").negativeText("退出应用").show();
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        String networkType = HttpRequest.Companion.getNetworkType(getActivity());
+                        if (networkType.equals("WIFI")) {
+                            WelcomeActivity.Companion.download(getActivity(), appPath, newVersion);
+                        } else {
+                            new MaterialDialog.Builder(getActivity())
+                                    .title("提醒")
+                                    .content("当前网络不是wifi，是否继续更新")
+                                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                        @Override
+                                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                            WelcomeActivity.Companion.download(getActivity(), appPath, newVersion);
+                                        }
+                                    })
+                                    .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                        @Override
+                                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                            System.exit(0);
+                                            ScreenManager.getScreenManager().popAllActivity();
+                                            finish();
+                                        }
+                                    })
+                                    .cancelable(false).canceledOnTouchOutside(false)
+                                    .positiveText("立即更新").negativeText("退出应用").show();
+                        }
                     }
-
                 })
-                .onNegative((dialog, which) -> {
-                    System.exit(0);
-                    ScreenManager.getScreenManager().popAllActivity();
-                    finish();
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        System.exit(0);
+                        ScreenManager.getScreenManager().popAllActivity();
+                        finish();
+                    }
                 })
                 .cancelable(false)
                 .canceledOnTouchOutside(false)
@@ -248,24 +276,30 @@ public class MoreFragment extends BaseFragment implements OnRecyclerViewItemClic
     /**
      * 强制更新
      */
-    private void proposedUpdate(String newVersion, String appPath) {
+    private void proposedUpdate(final String newVersion, final String appPath) {
 // 提醒更新
         new MaterialDialog.Builder(getActivity())
                 .title("提醒")
                 .content("有新的版本，更新版本" + newVersion)
-                .onPositive((dialog, which) -> {
-                    String networkType = HttpRequest.Companion.getNetworkType(getActivity());
-                    if (networkType.equals("WIFI")) {
-                        WelcomeActivity.Companion.download(getActivity(), appPath, newVersion);
-                    } else {
-                        new MaterialDialog.Builder(getActivity())
-                                .title("提醒")
-                                .content("当前网络不是wifi，是否继续更新")
-                                .onPositive((dialog1, which1) -> {
-                                    WelcomeActivity.Companion.download(getActivity(), appPath, newVersion);
-                                })
-                                .cancelable(false).canceledOnTouchOutside(false)
-                                .positiveText("立即更新").negativeText("下次更新").show();
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        String networkType = HttpRequest.Companion.getNetworkType(getActivity());
+                        if (networkType.equals("WIFI")) {
+                            WelcomeActivity.Companion.download(getActivity(), appPath, newVersion);
+                        } else {
+                            new MaterialDialog.Builder(getActivity())
+                                    .title("提醒")
+                                    .content("当前网络不是wifi，是否继续更新")
+                                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                        @Override
+                                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                            WelcomeActivity.Companion.download(getActivity(), appPath, newVersion);
+                                        }
+                                    })
+                                    .cancelable(false).canceledOnTouchOutside(false)
+                                    .positiveText("立即更新").negativeText("下次更新").show();
+                        }
                     }
                 })
                 .positiveText("立即更新")

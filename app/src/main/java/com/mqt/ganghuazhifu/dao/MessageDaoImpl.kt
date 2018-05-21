@@ -22,7 +22,7 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
      */
     @Throws(SQLException::class)
     override fun insert(message: MessageRealm) {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//必须先开启事务
         mRealm.copyToRealm(message)//把User对象复制到Realm
         mRealm.commitTransaction()//提交事务
@@ -38,7 +38,7 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
      */
     @Throws(SQLException::class)
     override fun getAllMessage(): ArrayList<Message> {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//必须先开启事务
         val results = mRealm.where(MessageRealm::class.java).findAll()
         results.sort("time", Sort.ASCENDING)//针对字符串的排序，但目前并不是支持所有字符集
@@ -50,7 +50,7 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
 
     @Throws(SQLException::class)
     override fun getMessageById(id: Int): Message? {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()
         val messageRealm = mRealm.where(MessageRealm::class.java).equalTo("id", id).findFirst()//删除id列值为id的行
         val message = messageRealm?.message
@@ -61,7 +61,7 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
 
     @Throws(SQLException::class)
     override fun hasUnreadMessage(): Boolean {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//开启事务
         val results = mRealm.where(MessageRealm::class.java).findAll()
         results.sort("time", Sort.DESCENDING)//针对字符串的排序，但目前并不是支持所有字符集
@@ -74,7 +74,7 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
     @Throws(SQLException::class)
     override fun getUnreadMessageCount(): Int {
         var unreadMessageCount = 0
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//开启事务
         val results = mRealm.where(MessageRealm::class.java).findAll()
         results.sort("time", Sort.DESCENDING)//针对字符串的排序，但目前并不是支持所有字符集
@@ -91,7 +91,7 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
 
     @Throws(SQLException::class)
     override fun getAllRealmMessage(): RealmResults<MessageRealm> {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//开启事务
         val results = mRealm.where(MessageRealm::class.java).findAll()
         results.sort("time", Sort.DESCENDING)//针对字符串的排序，但目前并不是支持所有字符集
@@ -111,7 +111,7 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
      */
     @Throws(SQLException::class)
     override fun updateMessage(message: MessageRealm): MessageRealm {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//开启事务
         val message1 = mRealm.copyToRealmOrUpdate(message)
         mRealm.commitTransaction()//提交事务
@@ -121,13 +121,11 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
 
     @Throws(SQLException::class)
     override fun updateMessageTopic(topic1: String, topic2: String) {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//开启事务
         mRealm.where(MessageRealm::class.java)
                 .equalTo("topic", topic1)//查询出name为name1的User对象
-                .findFirst()
-                .message
-                .setTopic(topic2)//修改查询出的第一个对象的名字
+                .findFirst()?.message?.setTopic(topic2)//修改查询出的第一个对象的名字
         mRealm.commitTransaction()
         mRealm.close()
 
@@ -135,35 +133,31 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
 
     @Throws(SQLException::class)
     override fun updateMessageMsg(msg1: String, msg2: String) {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//开启事务
         mRealm.where(MessageRealm::class.java)
                 .equalTo("msg", msg1)//查询出name为name1的User对象
-                .findFirst()
-                .message
-                .setMsg(msg2)//修改查询出的第一个对象的名字
+                .findFirst()?.message?.setMsg(msg2)//修改查询出的第一个对象的名字
         mRealm.commitTransaction()
         mRealm.close()
     }
 
     @Throws(SQLException::class)
     override fun updateMessageIsreadedById(id: Int, isreaded: Boolean) {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//开启事务
         mRealm.where(MessageRealm::class.java)
                 .equalTo("id", id)//查询出name为name1的User对象
-                .findFirst()
-                .setIsreaded(isreaded)//修改查询出的第一个对象的名字
+                .findFirst()?.setIsreaded(isreaded)//修改查询出的第一个对象的名字
         mRealm.commitTransaction()
         mRealm.close()
     }
 
     @Throws(SQLException::class)
     override fun deleteMessage(id: Int) {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()
-        val user = mRealm.where(MessageRealm::class.java).equalTo("id", id).findFirst()//删除id列值为id的行
-        user.deleteFromRealm()//从数据库删除
+        mRealm.where(MessageRealm::class.java).equalTo("id", id).findFirst()?.deleteFromRealm()//从数据库删除
         mRealm.commitTransaction()
         mRealm.close()
     }
@@ -177,7 +171,7 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
      */
     @Throws(SQLException::class)
     override fun insertMessageAsync(message: MessageRealm) {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         //一个Realm只能在同一个线程访问，在子线程中进行数据库操作必须重新获取realm对象
         //        mRealm.beginTransaction();//开启事务
         mRealm.executeTransaction { realm ->
@@ -190,8 +184,8 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
     }
 
     @Throws(SQLException::class)
-    override fun findByTopicOrMsg(topic: String, msg: Int): MessageRealm {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+    override fun findByTopicOrMsg(topic: String, msg: Int): MessageRealm? {
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()//开启事务
         val message = mRealm.where(MessageRealm::class.java)
                 .equalTo("topic", topic)//相当于where name = name1
@@ -206,7 +200,7 @@ class MessageDaoImpl(private val mContext: Context) : MessageDao {
 
     @Throws(SQLException::class)
     override fun deleteAll() {
-        val mRealm = RealmUtils.getInstance(mContext).realm
+        val mRealm = RealmUtils.getInstance(mContext)!!.realm
         mRealm.beginTransaction()
         mRealm.where(MessageRealm::class.java).findAll().deleteAllFromRealm()
         mRealm.commitTransaction()

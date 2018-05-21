@@ -1,14 +1,17 @@
 package com.mqt.ganghuazhifu.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -22,6 +25,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.alibaba.fastjson.JSONObject;
 import com.borax12.materialdaterangepicker.date.DatePickerDialog;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
@@ -40,6 +44,7 @@ import com.mqt.ganghuazhifu.http.CusFormBody;
 import com.mqt.ganghuazhifu.http.HttpRequest;
 import com.mqt.ganghuazhifu.http.HttpRequestParams;
 import com.mqt.ganghuazhifu.http.HttpURLS;
+import com.mqt.ganghuazhifu.listener.OnHttpRequestListener;
 import com.mqt.ganghuazhifu.listener.OnRecyclerViewItemClickListener;
 import com.mqt.ganghuazhifu.utils.DateTextUtils;
 import com.mqt.ganghuazhifu.utils.EncryptedPreferencesUtils;
@@ -49,6 +54,7 @@ import com.orhanobut.logger.Logger;
 
 import org.parceler.Parcels;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -62,7 +68,7 @@ public class RecordFragment extends BaseFragment implements OnRecyclerViewItemCl
     private View view;
     private PullToRefreshRecyclerView pullToRefreshRecyclerView;
     private PopupWindow popupWindow;
-    private LinearLayout linearLayout_popwindows, linearLayout_fenlei, linearLayout_frameLayout_1, linearLayout_ignole;
+    private LinearLayout ll_emptyview, linearLayout_popwindows, linearLayout_fenlei, linearLayout_frameLayout_1, linearLayout_ignole;
     private EditText et_popwidow_search;
     private TextView tv_start_time, tv_end_time, tv_unPay, tv_all, tv_fenlei;
     private RadioGroup radioGroup_category;
@@ -79,9 +85,11 @@ public class RecordFragment extends BaseFragment implements OnRecyclerViewItemCl
     private int page = 0;
     private long time;
     private String pageLast = page + "";
+    public Activity activity;
 
-    public void newInstence(TextView title) {
+    public void newInstence(TextView title, Activity activity) {
         this.title = title;
+        this.activity = activity;
     }
 
     public void upDataList(int position, Record Record) {
@@ -104,23 +112,29 @@ public class RecordFragment extends BaseFragment implements OnRecyclerViewItemCl
 
         pullToRefreshRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        pullToRefreshRecyclerView.setPagingableListener(() -> {
-            page++;
-            if (Integer.parseInt(pageLast) <= page) {
-                ToastUtil.Companion.toastInfo("最后一页了!");
-                pullToRefreshRecyclerView.onFinishLoading(false, false);
-                pageLast = page + "";
-            } else {
-                initdata();
+        pullToRefreshRecyclerView.setPagingableListener(new PullToRefreshRecyclerView.PagingableListener() {
+            @Override
+            public void onLoadMoreItems() {
+                page++;
+                if (Integer.parseInt(pageLast) <= page) {
+                    ToastUtil.Companion.toastInfo("最后一页了!");
+                    pullToRefreshRecyclerView.onFinishLoading(false, false);
+                    pageLast = page + "";
+                } else {
+                    initdata();
+                }
             }
         });
 
-        pullToRefreshRecyclerView.setOnRefreshListener(() -> {
-            page = 0;
-            initdata();
-            if (Integer.parseInt(pageLast) == 1) {
-                ToastUtil.Companion.toastInfo("已到达第一页!");
-                pageLast = page + "";
+        pullToRefreshRecyclerView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                page = 0;
+                initdata();
+                if (Integer.parseInt(pageLast) == 1) {
+                    ToastUtil.Companion.toastInfo("已到达第一页!");
+                    pageLast = page + "";
+                }
             }
         });
 
@@ -135,15 +149,26 @@ public class RecordFragment extends BaseFragment implements OnRecyclerViewItemCl
 
         linearLayout_popwindows = (LinearLayout) view.findViewById(R.id.linearLayout_popwindows);
         linearLayout_ignole = (LinearLayout) view.findViewById(R.id.linearLayout_ignole);
-        linearLayout_popwindows.setOnTouchListener((v, event) -> getActivity().getCurrentFocus() != null && getActivity().getCurrentFocus().getWindowToken() != null && App.Companion.getManager().hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS));
-
-        linearLayout_ignole.setOnTouchListener((v, event) -> {
-            MainActivity.isShowPopupWindow = false;
-            title.setText("筛选");
-            handler.sendEmptyMessage(2);
-            return false;
+        linearLayout_popwindows.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return getActivity().getCurrentFocus() != null &&
+                        getActivity().getCurrentFocus().getWindowToken() != null
+                        && App.Companion.getManager().hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
         });
 
+        linearLayout_ignole.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                MainActivity.isShowPopupWindow = false;
+                title.setText("筛选");
+                handler.sendEmptyMessage(2);
+                return false;
+            }
+        });
+
+        ll_emptyview = (LinearLayout) view.findViewById(R.id.ll_emptyview);
         linearLayout_frameLayout_1 = (LinearLayout) view.findViewById(R.id.linearLayout_frameLayout_1);
         et_popwidow_search = (EditText) view.findViewById(R.id.et_popwidow_search);
         radioGroup_category = (RadioGroup) view.findViewById(R.id.radioGroup_category);
@@ -211,6 +236,9 @@ public class RecordFragment extends BaseFragment implements OnRecyclerViewItemCl
         dialog = DatePickerDialog.newInstance(this,
                 calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
+
+        dialog.setStartTitle("起始");
+        dialog.setEndTitle("终止");
 
         initdata();
         return view;
@@ -295,65 +323,71 @@ public class RecordFragment extends BaseFragment implements OnRecyclerViewItemCl
     }
 
     public void initdata() {
+        if(ll_emptyview!=null)
+            ll_emptyview.setVisibility(View.INVISIBLE);
         CusFormBody body = HttpRequestParams.INSTANCE.getParamsForProcessQuery(username, usernb, useraddr, status, statusone,
                 statustwo, pmttp, null, ordernb, payeecode, null, null, startDate, endDate, page);
-        HttpRequest.Companion.getInstance().httpPost(getActivity(), HttpURLS.INSTANCE.getProcessQuery(), false, "ProcessQuery", body,
-                (isError, response, type, error) -> {
-                    pullToRefreshRecyclerView.setOnRefreshComplete();
-                    pullToRefreshRecyclerView.onFinishLoading(true, false);
-                    if (isError) {
-                        Logger.e(error.toString());
-                    } else {
-                        Logger.i(response.toString());
-                        JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                        String CurrentCount = ResponseHead.getString("CurrentCount");
-                        String OrgnSerialNumber = ResponseHead.getString("OrgnSerialNumber");
-                        String PageCount = ResponseHead.getString("PageCount");
-                        int NoPay = ResponseHead.getIntValue("NoPay");
-                        int NoWriteTable = ResponseHead.getIntValue("NoWriteTable");
+        HttpRequest.Companion.getInstance().httpPost(activity, HttpURLS.INSTANCE.getProcessQuery(), false, "ProcessQuery", body,
+                new OnHttpRequestListener() {
+                    @Override
+                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                        pullToRefreshRecyclerView.setOnRefreshComplete();
+                        pullToRefreshRecyclerView.onFinishLoading(true, false);
+                        if (isError) {
+                            Logger.e(error.toString());
+                        } else {
+                            Logger.i(response.toString());
+                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                            String CurrentCount = ResponseHead.getString("CurrentCount");
+                            String OrgnSerialNumber = ResponseHead.getString("OrgnSerialNumber");
+                            String PageCount = ResponseHead.getString("PageCount");
+                            int NoPay = ResponseHead.getIntValue("NoPay");
+                            int NoWriteTable = ResponseHead.getIntValue("NoWriteTable");
 //                        MainActivity.mainMenu.setTextNum(NoPay + NoWriteTable);
-                        if (MainActivity.bottom_navigation != null) {
-                            if (NoPay + NoWriteTable != 0)
-                                MainActivity.bottom_navigation.setNotification((NoPay + NoWriteTable) + "", 1);
-                            else
-                                MainActivity.bottom_navigation.setNotification("", 1);
-                        }
-                        if (!TextUtils.isEmpty(PageCount))
-                            pageLast = PageCount;
-                        if (PageCount == null || Integer.parseInt(PageCount) == 0) {
-//                            MainActivity.mainMenu.setTextNum(0);
-                            MainActivity.bottom_navigation.setNotification("", 1);
-                            ToastUtil.Companion.toastInfo("当前条件没有查询到数据!");
-                        }
-                        String ProcessCode = ResponseHead.getString("ProcessCode");
-                        String ProcessDes = ResponseHead.getString("ProcessDes");
-                        String QueryCd = ResponseHead.getString("QueryCd");
-                        String RecordCount = ResponseHead.getString("RecordCount");
-                        List<Record> records = new ArrayList<>();
-                        switch (type) {
-                            case 0:
-                                break;
-                            case 1:
-                                String ResponseFields = response.getString("ResponseFields");
-                                if (ProcessCode.equals("0000")) {
-                                    records = JSONObject.parseArray(ResponseFields, Record.class);
-                                }
-                                break;
-                            case 2:
-                                JSONObject ResponseFields1 = response.getJSONObject("ResponseFields");
-                                if (ProcessCode.equals("0000")) {
-                                    String QryResults = ResponseFields1.getString("QryResults");
-                                    records.add(JSONObject.parseObject(QryResults, Record.class));
-                                    break;
-                                }
-                        }
-                        if (list != null) {
-                            if (page != 0) {
-                                list.addAll(records);
-                            } else {
-                                list = records;
+                            if (MainActivity.bottom_navigation != null) {
+                                if (NoPay + NoWriteTable != 0)
+                                    MainActivity.bottom_navigation.setNotification((NoPay + NoWriteTable) + "", 1);
+                                else
+                                    MainActivity.bottom_navigation.setNotification("", 1);
                             }
-                            initAdapter();
+                            if (!TextUtils.isEmpty(PageCount))
+                                pageLast = PageCount;
+                            if (PageCount == null || Integer.parseInt(PageCount) == 0) {
+//                            MainActivity.mainMenu.setTextNum(0);
+                                MainActivity.bottom_navigation.setNotification("", 1);
+                                ll_emptyview.setVisibility(View.VISIBLE);
+//                            ToastUtil.Companion.toastInfo("当前条件没有查询到数据!");
+                            }
+                            String ProcessCode = ResponseHead.getString("ProcessCode");
+                            String ProcessDes = ResponseHead.getString("ProcessDes");
+                            String QueryCd = ResponseHead.getString("QueryCd");
+                            String RecordCount = ResponseHead.getString("RecordCount");
+                            List<Record> records = new ArrayList<>();
+                            switch (type) {
+                                case 0:
+                                    break;
+                                case 1:
+                                    String ResponseFields = response.getString("ResponseFields");
+                                    if (ProcessCode.equals("0000")) {
+                                        records = JSONObject.parseArray(ResponseFields, Record.class);
+                                    }
+                                    break;
+                                case 2:
+                                    JSONObject ResponseFields1 = response.getJSONObject("ResponseFields");
+                                    if (ProcessCode.equals("0000")) {
+                                        String QryResults = ResponseFields1.getString("QryResults");
+                                        records.add(JSONObject.parseObject(QryResults, Record.class));
+                                        break;
+                                    }
+                            }
+                            if (list != null) {
+                                if (page != 0) {
+                                    list.addAll(records);
+                                } else {
+                                    list = records;
+                                }
+                                initAdapter();
+                            }
                         }
                     }
                 });
@@ -460,6 +494,9 @@ public class RecordFragment extends BaseFragment implements OnRecyclerViewItemCl
                     break;
                 case R.id.radioButton_category_3:
                     searcher.setCategory("020001");
+                    break;
+                case R.id.radioButton_category_4:
+                    searcher.setCategory("010003");
                     break;
             }
 
@@ -579,32 +616,53 @@ public class RecordFragment extends BaseFragment implements OnRecyclerViewItemCl
         popupWindow.setFocusable(true);
         // popupWindow.setAnimationStyle(R.style.mystyle);
 
-        viewcategory.findViewById(R.id.tv_gas).setOnClickListener(v -> {
-            popupWindow.dismiss();
-            pmttp = "010001";
-            status = null;
-            statusone = null;
-            statustwo = null;
-            page = 0;
-            initdata();
+        viewcategory.findViewById(R.id.tv_gas).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                pmttp = "010001";
+                status = null;
+                statusone = null;
+                statustwo = null;
+                page = 0;
+                initdata();
+            }
         });
-        viewcategory.findViewById(R.id.tv_busi).setOnClickListener(v -> {
-            popupWindow.dismiss();
-            pmttp = "010002";
-            status = null;
-            statusone = null;
-            statustwo = null;
-            page = 0;
-            initdata();
+        viewcategory.findViewById(R.id.tv_busi).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                pmttp = "010002";
+                status = null;
+                statusone = null;
+                statustwo = null;
+                page = 0;
+                initdata();
+            }
         });
-        viewcategory.findViewById(R.id.tv_water).setOnClickListener(v -> {
-            popupWindow.dismiss();
-            pmttp = "020001";
-            status = null;
-            statusone = null;
-            statustwo = null;
-            page = 0;
-            initdata();
+        viewcategory.findViewById(R.id.tv_busi_yucun).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                pmttp = "010003";
+                status = null;
+                statusone = null;
+                statustwo = null;
+                page = 0;
+                initdata();
+            }
+        });
+        viewcategory.findViewById(R.id.tv_water).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+                pmttp = "020001";
+                status = null;
+                statusone = null;
+                statustwo = null;
+                page = 0;
+                initdata();
+            }
         });
     }
 
@@ -625,13 +683,49 @@ public class RecordFragment extends BaseFragment implements OnRecyclerViewItemCl
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth,
                           int yearEnd, int monthOfYearEnd, int dayOfMonthEnd) {
-        tv_start_time.setText(year + "-" + DateTextUtils.DateToString(monthOfYear + 1) + "-"
-                + DateTextUtils.DateToString(dayOfMonth));
-        startDate = year + DateTextUtils.DateToString(monthOfYear + 1)
-                + DateTextUtils.DateToString(dayOfMonth);
-        tv_end_time.setText(yearEnd + "-" + DateTextUtils.DateToString(monthOfYearEnd + 1) + "-"
-                + DateTextUtils.DateToString(dayOfMonthEnd));
-        endDate = yearEnd + DateTextUtils.DateToString(monthOfYearEnd + 1) + DateTextUtils.DateToString(dayOfMonthEnd);
+
+        if (year > yearEnd) {
+            new MaterialDialog.Builder(getActivity())
+                    .title("提示")
+                    .content("只能查询最近6个月账单！")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .positiveText("确定")
+                    .build().show();
+        } else if (monthOfYear > monthOfYearEnd) {
+            new MaterialDialog.Builder(getActivity())
+                    .title("提示")
+                    .content("只能查询最近6个月账单！")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .positiveText("确定")
+                    .build().show();
+        } else if (yearEnd-year>1) {
+            new MaterialDialog.Builder(getActivity())
+                    .title("提示")
+                    .content("只能查询最近6个月账单！")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .positiveText("确定")
+                    .build().show();
+        } else if ((yearEnd==year&&monthOfYearEnd-monthOfYear>5)||(yearEnd==year+1&&monthOfYearEnd+12-monthOfYear>5) ) {
+            new MaterialDialog.Builder(getActivity())
+                    .title("提示")
+                    .content("只能查询最近6个月账单！")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .positiveText("确定")
+                    .build().show();
+        } else {
+            tv_start_time.setText(year + "-" + DateTextUtils.DateToString(monthOfYear + 1) + "-"
+                    + DateTextUtils.DateToString(dayOfMonth));
+            startDate = year + DateTextUtils.DateToString(monthOfYear + 1)
+                    + DateTextUtils.DateToString(dayOfMonth);
+            tv_end_time.setText(yearEnd + "-" + DateTextUtils.DateToString(monthOfYearEnd + 1) + "-"
+                    + DateTextUtils.DateToString(dayOfMonthEnd));
+            endDate = yearEnd + DateTextUtils.DateToString(monthOfYearEnd + 1) + DateTextUtils.DateToString(dayOfMonthEnd);
+        }
+
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.mqt.ganghuazhifu.bean.BusiBillResult
 import com.mqt.ganghuazhifu.bean.GasBillRecord
 import com.mqt.ganghuazhifu.bean.GasBillResult
 import com.mqt.ganghuazhifu.databinding.ActivityResultForGasBillBinding
+import com.mqt.ganghuazhifu.event.ConstantKotlin
 import com.mqt.ganghuazhifu.ext.post
 import com.mqt.ganghuazhifu.http.HttpRequest
 import com.mqt.ganghuazhifu.http.HttpRequestParams
@@ -44,13 +45,16 @@ class ResultForGasBillActivity : BaseActivity(), OnRecyclerViewItemClickListener
     private var busiBillResult: BusiBillResult? = null
     private var gasBillAdapter: GasBillResultAdapter? = null
     private var busiBillAdapter: BusiBillResultAdapter? = null
-    private var type: Int = 0// 1:气费账单信息;2:营业费账单信息;
+    private var orderType: ConstantKotlin.OrderType = ConstantKotlin.OrderType.GASFEEBILL
     private var activityResultForGasBillBinding: ActivityResultForGasBillBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityResultForGasBillBinding = DataBindingUtil.setContentView<ActivityResultForGasBillBinding>(this, R.layout.activity_result_for_gas_bill)
-        type = intent.getIntExtra("TYPE", 1)
+
+        Logger.e("ConstantKotlin.OrderType.name:  " + intent.getStringExtra("OrderType"))
+        orderType = ConstantKotlin.OrderType.valueOf(intent.getStringExtra("OrderType"))
+
         gasBillResult = Parcels.unwrap<GasBillResult>(intent.getParcelableExtra<Parcelable>("GasBillResult"))
         busiBillResult = Parcels.unwrap<BusiBillResult>(intent.getParcelableExtra<Parcelable>("BusiBillResult"))
         initView()
@@ -58,14 +62,14 @@ class ResultForGasBillActivity : BaseActivity(), OnRecyclerViewItemClickListener
     }
 
     private fun setDatatoView() {
-        when (type) {
-            1 -> if (gasBillResult != null) {
+        when (orderType) {
+            ConstantKotlin.OrderType.GASFEEBILL -> if (gasBillResult != null) {
                 gasBillAdapter = GasBillResultAdapter(this)
                 gasBillAdapter!!.onRecyclerViewItemClickListener = this
                 activityResultForGasBillBinding!!.listViewGasBill.adapter = gasBillAdapter
                 gasBillAdapter!!.updateList(gasBillResult!!.FeeCountDetail as ArrayList<GasBillRecord>)
             }
-            2 -> if (busiBillResult != null) {
+            ConstantKotlin.OrderType.OPERATINGFEEBILL -> if (busiBillResult != null) {
                 busiBillAdapter = BusiBillResultAdapter(this)
                 activityResultForGasBillBinding!!.listViewGasBill.adapter = busiBillAdapter
                 busiBillAdapter!!.updateList(busiBillResult!!.BusifeeCountDetail as ArrayList<BusiBillRecord>)
@@ -79,9 +83,9 @@ class ResultForGasBillActivity : BaseActivity(), OnRecyclerViewItemClickListener
 
         activityResultForGasBillBinding!!.listViewGasBill.layoutManager = LinearLayoutManager(this)
         activityResultForGasBillBinding!!.listViewGasBill.setHasFixedSize(true)
-        when (type) {
-            1 -> supportActionBar!!.title = "气费账单查询"
-            2 -> supportActionBar!!.title = "营业费账单查询"
+        when (orderType) {
+            ConstantKotlin.OrderType.GASFEEBILL -> supportActionBar!!.title = "气费账单查询"
+            ConstantKotlin.OrderType.OPERATINGFEEBILL -> supportActionBar!!.title = "营业费账单查询"
         }
     }
 
@@ -96,7 +100,6 @@ class ResultForGasBillActivity : BaseActivity(), OnRecyclerViewItemClickListener
     override fun OnViewClick(v: View) {}
 
     override fun onItemClick(view: View, position: Int) {
-//        serach3(gasBillResult!!.FeeCountDetail[position].FeeMonth)
     }
 
     override fun onActivitySaveInstanceState(savedInstanceState: Bundle) {
@@ -164,7 +167,7 @@ class ResultForGasBillActivity : BaseActivity(), OnRecyclerViewItemClickListener
                     .setText(R.id.tv_gas_fee_pay_amount, "本期气费应收总额:￥" + df
                             .format(java.lang.Double.valueOf(item.CurrentTotalAmount)!!.toDouble()))
                     .setText(R.id.tv_gas_fee_total_amount, "￥" + df.format(java.lang.Double.valueOf(item.PayAmount)!!.toDouble()))
-                    .setText(R.id.bill_name, "已缴金额:")
+                    .setText(R.id.bill_name, "已缴金额/调整金额:")
                     .setText(R.id.tv_gas_fee_payed_amount, df.format(java.lang.Double.valueOf(item.PayAmount)!!.toDouble()))
                     .setVisible(R.id.tv_gas_fee_price, View.GONE)
                     .setVisible(R.id.gas_lay, View.GONE)
@@ -241,66 +244,4 @@ class ResultForGasBillActivity : BaseActivity(), OnRecyclerViewItemClickListener
 
         }
     }
-
-
-    /**
-     * 查询选择的月份，电子账单详情，阶梯气费
-     */
-//    private fun serach3(time: String) {
-//        val StartDate = time
-//        val EndDate = time
-//        val body = HttpRequestParams.getParamsForGasBill(gasBillResult!!.ProvinceCode, gasBillResult!!.CityCode,
-//                gasBillResult!!.UserNb, "1", gasBillResult!!.PayeeCode, StartDate, EndDate)
-//        post(HttpURLS.gasArrearsZhangDanQuery, true, "GasBill", body, OnHttpRequestListener { isError, response, type, error ->
-//            if (isError) {
-//                Logger.e(error.toString())
-//            } else {
-//                Logger.d(response.toString())
-//
-//                val ResponseHead = response.getJSONObject("ResponseHead")
-//                val ResponseFields = response.getJSONObject("ResponseFields")
-//                val ProcessCode = ResponseHead.getString("ProcessCode")
-//                val ProcessDes = ResponseHead.getString("ProcessDes")
-//                if (ProcessCode == "0000") {
-//                    val result = GasBillResult()
-//                    val FeeCountDetail = ResponseFields.getString("FeeCountDetail")
-//                    result.EasyNo = ResponseFields.getString("EasyNo")
-//                    result.UserAddr = ResponseFields.getString("UserAddr")
-//                    result.UserNb = ResponseFields.getString("UserNb")
-//                    result.UserName = ResponseFields.getString("UserName")
-//                    result.FeeCount = ResponseFields.getString("FeeCount")
-//                    result.HasBusifee = ResponseFields.getString("HasBusifee")
-//                    if (null != ResponseFields.getString("GasPrice")) {
-//                        result.HasBusifee = ResponseFields.getString("GasPrice")
-//                    } else {
-//                        result.HasBusifee = ""
-//                    }
-//                    var lists = ArrayList<GasBillRecord>()
-//                    if (FeeCountDetail == null) {
-//                        ToastUtil.toastInfo("没有查到气费账单记录!")
-//                    } else if (FeeCountDetail.startsWith("{")) {
-//                        lists.add(JSONObject.parseObject(FeeCountDetail, GasBillRecord::class.java))
-//                        result.FeeCountDetail = lists
-//                        Logger.d(result.toString())
-//                        val intent = Intent(this@ResultForGasBillActivity,
-//                                ResultForGasBillDetailActivity::class.java)
-//                        intent.putExtra("TYPE", 1)
-//                        intent.putExtra("GasBillResult", Parcels.wrap(result))
-//                        startActivity(intent)
-//                    } else if (FeeCountDetail.startsWith("[")) {
-//                        lists = JSONObject.parseArray(FeeCountDetail, GasBillRecord::class.java) as ArrayList<GasBillRecord>
-//                        result.FeeCountDetail = lists
-//                        Logger.d(result.toString())
-//                        val intent = Intent(this@ResultForGasBillActivity,
-//                                ResultForGasBillDetailActivity::class.java)
-//                        intent.putExtra("TYPE", 1)
-//                        intent.putExtra("GasBillResult", Parcels.wrap(result))
-//                        startActivity(intent)
-//                    }
-//                } else {
-//                    ToastUtil.toastError(ProcessDes)
-//                }
-//            }
-//        })
-//    }
 }

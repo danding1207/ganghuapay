@@ -15,6 +15,8 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -31,6 +33,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.alibaba.fastjson.JSONObject;
 import com.hwangjr.rxbus.RxBus;
@@ -49,6 +52,7 @@ import com.mqt.ganghuazhifu.http.CusFormBody;
 import com.mqt.ganghuazhifu.http.HttpRequest;
 import com.mqt.ganghuazhifu.http.HttpRequestParams;
 import com.mqt.ganghuazhifu.http.HttpURLS;
+import com.mqt.ganghuazhifu.listener.OnHttpRequestListener;
 import com.mqt.ganghuazhifu.utils.ToastUtil;
 import com.orhanobut.logger.Logger;
 import com.xt.bluecard.Constant;
@@ -114,7 +118,7 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
     private Toolbar toolbar;
     private ImageView ib_pic_right;
     private TextView tv_name, tv_addr, tv_status, tv_res;
-    private Button bt_read, bt_pay;
+    private CardView bt_read, bt_pay;
 
 
     private StringBuilder readMeterResult = new StringBuilder();
@@ -298,8 +302,8 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
         tv_addr = (TextView) findViewById(R.id.tv_addr);
         tv_status = (TextView) findViewById(R.id.tv_status);
         tv_res = (TextView) findViewById(R.id.tv_res);
-        bt_read = (Button) findViewById(R.id.bt_read);
-        bt_pay = (Button) findViewById(R.id.bt_pay);
+        bt_read = (CardView) findViewById(R.id.bt_read);
+        bt_pay = (CardView) findViewById(R.id.bt_pay);
 
 
         setSupportActionBar(toolbar);
@@ -321,7 +325,12 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
                     .positiveText("确定")
                     .cancelable(false)
                     .canceledOnTouchOutside(false)
-                    .onPositive((dialog1, which) -> finish())
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            finish();
+                        }
+                    })
                     .show();
         } else {
             if (liteBluetooth == null) {
@@ -353,6 +362,12 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
             View view = View.inflate(this, R.layout.device_list, null);
             lv_devices = (ListView) view.findViewById(R.id.list);
             pb = (ProgressBar) view.findViewById(R.id.pb);
+            view.findViewById(R.id.iv_cancle).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    bluetoothDialog.dismiss();
+                }
+            });
             lv_devices.setOnItemClickListener(this);
             bluetoothDialog.setView(view);
         }
@@ -491,27 +506,31 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
                         BigDecimal f = new BigDecimal(100);
                         BigDecimal ten = new BigDecimal(10);
 
-                        tv_res.append("表户号： " + readResultBean.meterNum + "\n");
+                        tv_res.append("用户号： " + readResultBean.meterNum + "\n");
                         tv_res.append("表当前时间： " + readResultBean.currentTime + "\n");
                         tv_res.append("表当前单价(元)： " + currentPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
-                        tv_res.append("剩余金额(元)： " + remainedMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
-                        tv_res.append("累计购气金额(元)： " + totalBuy.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
-                        tv_res.append("累计用气量(m³)： " + totalUse.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
-                        tv_res.append("无用气天数： " + readResultBean.noUseDay + "\n");
-                        tv_res.append("无用气秒数： " + readResultBean.noUseSecond + "\n");
-                        tv_res.append("表状态： " + readResultBean.meterState + "\n");
-                        tv_res.append("消费交易状态字： " + readResultBean.dealWord + "\n");
-                        tv_res.append("安检返写条数： " + readResultBean.securityCount + "\n");
-                        for (int i = 0; i < readResultBean.securityRecords.size(); i++) {
-                            tv_res.append("安检返写记录" + (i + 1) + "： " + readResultBean.securityRecords.get(i) + "\n");
-                        }
+                        tv_res.append("表剩余金额(元)： " + remainedMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
+                        tv_res.append("表累计购气金额(元)： " + totalBuy.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
+                        tv_res.append("表累计用气量(m³)： " + totalUse.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
                         tv_res.append("蓝牙充值次数： " + readResultBean.nfcTimes + "\n");
-                        tv_res.append("蓝牙购气金额(元)： " + nfcBuy.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
+                        tv_res.append("蓝牙近期购气金额(元)： " + nfcBuy.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
                         tv_res.append("蓝牙总购气金额(元)： " + nfcTotalBuy.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
 
-                        for (int i = 0; i < readResultBean.historyList.size(); i++) {
-                            tv_res.append("月用量" + (i + 1) + "： " + readResultBean.historyList.get(i) + "\n");
-                        }
+//                        tv_res.append("无用气天数： " + readResultBean.noUseDay + "\n");
+//                        tv_res.append("无用气秒数： " + readResultBean.noUseSecond + "\n");
+//                        tv_res.append("表状态： " + readResultBean.meterState + "\n");
+//                        tv_res.append("消费交易状态字： " + readResultBean.dealWord + "\n");
+//                        tv_res.append("安检返写条数： " + readResultBean.securityCount + "\n");
+//                        for (int i = 0; i < readResultBean.securityRecords.size(); i++) {
+//                            tv_res.append("安检返写记录" + (i + 1) + "： " + readResultBean.securityRecords.get(i) + "\n");
+//                        }
+//                        tv_res.append("蓝牙充值次数： " + readResultBean.nfcTimes + "\n");
+//                        tv_res.append("蓝牙购气金额(元)： " + nfcBuy.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
+//                        tv_res.append("蓝牙总购气金额(元)： " + nfcTotalBuy.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
+//
+//                        for (int i = 0; i < readResultBean.historyList.size(); i++) {
+//                            tv_res.append("月用量" + (i + 1) + "： " + readResultBean.historyList.get(i) + "\n");
+//                        }
                         tv_res.append("\n\n");
                         break;
                     case ADD_NUM:
@@ -835,36 +854,39 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
             Logger.i("nfcTimes--->" + (bean.nfcTimes + 1));
             HttpRequest.Companion.getInstance().httpPost(BluetoothSheBeiActivity.this,
                     HttpURLS.INSTANCE.getNFCReadNumberLoopBackAndNFCSignMsg(), true, "NFCSignMsg",
-                    body, (isError, response, type, error) -> {
-                        if (isError) {
-                            Logger.e(error.toString());
-                            new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
-                                    .title("提示")
-                                    .content("请求加密信息失败，请重试！")
-                                    .cancelable(false)
-                                    .canceledOnTouchOutside(false)
-                                    .positiveText("确定")
-                                    .build().show();
-                        } else {
-                            Logger.i(response.toString());
-                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                            String ProcessCode = ResponseHead.getString("ProcessCode");
-                            String ProcessDes = ResponseHead.getString("ProcessDes");
-                            if (ProcessCode.equals("0000") && ResponseFields != null) {
-                                SignMsg = ResponseFields.getString("SignMsg");
-//                                NFCPayTime = ResponseFields.getInteger("NFCPayTime");
-                                Logger.i("SignMsg--->" + SignMsg);
-//                                Logger.i("NFCPayTime--->" + NFCPayTime);
-                                getDesCmd(bean);
-                            } else {
+                    body, new OnHttpRequestListener() {
+                        @Override
+                        public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                            if (isError) {
+                                Logger.e(error.toString());
                                 new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
                                         .title("提示")
-                                        .content(ProcessDes)
+                                        .content("请求加密信息失败，请重试！")
                                         .cancelable(false)
                                         .canceledOnTouchOutside(false)
                                         .positiveText("确定")
                                         .build().show();
+                            } else {
+                                Logger.i(response.toString());
+                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                String ProcessCode = ResponseHead.getString("ProcessCode");
+                                String ProcessDes = ResponseHead.getString("ProcessDes");
+                                if (ProcessCode.equals("0000") && ResponseFields != null) {
+                                    SignMsg = ResponseFields.getString("SignMsg");
+//                                NFCPayTime = ResponseFields.getInteger("NFCPayTime");
+                                    Logger.i("SignMsg--->" + SignMsg);
+//                                Logger.i("NFCPayTime--->" + NFCPayTime);
+                                    getDesCmd(bean);
+                                } else {
+                                    new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
+                                            .title("提示")
+                                            .content(ProcessDes)
+                                            .cancelable(false)
+                                            .canceledOnTouchOutside(false)
+                                            .positiveText("确定")
+                                            .build().show();
+                                }
                             }
                         }
                     });
@@ -872,8 +894,18 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
             new MaterialDialog.Builder(this)
                     .title("提醒")
                     .content("下一步需要连接网络，请确保您已连接网络再试")
-                    .onPositive((dialog, which) -> getEncode(bean))
-                    .onNegative((dialog, which) -> finish())
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            getEncode(bean);
+                        }
+                    })
+                    .onNegative(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            finish();
+                        }
+                    })
                     .cancelable(false)
                     .canceledOnTouchOutside(false)
                     .positiveText("确定")
@@ -919,7 +951,8 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
             BigDecimal f = new BigDecimal(100);
             BigDecimal ten = new BigDecimal(10);
 
-            CusFormBody body = HttpRequestParams.INSTANCE.getParamsForGetNFCCode(orderNb, bean.nfcTimes + 1,
+            CusFormBody body = HttpRequestParams.INSTANCE.getParamsForGetNFCCode(
+                    orderNb, bean.nfcTimes + 1,
                     UserNb, bean.currentTime + "",
                     nowPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString(),
                     nowRemainMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString(),
@@ -931,35 +964,39 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
                     nfcMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString(),
                     nfcTotalMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString(),
                     random);
-            HttpRequest.Companion.getInstance().httpPost(BluetoothSheBeiActivity.this, HttpURLS.INSTANCE.getNFCReadNumberLoopBackAndNFCSignMsg(), true, "DesCmd",
-                    body, (isError, response, type, error) -> {
-                        if (isError) {
-                            Logger.e(error.toString());
-                            new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
-                                    .title("提示")
-                                    .content("请求加密信息失败，请重试！")
-                                    .cancelable(false)
-                                    .canceledOnTouchOutside(false)
-                                    .positiveText("确定")
-                                    .build().show();
-                        } else {
-                            Logger.i(response.toString());
-                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                            String ProcessCode = ResponseHead.getString("ProcessCode");
-                            String ProcessDes = ResponseHead.getString("ProcessDes");
-                            if (ProcessCode.equals("0000") && ResponseFields != null) {
-                                DesCmd = ResponseFields.getString("SignMsg");
-                                Logger.i("SignMsg--->" + SignMsg);
-                                add();
-                            } else {
+            HttpRequest.Companion.getInstance().httpPost(BluetoothSheBeiActivity.this,
+                    HttpURLS.INSTANCE.getNFCReadNumberLoopBackAndNFCSignMsg(), true, "DesCmd",
+                    body, new OnHttpRequestListener() {
+                        @Override
+                        public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                            if (isError) {
+                                Logger.e(error.toString());
                                 new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
                                         .title("提示")
-                                        .content(ProcessDes)
+                                        .content("请求加密信息失败，请重试！")
                                         .cancelable(false)
                                         .canceledOnTouchOutside(false)
                                         .positiveText("确定")
                                         .build().show();
+                            } else {
+                                Logger.i(response.toString());
+                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                String ProcessCode = ResponseHead.getString("ProcessCode");
+                                String ProcessDes = ResponseHead.getString("ProcessDes");
+                                if (ProcessCode.equals("0000") && ResponseFields != null) {
+                                    DesCmd = ResponseFields.getString("SignMsg");
+                                    Logger.i("SignMsg--->" + SignMsg);
+                                    add();
+                                } else {
+                                    new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
+                                            .title("提示")
+                                            .content(ProcessDes)
+                                            .cancelable(false)
+                                            .canceledOnTouchOutside(false)
+                                            .positiveText("确定")
+                                            .build().show();
+                                }
                             }
                         }
                     });
@@ -967,8 +1004,18 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
             new MaterialDialog.Builder(this)
                     .title("提醒")
                     .content("下一步需要连接网络，请确保您已连接网络再试")
-                    .onPositive((dialog, which) -> getDesCmd(bean))
-                    .onNegative((dialog, which) -> finish())
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            getDesCmd(bean);
+                        }
+                    })
+                    .onNegative(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            finish();
+                        }
+                    })
                     .cancelable(false)
                     .canceledOnTouchOutside(false)
                     .positiveText("确定")
@@ -977,7 +1024,7 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
         }
     }
 
-    private void updateStatus(PayResultBean payResultBean) {
+    private void updateStatus(final PayResultBean payResultBean) {
         if (isActiveNetwork()) {
             CusFormBody body = HttpRequestParams.INSTANCE.getParamsForUpdateNFCPayStatus(
                     orderNb,
@@ -986,36 +1033,44 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
             HttpRequest.Companion.getInstance().httpPost(BluetoothSheBeiActivity.this,
                     HttpURLS.INSTANCE.getUpdateNFCPayStatus(), true,
                     "NFCSignMsg",
-                    body, (isError, response, type, error) -> {
-                        if (isError) {
-                            Logger.e(error.toString());
-                            new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
-                                    .title("提醒")
-                                    .content("充值结果回抄需要连接网络，请确保您已连接网络再试！")
-                                    .onPositive((dialog, which) -> updateStatus(payResultBean))
-                                    .cancelable(false)
-                                    .canceledOnTouchOutside(false)
-                                    .positiveText("重试")
-                                    .build().show();
-
-                            bt_pay.setEnabled(false);
-
-                        } else {
-                            Logger.i(response.toString());
-                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                            String ProcessCode = ResponseHead.getString("ProcessCode");
-                            String ProcessDes = ResponseHead.getString("ProcessDes");
-                            if (ProcessCode.equals("0000")) {
-                                Log.e("TAG", "EventBus.getDefault().post");
-                                RxBus.get().post(new RecordChangedEvent());
+                    body, new OnHttpRequestListener() {
+                        @Override
+                        public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                            if (isError) {
+                                Logger.e(error.toString());
                                 new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
-                                        .title("提示")
-                                        .content("回抄成功，感谢您的使用，如有问题请联系我们!")
-                                        .positiveText("确定")
+                                        .title("提醒")
+                                        .content("充值结果回抄需要连接网络，请确保您已连接网络再试！")
+                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                updateStatus(payResultBean);
+                                            }
+                                        })
+                                        .cancelable(false)
+                                        .canceledOnTouchOutside(false)
+                                        .positiveText("重试")
                                         .build().show();
+
+                                bt_pay.setEnabled(false);
+
                             } else {
-                                ToastUtil.Companion.toastError(ProcessDes);
+                                Logger.i(response.toString());
+                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                String ProcessCode = ResponseHead.getString("ProcessCode");
+                                String ProcessDes = ResponseHead.getString("ProcessDes");
+                                if (ProcessCode.equals("0000")) {
+                                    Log.e("TAG", "EventBus.getDefault().post");
+                                    RxBus.get().post(new RecordChangedEvent());
+                                    new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
+                                            .title("提示")
+                                            .content("回抄成功，感谢您的使用，如有问题请联系我们!")
+                                            .positiveText("确定")
+                                            .build().show();
+                                } else {
+                                    ToastUtil.Companion.toastError(ProcessDes);
+                                }
                             }
                         }
                     });
@@ -1024,7 +1079,12 @@ public class BluetoothSheBeiActivity extends BaseActivity implements OnItemClick
             new MaterialDialog.Builder(BluetoothSheBeiActivity.this)
                     .title("提醒")
                     .content("充值结果回抄需要连接网络，请确保您已连接网络再试！")
-                    .onPositive((dialog, which) -> updateStatus(payResultBean))
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            updateStatus(payResultBean);
+                        }
+                    })
                     .cancelable(false)
                     .canceledOnTouchOutside(false)
                     .positiveText("重试")

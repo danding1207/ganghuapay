@@ -1,12 +1,10 @@
 package com.mqt.ganghuazhifu.activity
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
 import android.graphics.Color
-import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.app.ActivityCompat
@@ -14,9 +12,7 @@ import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewGroup.LayoutParams
 import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
 import com.afollestad.materialdialogs.MaterialDialog
 import com.alibaba.fastjson.JSONObject
 import com.amap.api.location.AMapLocationClient
@@ -30,12 +26,16 @@ import com.mqt.ganghuazhifu.adapter.GeneralContactAdapter
 import com.mqt.ganghuazhifu.bean.*
 import com.mqt.ganghuazhifu.bean.Unit
 import com.mqt.ganghuazhifu.databinding.ActivityPayTheGasFeeBinding
+import com.mqt.ganghuazhifu.event.ConstantKotlin
 import com.mqt.ganghuazhifu.ext.post
 import com.mqt.ganghuazhifu.http.HttpRequestParams
 import com.mqt.ganghuazhifu.http.HttpURLS
 import com.mqt.ganghuazhifu.listener.OnHttpRequestListener
 import com.mqt.ganghuazhifu.listener.OnRecyclerViewItemClickListener
-import com.mqt.ganghuazhifu.utils.*
+import com.mqt.ganghuazhifu.utils.DataBaiduPush
+import com.mqt.ganghuazhifu.utils.DateTextUtils
+import com.mqt.ganghuazhifu.utils.EncryptedPreferencesUtils
+import com.mqt.ganghuazhifu.utils.ToastUtil
 import com.orhanobut.logger.Logger
 import org.parceler.Parcels
 import java.text.SimpleDateFormat
@@ -43,10 +43,14 @@ import java.util.*
 
 /**
  * 缴纳气费(复用)
-
+ *
  * @author yang.lei
- * *
  * @date 2014-12-24
+ *
+ *
+ * 2018-02-06（yang.lei）：整合易通表的查询接口请求，删除蓝牙表和气量表的查询方法；整合优化各个界面传递订单类型的方式-枚举
+ *
+ *
  */
 class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener, OnRecyclerViewItemClickListener {
 
@@ -57,15 +61,18 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
     private var generalContactList: ArrayList<GeneralContact>? = null
     private var dialog: DatePickerDialog? = null
     private var adapter: GeneralContactAdapter? = null
-    private var isNFCOk: Boolean = false
     private var generalContact: GeneralContact? = null
     private var activityPayTheGasFeeBinding: ActivityPayTheGasFeeBinding? = null
+    private var orderType: ConstantKotlin.OrderType = ConstantKotlin.OrderType.GASFEEARREARS
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityPayTheGasFeeBinding = DataBindingUtil.setContentView<ActivityPayTheGasFeeBinding>(this,
                 R.layout.activity_pay_the_gas_fee)
-        type = intent.getIntExtra("TYPE", 1)
+
+        Logger.e("ConstantKotlin.OrderType.name:  " + intent.getStringExtra("OrderType"))
+        orderType = ConstantKotlin.OrderType.valueOf(intent.getStringExtra("OrderType"))
+
         generalContact = Parcels.unwrap<GeneralContact>(intent.getParcelableExtra<Parcelable>("GeneralContact"))
         initView()
         val calendar = Calendar.getInstance(Locale.CHINA)
@@ -76,35 +83,19 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
         )
+
+        dialog!!.setStartTitle("起始")
+        dialog!!.setEndTitle("终止")
+
     }
 
     private fun initView() {
         province = City()
         city = City()
         unit = Unit()
-        initNFC()
 
         setSupportActionBar(activityPayTheGasFeeBinding!!.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-
-        val params = LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                UnitConversionUtils.dipTopx(this, 50f))
-        params.leftMargin = UnitConversionUtils.dipTopx(this, 12f)
-        params.rightMargin = UnitConversionUtils.dipTopx(this, 12f)
-
-        if (WelcomeActivity.screenwidth == 0 || WelcomeActivity.screenhigh == 0) {
-            WelcomeActivity.screenwidth = EncryptedPreferencesUtils.getScreenSize()[0]
-            WelcomeActivity.screenhigh = EncryptedPreferencesUtils.getScreenSize()[1]
-        }
-        Logger.i("screenwidth--->" + WelcomeActivity.screenwidth)
-        Logger.i("screenhigh--->" + WelcomeActivity.screenhigh)
-
-        if (type == 1 || type == 2) {
-            params.topMargin = WelcomeActivity.screenhigh - UnitConversionUtils.dipTopx(this, 406f)
-        } else {
-            params.topMargin = WelcomeActivity.screenhigh - UnitConversionUtils.dipTopx(this, 468f)
-        }
-        activityPayTheGasFeeBinding!!.buttonNext.layoutParams = params
 
         activityPayTheGasFeeBinding!!.buttonNext.setOnClickListener(this)
         activityPayTheGasFeeBinding!!.linearLayoutCity.setOnClickListener(this)
@@ -115,94 +106,77 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
         activityPayTheGasFeeBinding!!.etNum.setAdapter(adapter)
         adapter!!.onRecyclerViewItemClickListener = this
 
-        if (type != 10) {
-            initPopupWindow()
-            activityPayTheGasFeeBinding!!.scrollViewAll.setOnTouchListener({ v, event ->
-                if (activityPayTheGasFeeBinding!!.citypicker.visibility == View.VISIBLE) {
-                    activityPayTheGasFeeBinding!!.citypicker.visibility = View.INVISIBLE
-                    activityPayTheGasFeeBinding!!.citypicker.setDefaut()
-                }
-                if (activityPayTheGasFeeBinding!!.unitpicker.visibility == View.VISIBLE) {
-                    activityPayTheGasFeeBinding!!.unitpicker.visibility = View.INVISIBLE
-                }
-                this@PayTheGasFeeActivity.currentFocus != null && this@PayTheGasFeeActivity.currentFocus!!.windowToken != null && App.manager!!.hideSoftInputFromWindow(this@PayTheGasFeeActivity.currentFocus!!.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-            })
 
-            activityPayTheGasFeeBinding!!.relativeLayoutAll.setOnTouchListener({ v, event ->
-                if (activityPayTheGasFeeBinding!!.citypicker.visibility == View.VISIBLE) {
-                    activityPayTheGasFeeBinding!!.citypicker.visibility = View.INVISIBLE
-                    activityPayTheGasFeeBinding!!.citypicker.setDefaut()
-                }
-                if (activityPayTheGasFeeBinding!!.unitpicker.visibility == View.VISIBLE) {
-                    activityPayTheGasFeeBinding!!.unitpicker.visibility = View.INVISIBLE
-                }
-                false
-            })
-            initAutoCompleteTextView()
-            activityPayTheGasFeeBinding!!.tvCity.text = "加载中..."
-            val calendar = Calendar.getInstance(Locale.CHINA)
-            val endyear = calendar.get(Calendar.YEAR)
-            val endmonth = calendar.get(Calendar.MONTH) + 1
-            val startyear: Int
-            val startmonth: Int
-            if (endmonth > 5) {
-                startyear = endyear
-                startmonth = endmonth - 5
-            } else {
-                startyear = endyear - 1
-                startmonth = endmonth - 5 + 12
+        initPopupWindow()
+        activityPayTheGasFeeBinding!!.scrollViewAll.setOnTouchListener({ v, event ->
+            if (activityPayTheGasFeeBinding!!.citypicker.visibility == View.VISIBLE) {
+                activityPayTheGasFeeBinding!!.citypicker.visibility = View.INVISIBLE
+                activityPayTheGasFeeBinding!!.citypicker.setDefaut()
             }
-
-            activityPayTheGasFeeBinding!!.tvTime.text = startyear.toString() + "." + DateTextUtils.DateToString(startmonth) + "-" + endyear + "." + DateTextUtils.DateToString(endmonth)
-
-            when (type) {
-                13, 12, 11, 9, 1 -> {
-                    supportActionBar!!.title = "缴纳气费"
-                    activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
-                    activityPayTheGasFeeBinding!!.tvNext.text = "下一步"
-                }
-                2 -> {
-                    supportActionBar!!.title = "缴纳营业费"
-                    activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
-                    activityPayTheGasFeeBinding!!.tvNext.text = "下一步"
-                }
-                3 -> {
-                    supportActionBar!!.title = "气费账单查询"
-                    activityPayTheGasFeeBinding!!.tvNext.text = "查询账单"
-                }
-                4 -> {
-                    supportActionBar!!.title = "营业费账单查询"
-                    activityPayTheGasFeeBinding!!.tvNext.text = "查询账单"
-                }
-                5 -> {
-                    supportActionBar!!.title = "缴纳水费"
-                    activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
-                    activityPayTheGasFeeBinding!!.tvNext.text = "下一步"
-                }
-                6 -> {
-                    supportActionBar!!.title = "水费账单查询"
-                    activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
-                    activityPayTheGasFeeBinding!!.tvNext.text = "查询账单"
-                }
-                7 -> {
-                    supportActionBar!!.title = "预存气费"
-                    activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
-                    activityPayTheGasFeeBinding!!.tvNext.text = "下一步"
-                }
+            if (activityPayTheGasFeeBinding!!.unitpicker.visibility == View.VISIBLE) {
+                activityPayTheGasFeeBinding!!.unitpicker.visibility = View.INVISIBLE
             }
+            this@PayTheGasFeeActivity.currentFocus != null && this@PayTheGasFeeActivity.currentFocus!!.windowToken != null && App.manager!!.hideSoftInputFromWindow(this@PayTheGasFeeActivity.currentFocus!!.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        })
+
+        activityPayTheGasFeeBinding!!.relativeLayoutAll.setOnTouchListener({ v, event ->
+            if (activityPayTheGasFeeBinding!!.citypicker.visibility == View.VISIBLE) {
+                activityPayTheGasFeeBinding!!.citypicker.visibility = View.INVISIBLE
+                activityPayTheGasFeeBinding!!.citypicker.setDefaut()
+            }
+            if (activityPayTheGasFeeBinding!!.unitpicker.visibility == View.VISIBLE) {
+                activityPayTheGasFeeBinding!!.unitpicker.visibility = View.INVISIBLE
+            }
+            false
+        })
+        initAutoCompleteTextView()
+
+        activityPayTheGasFeeBinding!!.tvCity.text = "加载中..."
+
+        val calendar = Calendar.getInstance(Locale.CHINA)
+        val endyear = calendar.get(Calendar.YEAR)
+        val endmonth = calendar.get(Calendar.MONTH) + 1
+        val startyear: Int
+        val startmonth: Int
+        if (endmonth > 5) {
+            startyear = endyear
+            startmonth = endmonth - 5
         } else {
-            supportActionBar!!.title = "缴纳气费"
-            activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
-            activityPayTheGasFeeBinding!!.tvNext.text = "下一步"
-            activityPayTheGasFeeBinding!!.tvCity.text = generalContact!!.pcityname
-            if (generalContact!!.privincecode != "9999") {
-                activityPayTheGasFeeBinding!!.tvCity.text = generalContact!!.pcityname + "  " + generalContact!!.ccityname
-            } else {
-                activityPayTheGasFeeBinding!!.tvCity.text = generalContact!!.ccityname
+            startyear = endyear - 1
+            startmonth = endmonth - 5 + 12
+        }
+
+        activityPayTheGasFeeBinding!!.tvTime.text = startyear.toString() + "." + DateTextUtils.DateToString(startmonth) + "-" + endyear + "." + DateTextUtils.DateToString(endmonth)
+
+        when (orderType) {
+            ConstantKotlin.OrderType.GASFEEARREARS -> {
+                supportActionBar!!.title = "缴纳气费"
+                activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
+                activityPayTheGasFeeBinding!!.tvNext.text = "下一步"
             }
-            activityPayTheGasFeeBinding!!.tvUnit.text = generalContact!!.cdtrnm
-            activityPayTheGasFeeBinding!!.etNum.setText(generalContact!!.usernb)
-            activityPayTheGasFeeBinding!!.etNum.isEnabled = false
+            ConstantKotlin.OrderType.GASFEEBILL -> {
+                supportActionBar!!.title = "气费账单查询"
+                activityPayTheGasFeeBinding!!.tvNext.text = "查询账单"
+            }
+            ConstantKotlin.OrderType.OPERATINGFEEARREARS -> {
+                supportActionBar!!.title = "缴纳营业费"
+                activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
+                activityPayTheGasFeeBinding!!.tvNext.text = "下一步"
+            }
+            ConstantKotlin.OrderType.OPERATINGFEEBILL -> {
+                supportActionBar!!.title = "营业费账单查询"
+                activityPayTheGasFeeBinding!!.tvNext.text = "查询账单"
+            }
+            ConstantKotlin.OrderType.WATERFEEARREARS -> {
+                supportActionBar!!.title = "缴纳水费"
+                activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
+                activityPayTheGasFeeBinding!!.tvNext.text = "下一步"
+            }
+            ConstantKotlin.OrderType.WATERFEEBILL -> {
+                supportActionBar!!.title = "水费账单查询"
+                activityPayTheGasFeeBinding!!.linearLayoutTime.visibility = View.GONE
+                activityPayTheGasFeeBinding!!.tvNext.text = "查询账单"
+            }
         }
     }
 
@@ -343,46 +317,25 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                 dialog!!.setYearRange(1985, 2028)
                 dialog!!.show(fragmentManager, TAG)
             }
-            R.id.button_next -> when (type) {
-                11 -> serach11()
-                13 -> serach13()
-                1 ->
-                    when (unit!!.PayeeCode) {
-                        "320000320100019999" ->
-                            // 南京港华燃气公司编号 = 320000320100019999
-                            serach_nanjing()
-                        "320000321100019998" ->
-                            // 宝华港华燃气公司编号 = 320000321100019998
-                            serach_baohua()
-                        else -> serach1()
-                    }
-                12, 9 ->
-                    when (unit!!.PayeeCode) {
-                        "320000320100019999" ->
-                            // 南京港华燃气公司编号 = 320000320100019999
-                            serach_nanjing9()
-                        "320000321100019998" ->
-                            // 宝华港华燃气公司编号 = 320000321100019998
-                            serach_baohua9()
-                        else -> serach9()
-                    }
-                2 -> serach2()
-                3 -> serach3()
-                4 -> serach4()
-                5 -> serach5()
-                6 -> serach6()
-                10 -> if (null != generalContact!!.payeecode) {
-                    when (generalContact!!.payeecode) {
-                        "320000320100019999" ->
-                            // 南京港华燃气公司编号 = 320000320100019999
-                            serach_nanjing10()
-                        "320000321100019998" ->
-                            // 宝华港华燃气公司编号 = 320000321100019998
-                            serach_baohua10()
-                        else -> serach10()
-                    }
-                } else {
-                    ToastUtil.toastInfo("该城市没有缴费单位")
+            R.id.button_next -> {
+                // 1:缴纳气费;2:缴纳营业费;3:查询气费;4:查询营业费;
+                // 5：缴纳水费;6:查询水费账单;7:NFC预存气费;8:营业费预存;9:蓝牙读卡器缴气费;
+                // 10:常用联系人缴费;11:气量表缴费NFC;12:蓝牙表预存气费;13:气量表缴费蓝牙
+
+                when (orderType) {
+                    ConstantKotlin.OrderType.GASFEEARREARS ->
+                        when (unit!!.PayeeCode) {
+                            ConstantKotlin.NanJingCode ->
+                                serach_nanjing()
+                            ConstantKotlin.BaoHuaCode ->
+                                serach_baohua()
+                            else -> serachGasFeeArrears()
+                        }
+                    ConstantKotlin.OrderType.GASFEEBILL -> serachGasFeeBill()
+                    ConstantKotlin.OrderType.OPERATINGFEEARREARS -> serachOperatingFeeArrears()
+                    ConstantKotlin.OrderType.OPERATINGFEEBILL -> serachOperatingFeeBill()
+                    ConstantKotlin.OrderType.WATERFEEARREARS -> serachWaterFeeArrears()
+                    ConstantKotlin.OrderType.WATERFEEBILL -> serachWaterFeeBill()
                 }
             }
         }
@@ -391,13 +344,12 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
     /**
      * 水费欠费查询
      */
-    private fun serach5() {
+    private fun serachWaterFeeArrears() {
         if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
             ToastUtil.toastWarning("只允许输入数字与字母")
             return
         }
         if (checkEmpty()) {
-
             val body = HttpRequestParams
                     .getParamsForWaterFee(
                             if (province == null || province!!.CityCode == null || province!!.CityCode == "9999")
@@ -423,8 +375,6 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                         result.UserAddr = ResponseFields.getString("UserAddr")
                         result.UserNb = ResponseFields.getString("UserNb")
                         result.UserName = ResponseFields.getString("UserName")
-                        // result.ChargeType = ResponseFields
-                        // .getString("ChargeType");
                         result.AB = ResponseFields.getString("AB")
                         result.AllWaterFee = ResponseFields.getString("AllWaterFee")
                         result.TSH = ResponseFields.getString("TSH")
@@ -435,42 +385,28 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                         var lists: MutableList<WaterFeeRecord> = ArrayList()
                         if (FeeCountDetail == null) {
                             ToastUtil.toastInfo("没有查到水费欠费记录")
+                            return@OnHttpRequestListener
                         } else if (FeeCountDetail.startsWith("{")) {
                             lists.add(JSONObject.parseObject<WaterFeeRecord>(FeeCountDetail, WaterFeeRecord::class.java))
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.WaterFeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForWaterFeeActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
-                            // intent.putExtra("TYPE", 1);
-                            intent.putExtra("WaterFeeResult", Parcels.wrap<WaterFeeResult>(result))
-                            startActivity(intent)
                         } else if (FeeCountDetail.startsWith("[")) {
                             lists = JSONObject.parseArray<WaterFeeRecord>(FeeCountDetail, WaterFeeRecord::class.java)
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.WaterFeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForWaterFeeActivity::class.java)
-
-                            Logger.i(unit!!.PayeeCode)
-                            // intent.putExtra("TYPE", 1);
-                            intent.putExtra("WaterFeeResult", Parcels.wrap<WaterFeeResult>(result))
-                            startActivity(intent)
                         }
+
+                        result.CityCode = city!!.CityCode
+                        result.ProvinceCode = if (province == null || province!!.CityCode == null
+                                || province!!.CityCode == "9999")
+                            city!!.PcityCode
+                        else
+                            province!!.CityCode
+                        result.PayeeCode = unit!!.PayeeCode
+                        result.WaterFeeCountDetail = lists
+                        Logger.i(result.toString())
+                        val intent = Intent(this@PayTheGasFeeActivity,
+                                ResultForWaterFeeActivity::class.java)
+                        Logger.i(unit!!.PayeeCode)
+                        intent.putExtra("WaterFeeResult", Parcels.wrap<WaterFeeResult>(result))
+                        startActivity(intent)
+
                     } else {
                         ToastUtil.toastError(ProcessDes)
                         if (ProcessDes.startsWith("由于系统")) {
@@ -488,13 +424,12 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
     /**
      * 水费账单查询
      */
-    private fun serach6() {
+    private fun serachWaterFeeBill() {
         if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
             ToastUtil.toastWarning("只允许输入数字与字母")
             return
         }
         if (checkEmpty()) {
-
             val body = HttpRequestParams
                     .getParamsForWaterBill(
                             if (province == null || province!!.CityCode == null || province!!.CityCode == "9999")
@@ -525,28 +460,22 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                         var lists: MutableList<WaterBillRecord> = ArrayList()
                         if (FeeCountDetail == null) {
                             ToastUtil.toastInfo("没有查到水费欠费记录")
+                            return@OnHttpRequestListener
                         } else if (FeeCountDetail.startsWith("{")) {
                             lists.add(JSONObject.parseObject<WaterBillRecord>(FeeCountDetail, WaterBillRecord::class.java))
-                            result.WaterBillFeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForWaterBillActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
-                            // intent.putExtra("TYPE", 1);
-                            intent.putExtra("WaterBillResult", Parcels.wrap<WaterBillResult>(result))
-                            startActivity(intent)
                         } else if (FeeCountDetail.startsWith("[")) {
                             lists = JSONObject.parseArray<WaterBillRecord>(FeeCountDetail, WaterBillRecord::class.java)
-                            result.WaterBillFeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForWaterBillActivity::class.java)
-
-                            Logger.i(unit!!.PayeeCode)
-                            // intent.putExtra("TYPE", 1);
-                            intent.putExtra("WaterBillResult", Parcels.wrap<WaterBillResult>(result))
-                            startActivity(intent)
                         }
+
+                        result.WaterBillFeeCountDetail = lists
+                        Logger.i(result.toString())
+                        val intent = Intent(this@PayTheGasFeeActivity,
+                                ResultForWaterBillActivity::class.java)
+
+                        Logger.i(unit!!.PayeeCode)
+                        intent.putExtra("WaterBillResult", Parcels.wrap<WaterBillResult>(result))
+                        startActivity(intent)
+
                     } else {
                         ToastUtil.toastError(ProcessDes)
                         if (ProcessDes.startsWith("由于系统")) {
@@ -604,48 +533,34 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
 
                         Logger.i("QueryId-->" + result.QueryId)
 
-
                         var lists: MutableList<GasFeeRecord> = ArrayList()
                         if (FeeCountDetail == null) {
-                            ToastUtil.toastInfo("没有查到水费欠费记录")
+                            ToastUtil.toastInfo("没有查到气费欠费记录")
+                            return@OnHttpRequestListener
                         } else if (FeeCountDetail.startsWith("{")) {
                             lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
                         } else if (FeeCountDetail.startsWith("[")) {
                             lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
                         }
+
+                        result.CityCode = city!!.CityCode
+                        result.ProvinceCode = if (province == null || province!!.CityCode == null
+                                || province!!.CityCode == "9999")
+                            city!!.PcityCode
+                        else
+                            province!!.CityCode
+                        result.PayeeCode = unit!!.PayeeCode
+                        result.FeeCountDetail = lists
+                        Logger.i(result.toString())
+                        val intent = Intent(this@PayTheGasFeeActivity,
+                                ResultForGasFeeActivity::class.java)
+
+                        Logger.i(unit!!.PayeeCode)
+
+                        intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEARREARS.name)
+                        intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
+                        startActivity(intent)
+
                     } else {
                         ToastUtil.toastError(ProcessDes)
                         if (ProcessDes.startsWith("由于系统")) {
@@ -679,7 +594,6 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                 if (isError) {
                     Logger.e(error.toString())
                 } else {
-                    // TODO Auto-generated method stub
                     Logger.i(response.toString())
                     val ResponseHead = response.getJSONObject("ResponseHead")
                     val ResponseFields = response.getJSONObject("ResponseFields")
@@ -702,412 +616,34 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                         result.AllGasfee = ResponseFields.getString("AllGasfee")
                         result.DueMonth = ResponseFields.getString("DueMonth")
                         result.QueryId = ResponseFields.getString("QueryId")
-                        //                                result.QuerySeq = ResponseFields.getString("QuerySeq");
-                        var lists: MutableList<GasFeeRecord> = ArrayList()
-                        if (FeeCountDetail == null) {
-                            ToastUtil.toastInfo("没有查到水费欠费记录")
-                        } else if (FeeCountDetail.startsWith("{")) {
-                            lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
 
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        } else if (FeeCountDetail.startsWith("[")) {
-                            lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        }
-                    } else {
-                        ToastUtil.toastError(ProcessDes)
-                        if (ProcessDes.startsWith("由于系统")) {
-                            activityPayTheGasFeeBinding!!.buttonNext.setCardBackgroundColor(Color.parseColor("#7D7D7D"))
-                            activityPayTheGasFeeBinding!!.tvNext.setTextColor(ContextCompat.getColor(this, R.color.dark_gray))
-                            activityPayTheGasFeeBinding!!.buttonNext.isClickable = false
-                        }
-                    }
-                }
-            })
-        }
-    }
-
-    /**
-     * 南京燃气费欠费查询（10011033）
-     */
-    private fun serach_nanjing9() {
-        if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
-            ToastUtil.toastWarning("只允许输入数字与字母")
-            return
-        }
-        if (checkEmpty()) {
-            val body = HttpRequestParams
-                    .getParamsForNanJingGasFeeBlue(
-                            if (province == null || province!!.CityCode == null || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode,
-                            city!!.CityCode, activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }), unit!!.PayeeCode)
-
-            post(HttpURLS.njGasArrearsQuery, true, "njGasFee", body, OnHttpRequestListener { isError, response, type, error ->
-                if (isError) {
-                    Logger.e(error.toString())
-                } else {
-                    // TODO Auto-generated method stub
-                    Logger.i(response.toString())
-                    val ResponseHead = response.getJSONObject("ResponseHead")
-                    val ResponseFields = response.getJSONObject("ResponseFields")
-                    val ProcessCode = ResponseHead.getString("ProcessCode")
-                    val ProcessDes = ResponseHead.getString("ProcessDes")
-
-                    if (ProcessCode == "0000") {
-                        val result = GasFeeResult()
-                        val FeeCountDetail = ResponseFields.getString("FeeCountDetail")
-                        result.UserNb = ResponseFields.getString("UserNb")
-                        result.UserAddr = ResponseFields.getString("UserAddr")
-                        if (ResponseFields.containsKey("UserName")) {
-                            result.UserName = ResponseFields.getString("UserName")
-                        } else {
-                            result.UserName = ""
-                        }
-                        result.AllGasfee = ResponseFields.getString("AllGasfee")
-                        result.FeeCount = ResponseFields.getString("FeeCount")
-                        result.QuerySeq = ResponseFields.getString("QuerySeq")
-                        result.QueryId = ResponseFields.getString("QueryId")
-                        var lists: MutableList<GasFeeRecord> = ArrayList()
-                        if (FeeCountDetail == null) {
-                            ToastUtil.toastInfo("没有查到水费欠费记录")
-                        } else if (FeeCountDetail.startsWith("{")) {
-                            lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        } else if (FeeCountDetail.startsWith("[")) {
-                            lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        }
-                    } else {
-                        ToastUtil.toastError(ProcessDes)
-                        if (ProcessDes.startsWith("由于系统")) {
-                            activityPayTheGasFeeBinding!!.buttonNext.setCardBackgroundColor(Color.parseColor("#7D7D7D"))
-                            activityPayTheGasFeeBinding!!.tvNext.setTextColor(ContextCompat.getColor(this, R.color.dark_gray))
-                            activityPayTheGasFeeBinding!!.buttonNext.isClickable = false
-                        }
-                    }
-                }
-            })
-        }
-    }
-
-    /**
-     * 宝华燃气费欠费查询（10011033）
-     */
-    private fun serach_baohua9() {
-        if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
-            ToastUtil.toastWarning("只允许输入数字与字母")
-            return
-        }
-        if (checkEmpty()) {
-            val body = HttpRequestParams
-                    .getParamsForBaoHuaGasFeeBlue(
-                            if (province == null || province!!.CityCode == null || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode,
-                            city!!.CityCode, activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }), unit!!.PayeeCode)
-            post(HttpURLS.bhGasArrearsQuery, true, "bhGasFee", body, OnHttpRequestListener { isError, response, type, error ->
-                if (isError) {
-                    Logger.e(error.toString())
-                } else {
-                    // TODO Auto-generated method stub
-                    Logger.i(response.toString())
-                    val ResponseHead = response.getJSONObject("ResponseHead")
-                    val ResponseFields = response.getJSONObject("ResponseFields")
-                    val ProcessCode = ResponseHead.getString("ProcessCode")
-                    val ProcessDes = ResponseHead.getString("ProcessDes")
-
-                    if (ProcessCode == "0000") {
-                        val result = GasFeeResult()
-                        val FeeCountDetail = ResponseFields.getString("FeeCountDetail")
-                        result.UserNb = ResponseFields.getString("UserNb")
-                        result.ProvinceCode = ResponseFields.getString("ProvinceCode")
-                        result.CityCode = ResponseFields.getString("CityCode")
-                        result.AllGasfee = ResponseFields.getString("AllGasfee")
-                        result.UserAddr = ResponseFields.getString("UserAddr")
-                        result.QueryId = ResponseFields.getString("QueryId")
-                        if (ResponseFields.containsKey("UserName")) {
-                            result.UserName = ResponseFields.getString("UserName")
-                        } else {
-                            result.UserName = ""
-                        }
-                        result.AllGasfee = ResponseFields.getString("AllGasfee")
-                        result.DueMonth = ResponseFields.getString("DueMonth")
-                        //                                result.QuerySeq = ResponseFields.getString("QuerySeq");
-                        var lists: MutableList<GasFeeRecord> = ArrayList()
-                        if (FeeCountDetail == null) {
-                            ToastUtil.toastInfo("没有查到水费欠费记录")
-                        } else if (FeeCountDetail.startsWith("{")) {
-                            lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        } else if (FeeCountDetail.startsWith("[")) {
-                            lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        }
-                    } else {
-                        ToastUtil.toastError(ProcessDes)
-                        if (ProcessDes.startsWith("由于系统")) {
-                            activityPayTheGasFeeBinding!!.buttonNext.setCardBackgroundColor(Color.parseColor("#7D7D7D"))
-                            activityPayTheGasFeeBinding!!.tvNext.setTextColor(ContextCompat.getColor(this, R.color.dark_gray))
-                            activityPayTheGasFeeBinding!!.buttonNext.isClickable = false
-                        }
-                    }
-                }
-            })
-        }
-    }
-
-    /**
-     * 宝华燃气费欠费查询（10011033）
-     */
-    private fun serach_baohua10() {
-        if (checkEmpty()) {
-            val body = HttpRequestParams
-                    .getParamsForBaoHuaGasFee(generalContact!!.privincecode,
-                            generalContact!!.citycode, generalContact!!.usernb, generalContact!!.payeecode)
-            post(HttpURLS.bhGasArrearsQuery, true, "bhGasFee", body, OnHttpRequestListener { isError, response, type, error ->
-                if (isError) {
-                    Logger.e(error.toString())
-                } else {
-                    // TODO Auto-generated method stub
-                    Logger.i(response.toString())
-                    val ResponseHead = response.getJSONObject("ResponseHead")
-                    val ResponseFields = response.getJSONObject("ResponseFields")
-                    val ProcessCode = ResponseHead.getString("ProcessCode")
-                    val ProcessDes = ResponseHead.getString("ProcessDes")
-
-                    if (ProcessCode == "0000") {
-                        val result = GasFeeResult()
-                        val FeeCountDetail = ResponseFields.getString("FeeCountDetail")
-                        result.UserNb = ResponseFields.getString("UserNb")
-                        result.ProvinceCode = ResponseFields.getString("ProvinceCode")
-                        result.CityCode = ResponseFields.getString("CityCode")
-                        result.AllGasfee = ResponseFields.getString("AllGasfee")
-                        result.UserAddr = ResponseFields.getString("UserAddr")
-                        if (ResponseFields.containsKey("UserName")) {
-                            result.UserName = ResponseFields.getString("UserName")
-                        } else {
-                            result.UserName = ""
-                        }
-                        result.AllGasfee = ResponseFields.getString("AllGasfee")
-                        result.DueMonth = ResponseFields.getString("DueMonth")
-                        result.QueryId = ResponseFields.getString("QueryId")
-                        //                                result.QuerySeq = ResponseFields.getString("QuerySeq");
                         var lists: MutableList<GasFeeRecord> = ArrayList()
                         if (FeeCountDetail == null) {
                             ToastUtil.toastInfo("没有查到气费欠费记录")
+                            return@OnHttpRequestListener
                         } else if (FeeCountDetail.startsWith("{")) {
                             lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
                         } else if (FeeCountDetail.startsWith("[")) {
                             lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
                         }
-                    } else {
-                        ToastUtil.toastError(ProcessDes)
-                        if (ProcessDes.startsWith("由于系统")) {
-                            activityPayTheGasFeeBinding!!.buttonNext.setCardBackgroundColor(Color.parseColor("#7D7D7D"))
-                            activityPayTheGasFeeBinding!!.tvNext.setTextColor(ContextCompat.getColor(this, R.color.dark_gray))
-                            activityPayTheGasFeeBinding!!.buttonNext.isClickable = false
-                        }
-                    }
-                }
-            })
-        }
-    }
 
-    /**
-     * 南京燃气费欠费查询（10011033）
-     */
-    private fun serach_nanjing10() {
-        if (checkEmpty()) {
-            val body = HttpRequestParams
-                    .getParamsForNanJingGasFee(
-                            generalContact!!.privincecode,
-                            generalContact!!.citycode, generalContact!!.usernb, generalContact!!.payeecode)
-            post(HttpURLS.njGasArrearsQuery, true, "njGasFee", body, OnHttpRequestListener { isError, response, type, error ->
-                if (isError) {
-                    Logger.e(error.toString())
-                } else {
-                    // TODO Auto-generated method stub
-                    Logger.i(response.toString())
-                    val ResponseHead = response.getJSONObject("ResponseHead")
-                    val ResponseFields = response.getJSONObject("ResponseFields")
-                    val ProcessCode = ResponseHead.getString("ProcessCode")
-                    val ProcessDes = ResponseHead.getString("ProcessDes")
+                        result.CityCode = city!!.CityCode
+                        result.ProvinceCode = if (province == null || province!!.CityCode == null
+                                || province!!.CityCode == "9999")
+                            city!!.PcityCode
+                        else
+                            province!!.CityCode
+                        result.PayeeCode = unit!!.PayeeCode
+                        result.FeeCountDetail = lists
+                        Logger.i(result.toString())
+                        val intent = Intent(this@PayTheGasFeeActivity,
+                                ResultForGasFeeActivity::class.java)
+                        Logger.i(unit!!.PayeeCode)
 
-                    if (ProcessCode == "0000") {
-                        val result = GasFeeResult()
-                        val FeeCountDetail = ResponseFields.getString("FeeCountDetail")
-                        result.UserNb = ResponseFields.getString("UserNb")
-                        result.UserAddr = ResponseFields.getString("UserAddr")
-                        if (ResponseFields.containsKey("UserName")) {
-                            result.UserName = ResponseFields.getString("UserName")
-                        } else {
-                            result.UserName = ""
-                        }
-                        result.AllGasfee = ResponseFields.getString("AllGasfee")
-                        result.FeeCount = ResponseFields.getString("FeeCount")
-                        result.QuerySeq = ResponseFields.getString("QuerySeq")
-                        result.QueryId = ResponseFields.getString("QueryId")
-                        var lists: MutableList<GasFeeRecord> = ArrayList()
-                        if (FeeCountDetail == null) {
-                            ToastUtil.toastInfo("没有查到气费欠费记录")
-                        } else if (FeeCountDetail.startsWith("{")) {
-                            lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
-                            result.CityCode = generalContact!!.citycode
-                            result.ProvinceCode = generalContact!!.privincecode
-                            result.PayeeCode = generalContact!!.payeecode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-                            Logger.i(generalContact!!.payeecode)
+                        intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEARREARS.name)
+                        intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
+                        startActivity(intent)
 
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        } else if (FeeCountDetail.startsWith("[")) {
-                            lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
-                            result.CityCode = generalContact!!.citycode
-                            result.ProvinceCode = generalContact!!.privincecode
-                            result.PayeeCode = generalContact!!.payeecode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-
-                            Logger.i(generalContact!!.payeecode)
-
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        }
                     } else {
                         ToastUtil.toastError(ProcessDes)
                         if (ProcessDes.startsWith("由于系统")) {
@@ -1124,7 +660,7 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
     /**
      * 缴纳气费
      */
-    private fun serach1() {
+    private fun serachGasFeeArrears() {
         if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
             ToastUtil.toastWarning("只允许输入数字与字母")
             return
@@ -1142,6 +678,7 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                     Logger.e(error.toString())
                 } else {
                     Logger.i(response.toString())
+
                     val ResponseHead = response.getJSONObject("ResponseHead")
                     val ResponseFields = response.getJSONObject("ResponseFields")
                     val ProcessCode = ResponseHead.getString("ProcessCode")
@@ -1150,331 +687,102 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                     if (ProcessCode == "0000") {
                         val result = GasFeeResult()
                         val FeeCountDetail = ResponseFields.getString("FeeCountDetail")
-                        result.HasBusifee = ResponseFields.getString("HasBusifee")
-                        result.FeeCount = ResponseFields.getString("FeeCount")
-                        result.UserAddr = ResponseFields.getString("UserAddr")
-                        result.UserNb = ResponseFields.getString("UserNb")
-                        result.UserName = ResponseFields.getString("UserName")
-                        result.AllGasfee = ResponseFields.getString("AllGasfee")
-                        result.EasyNo = ResponseFields.getString("EasyNo")
-                        result.NFCFlag = ResponseFields.getString("NFCFlag")
-                        result.QueryId = ResponseFields.getString("QueryId")
-                        result.NFCSecurAlert = ResponseFields.getString("NFCSecurAlert")
-                        result.NFCLimitGasFee = ResponseFields.getFloatValue("NFCLimitGasFee")
-                        result.NFCNotWriteGas = ResponseFields.getFloatValue("NFCNotWriteGas")
-                        result.QueryId = ResponseFields.getString("QueryId")
-                        if ("11" == result.NFCFlag) {
-                            Companion.type = 7
-                        } else if ("13" == result.NFCFlag) {
-                            Companion.type = 12
-                        }
 
-                        if (!isNFCOk && "11" == result.NFCFlag) {
-                            MaterialDialog.Builder(this@PayTheGasFeeActivity)
-                                    .title("提醒")
-                                    .content("手机不支持NFC功能，请更换手机")
-                                    .positiveText("确定")
-                                    .show()
-                        } else {
-                            var lists: MutableList<GasFeeRecord> = ArrayList()
-                            if (FeeCountDetail == null) {
-                                if (Companion.type != 7) {
-                                    ToastUtil.toastInfo("没有查到气费欠费记录")
-                                    return@OnHttpRequestListener
-                                }
-                            } else if (FeeCountDetail.startsWith("{")) {
-                                lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
+                        result.EasyNo = ResponseFields.getString("EasyNo")//速记号
+                        result.UserNb = ResponseFields.getString("UserNb")//户号
+                        if (ResponseFields.containsKey("NfcFlag"))
+                            result.NFCFlag = ResponseFields.getString("NfcFlag")//表具类型
+                        if (ResponseFields.containsKey("MeterType"))
+                            result.MeterType = ResponseFields.getString("MeterType")//金额表类型
+                        result.SecurAlert = ResponseFields.getString("SecurAlert")//NFC表安检提醒
+                        result.NfcSumcount = ResponseFields.getString("NfcSumcount")//购气次数
+                        result.IcCardno = ResponseFields.getString("IcCardno")//IC卡号
+                        result.UserName = ResponseFields.getString("UserName")//客户名
+                        result.UserAddr = ResponseFields.getString("UserAddr")//地址
+                        result.HasBusifee = ResponseFields.getString("HasBusifee")//营业费标记
+                        result.AllGasfee = ResponseFields.getString("AllGasfee")//应收总额
+                        result.FeeCount = ResponseFields.getString("FeeCount")//金额表类型
+                        result.QueryId = ResponseFields.getString("QueryId")//查询标识
 
-                            } else if (FeeCountDetail.startsWith("[")) {
-                                lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
-                            }
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
+                        if (ResponseFields.containsKey("NFCNotWriteGas"))
+                            result.NFCNotWriteGas = ResponseFields.getFloat("NFCNotWriteGas")//NFC未写表金额
+                        if (ResponseFields.containsKey("LimitGasfee"))
+                            result.LimitGasfee = ResponseFields.getFloat("LimitGasfee")//限购金额
 
-                            intent.putExtra("TYPE", Companion.type)
 
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        }
-                    } else {
-                        ToastUtil.toastError(ProcessDes)
-                        if (ProcessDes.startsWith("由于系统")) {
-                            activityPayTheGasFeeBinding!!.buttonNext.setCardBackgroundColor(Color.parseColor("#7D7D7D"))
-                            activityPayTheGasFeeBinding!!.tvNext.setTextColor(ContextCompat.getColor(this, R.color.dark_gray))
-                            activityPayTheGasFeeBinding!!.buttonNext.isClickable = false
-                        }
-                    }
-                }
-            })
-        }
-    }
-
-    /**
-     * 缴纳气费
-     */
-    private fun serach9() {
-        if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
-            ToastUtil.toastWarning("只允许输入数字与字母")
-            return
-        }
-        if (checkEmpty()) {
-            val body = HttpRequestParams.getParamsForGasFeeBlue(
-                    if (province == null || province!!.CityCode == null || province!!.CityCode == "9999")
-                        city!!.PcityCode
-                    else
-                        province!!.CityCode,
-                    city!!.CityCode, activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }), "1", unit!!.PayeeCode, null)
-            Logger.e(body.toString())
-            post(HttpURLS.gasArrearsQuery, true, "GasFee", body, OnHttpRequestListener { isError, response, type, error ->
-                if (isError) {
-                    Logger.e(error.toString())
-                } else {
-                    Logger.i(response.toString())
-                    val ResponseHead = response.getJSONObject("ResponseHead")
-                    val ResponseFields = response.getJSONObject("ResponseFields")
-                    val ProcessCode = ResponseHead.getString("ProcessCode")
-                    val ProcessDes = ResponseHead.getString("ProcessDes")
-
-                    if (ProcessCode == "0000") {
-
-                        val result = GasFeeResult()
-                        val FeeCountDetail = ResponseFields.getString("FeeCountDetail")
-                        result.HasBusifee = ResponseFields.getString("HasBusifee")
-                        result.FeeCount = ResponseFields.getString("FeeCount")
-                        result.UserAddr = ResponseFields.getString("UserAddr")
-                        result.UserNb = ResponseFields.getString("UserNb")
-                        result.UserName = ResponseFields.getString("UserName")
-                        result.AllGasfee = ResponseFields.getString("AllGasfee")
-                        result.EasyNo = ResponseFields.getString("EasyNo")
-                        result.NFCFlag = ResponseFields.getString("NFCFlag")
-                        result.NFCSecurAlert = ResponseFields.getString("NFCSecurAlert")
-                        result.NFCLimitGasFee = ResponseFields.getFloatValue("NFCLimitGasFee")
-                        result.NFCNotWriteGas = ResponseFields.getFloatValue("NFCNotWriteGas")
-                        if (ResponseFields.containsKey("ICcardNo")) {
-                            result.ICcardNo = ResponseFields.getString("ICcardNo")
-                        }
-                        if (ResponseFields.containsKey("NFCICSumCount")) {
-                            result.NFCICSumCount = ResponseFields.getInteger("NFCICSumCount")
-                        }
-                        result.QueryId = ResponseFields.getString("QueryId")
-                        if ("10" == result.NFCFlag) {
-                            MaterialDialog.Builder(this@PayTheGasFeeActivity)
-                                    .title("提醒")
-                                    .content("该表具不支持蓝牙充值，请更换气费充值！")
-                                    .positiveText("确定")
-                                    .show()
-                        } else if (result.NFCICSumCount == 0) {
-                            MaterialDialog.Builder(this@PayTheGasFeeActivity)
-                                    .title("提醒")
-                                    .content("系统充值次数异常，请前往营业厅查询")
-                                    .positiveText("确定")
-                                    .show()
-                        } else {
-                            var lists: MutableList<GasFeeRecord> = ArrayList()
-                            if (FeeCountDetail == null) {
-                            } else if (FeeCountDetail.startsWith("{")) {
-                                lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
-                            } else if (FeeCountDetail.startsWith("[")) {
-                                lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
-                            }
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", Companion.type)
-
-                            intent.putExtra("GasFeeResult",
-                                    Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        }
-                    } else {
-                        ToastUtil.toastError(ProcessDes)
-                        if (ProcessDes.startsWith("由于系统")) {
-                            activityPayTheGasFeeBinding!!.buttonNext.setCardBackgroundColor(Color.parseColor("#7D7D7D"))
-                            activityPayTheGasFeeBinding!!.tvNext.setTextColor(ContextCompat.getColor(this, R.color.dark_gray))
-                            activityPayTheGasFeeBinding!!.buttonNext.isClickable = false
-                        }
-                    }
-                }
-            })
-        }
-    }
-
-    /**
-     * 缴纳气费
-     */
-    private fun serach10() {
-        val body = HttpRequestParams.getParamsForGasFee(generalContact!!.privincecode, generalContact!!.citycode,
-                generalContact!!.usernb, "1", generalContact!!.payeecode, null)
-        post(HttpURLS.gasArrearsQuery, true, "GasFee", body, OnHttpRequestListener { isError, response, type, error ->
-            if (isError) {
-                Logger.e(error.toString())
-            } else {
-                Logger.i(response.toString())
-                val ResponseHead = response.getJSONObject("ResponseHead")
-                val ResponseFields = response.getJSONObject("ResponseFields")
-                val ProcessCode = ResponseHead.getString("ProcessCode")
-                val ProcessDes = ResponseHead.getString("ProcessDes")
-
-                if (ProcessCode == "0000") {
-                    val result = GasFeeResult()
-                    val FeeCountDetail = ResponseFields.getString("FeeCountDetail")
-                    result.HasBusifee = ResponseFields.getString("HasBusifee")
-                    result.FeeCount = ResponseFields.getString("FeeCount")
-                    result.UserAddr = ResponseFields.getString("UserAddr")
-                    result.UserNb = ResponseFields.getString("UserNb")
-                    result.UserName = ResponseFields.getString("UserName")
-                    result.AllGasfee = ResponseFields.getString("AllGasfee")
-                    result.EasyNo = ResponseFields.getString("EasyNo")
-                    result.NFCFlag = ResponseFields.getString("NFCFlag")
-                    result.NFCSecurAlert = ResponseFields.getString("NFCSecurAlert")
-                    result.NFCLimitGasFee = ResponseFields.getFloatValue("NFCLimitGasFee")
-                    result.NFCNotWriteGas = ResponseFields.getFloatValue("NFCNotWriteGas")
-                    result.QueryId = ResponseFields.getString("QueryId")
-                    if ("11" == result.NFCFlag) {
-                        Companion.type = 7
-                    } else if ("13" == result.NFCFlag) {
-                        Companion.type = 12
-                    }
-
-                    if (!isNFCOk && "11" == result.NFCFlag) {
-                        MaterialDialog.Builder(this@PayTheGasFeeActivity)
-                                .title("提醒")
-                                .content("手机不支持NFC功能，请更换手机")
-                                .positiveText("确定")
-                                .show()
-                    } else {
                         var lists: MutableList<GasFeeRecord> = ArrayList()
                         if (FeeCountDetail == null) {
-                            ToastUtil.toastInfo("没有查到气费欠费记录")
+
                         } else if (FeeCountDetail.startsWith("{")) {
                             lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
-                            result.CityCode = generalContact!!.citycode
-                            result.ProvinceCode = generalContact!!.privincecode
-                            result.PayeeCode = generalContact!!.payeecode
 
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity, ResultForGasFeeActivity::class.java)
-                            Logger.i(generalContact!!.payeecode)
-
-                            intent.putExtra("TYPE", Companion.type)
-
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
                         } else if (FeeCountDetail.startsWith("[")) {
                             lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
-                            result.CityCode = generalContact!!.citycode
-                            result.ProvinceCode = generalContact!!.privincecode
-                            result.PayeeCode = generalContact!!.payeecode
-                            result.FeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity, ResultForGasFeeActivity::class.java)
+                        }
+                        result.CityCode = city!!.CityCode
+                        result.ProvinceCode = if (province == null || province!!.CityCode == null
+                                || province!!.CityCode == "9999")
+                            city!!.PcityCode
+                        else
+                            province!!.CityCode
+                        result.PayeeCode = unit!!.PayeeCode
+                        result.FeeCountDetail = lists
+                        Logger.i(result.toString())
+                        val intent = Intent(this@PayTheGasFeeActivity,
+                                ResultForGasFeeActivity::class.java)
+                        Logger.i(unit!!.PayeeCode)
 
-                            Logger.i(generalContact!!.payeecode)
-
-                            if ("11" == result.NFCFlag && Companion.type != 9) {
-                                intent.putExtra("TYPE", 7)
-                            } else {
-                                intent.putExtra("TYPE", Companion.type)
+                        /*
+                         * 根据表具类型，设置订单类型
+                         * 2018-02-06 leiyang
+                         *
+                         * 默认：机械表
+                         */
+                        when (result.NFCFlag) {
+                            "0" -> intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEARREARS.name)//机械表
+                            "1" -> {
+                                //金额表
+                                when (result.MeterType) {
+                                    "1" -> {
+                                        if(TextUtils.isEmpty(result.IcCardno)) {
+                                            intent.putExtra("OrderType", ConstantKotlin.OrderType.NFCGASFEEPREDEPOSIT.name)//NFC表
+                                        } else {
+                                            intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEPREDEPOSIT.name)//NFC表
+                                        }
+                                    }
+                                    "2" -> intent.putExtra("OrderType", ConstantKotlin.OrderType.BLUETOOTHGASFEEPREDEPOSIT.name)//蓝牙表
+                                    else -> {
+                                        if(TextUtils.isEmpty(result.IcCardno)) {
+                                            intent.putExtra("OrderType", ConstantKotlin.OrderType.NFCGASFEEPREDEPOSIT.name)//NFC表
+                                        } else {
+                                            intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEPREDEPOSIT.name)//NFC表
+                                        }
+                                    }
+                                }
                             }
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
+                            "2" -> {
+                                //气量表
+                                when (result.MeterType) {
+                                    "1" -> intent.putExtra("OrderType", ConstantKotlin.OrderType.NFCGASFEEICPREDEPOSIT.name)//气量NFC表
+                                    "2" -> {
+                                        //气量蓝牙表
+                                        MaterialDialog.Builder(this)
+                                                .title("提示")
+                                                .content("暂不支持气量蓝牙表！")
+                                                .cancelable(false)
+                                                .canceledOnTouchOutside(false)
+                                                .positiveText("确定")
+                                                .build().show()
+                                        return@OnHttpRequestListener
+                                    }
+                                    else -> intent.putExtra("OrderType", ConstantKotlin.OrderType.NFCGASFEEICPREDEPOSIT.name)//气量NFC表
+                                }
+                            }
+                            else -> intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEARREARS.name)//机械表
                         }
-                    }
-                } else {
-                    ToastUtil.toastError(ProcessDes)
-                    if (ProcessDes.startsWith("由于系统")) {
-                        activityPayTheGasFeeBinding!!.buttonNext.setCardBackgroundColor(Color.parseColor("#7D7D7D"))
-                        activityPayTheGasFeeBinding!!.tvNext.setTextColor(ContextCompat.getColor(this, R.color.dark_gray))
-                        activityPayTheGasFeeBinding!!.buttonNext.isClickable = false
-                    }
-                }
-            }
-        })
-    }
 
-    /**
-     * IC卡气量表缴费
-     */
-    private fun serach11() {
-        if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
-            ToastUtil.toastWarning("只允许输入数字与字母")
-            return
-        }
-        if (checkEmpty()) {
-            val body = HttpRequestParams.getParamsForGasICMesQuery(if (province == null || province!!.CityCode == null || province!!.CityCode == "9999")
-                city!!.PcityCode
-            else
-                province!!.CityCode,
-                    city!!.CityCode, activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }), "1", unit!!.PayeeCode)
-            post(HttpURLS.gasICMesQuery, true, "GasIC", body, OnHttpRequestListener { isError, response, type, error ->
-                if (isError) {
-                    Logger.e(error.toString())
-                } else {
-                    Logger.i(response.toString())
-                    val ResponseHead = response.getJSONObject("ResponseHead")
-                    val ResponseFields = response.getJSONObject("ResponseFields")
-                    val ProcessCode = ResponseHead.getString("ProcessCode")
-                    val ProcessDes = ResponseHead.getString("ProcessDes")
-
-                    if (ProcessCode == "0000") {
-                        val result = GasFeeResult()
-                        result.UserAddr = ResponseFields.getString("UserAddr")
-                        result.UserNb = ResponseFields.getString("UserNb")
-                        result.UserName = ResponseFields.getString("UserName")
-                        result.EasyNo = ResponseFields.getString("EasyNo")
-                        result.ICcardNo = ResponseFields.getString("ICcardNo")
-                        result.UserCanAmount = ResponseFields.getFloatValue("UserCanAmount")
-                        result.PriceId = ResponseFields.getFloatValue("PriceId")
-                        result.QueryId = ResponseFields.getString("QueryId")
-                        result.NFCLimitGasFee = ResponseFields.getFloatValue("NFCLimitGasFee")
-                        result.NFCICSumCount = ResponseFields.getInteger("NFCICSumCount")
-                        result.NFCFlag = ResponseFields.getString("NFCFlag")
-
-                        result.AllGasfee = ResponseFields.getString("ALL_GASFEE")
-                        result.FeeCount = ResponseFields.getString("FEE_COUNT")
-                        result.HasBusifee = ResponseFields.getString("HasBusifee")
-
-                        if ("14" != result.NFCFlag) {
-                            MaterialDialog.Builder(this@PayTheGasFeeActivity)
-                                    .title("提醒")
-                                    .content("该用户不属于NFC气量表具，请选择普通缴费")
-                                    .positiveText("确定")
-                                    .show()
-                        } else {
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity, ResultForGasFeeActivity::class.java)
-                            intent.putExtra("TYPE", 11)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        }
+                        intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
+                        startActivity(intent)
 
                     } else {
                         ToastUtil.toastError(ProcessDes)
@@ -1490,85 +798,121 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
     }
 
     /**
-     * IC卡气量表缴费  蓝牙
+     * 缴纳气费
      */
-    private fun serach13() {
-        if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
-            ToastUtil.toastWarning("只允许输入数字与字母")
-            return
-        }
-        if (checkEmpty()) {
-            val body = HttpRequestParams.getParamsForGasICMesQuery(if (province == null || province!!.CityCode == null || province!!.CityCode == "9999")
-                city!!.PcityCode
-            else
-                province!!.CityCode,
-                    city!!.CityCode, activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }), "1", unit!!.PayeeCode)
-            post(HttpURLS.gasICMesQuery, true, "GasIC", body, OnHttpRequestListener { isError, response, type, error ->
-                if (isError) {
-                    Logger.e(error.toString())
-                } else {
-                    Logger.i(response.toString())
-                    val ResponseHead = response.getJSONObject("ResponseHead")
-                    val ResponseFields = response.getJSONObject("ResponseFields")
-                    val ProcessCode = ResponseHead.getString("ProcessCode")
-                    val ProcessDes = ResponseHead.getString("ProcessDes")
+//    private fun serachGasFeeArrears() {
+//        if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
+//            ToastUtil.toastWarning("只允许输入数字与字母")
+//            return
+//        }
+//        if (checkEmpty()) {
+//            val body = HttpRequestParams.getParamsForGasFeeBlue(
+//                    if (province == null || province!!.CityCode == null || province!!.CityCode == "9999")
+//                        city!!.PcityCode
+//                    else
+//                        province!!.CityCode,
+//                    city!!.CityCode, activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }), "1", unit!!.PayeeCode, null)
+//
+//            post(HttpURLS.gasArrearsQuery, true, "GasFee", body, OnHttpRequestListener { isError, response, type, error ->
+//                if (isError) {
+//                    Logger.e(error.toString())
+//                } else {
+//                    Logger.i(response.toString())
+//
+//                    val ResponseHead = response.getJSONObject("ResponseHead")
+//                    val ResponseFields = response.getJSONObject("ResponseFields")
+//                    val ProcessCode = ResponseHead.getString("ProcessCode")
+//                    val ProcessDes = ResponseHead.getString("ProcessDes")
+//
+//                    if (ProcessCode == "0000") {
+//                        val result = GasFeeResult()
+//                        val FeeCountDetail = ResponseFields.getString("FeeCountDetail")
+//
+//                        result.EasyNo = ResponseFields.getString("EasyNo")//速记号
+//                        result.UserNb = ResponseFields.getString("UserNb")//户号
+//                        if (ResponseFields.containsKey("NfcFlag"))
+//                            result.NFCFlag = ResponseFields.getString("NfcFlag")//表具类型
+//
+//                        result.SecurAlert = ResponseFields.getString("NfcSecurAlert")//NFC表安检提醒
+//                        result.NfcSumcount = ResponseFields.getString("NfcICSumCount")//购气次数
+//                        result.IcCardno = ResponseFields.getString("ICcardNo")//IC卡号
+//                        result.UserName = ResponseFields.getString("UserName")//客户名
+//                        result.UserAddr = ResponseFields.getString("UserAddr")//地址
+//                        result.HasBusifee = ResponseFields.getString("HasBusifee")//营业费标记
+//                        result.AllGasfee = ResponseFields.getString("AllGasfee")//应收总额
+//                        result.FeeCount = ResponseFields.getString("FeeCount")//金额表类型
+//                        result.QueryId = ResponseFields.getString("QueryId")//查询标识
+//
+//
+//                        if (ResponseFields.containsKey("NFCNotWriteGas"))
+//                            result.NFCNotWriteGas = ResponseFields.getFloat("NFCNotWriteGas")//NFC未写表金额
+//                        if (ResponseFields.containsKey("LimitGasfee"))
+//                            result.LimitGasfee = ResponseFields.getFloat("LimitGasfee")//限购金额
+//
+//
+//                        var lists: MutableList<GasFeeRecord> = ArrayList()
+//                        if (FeeCountDetail == null) {
+//
+//                        } else if (FeeCountDetail.startsWith("{")) {
+//                            lists.add(JSONObject.parseObject<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java))
+//
+//                        } else if (FeeCountDetail.startsWith("[")) {
+//                            lists = JSONObject.parseArray<GasFeeRecord>(FeeCountDetail, GasFeeRecord::class.java)
+//                        }
+//                        result.CityCode = city!!.CityCode
+//                        result.ProvinceCode = if (province == null || province!!.CityCode == null
+//                                || province!!.CityCode == "9999")
+//                            city!!.PcityCode
+//                        else
+//                            province!!.CityCode
+//                        result.PayeeCode = unit!!.PayeeCode
+//                        result.FeeCountDetail = lists
+//                        Logger.i(result.toString())
+//                        val intent = Intent(this@PayTheGasFeeActivity,
+//                                ResultForGasFeeActivity::class.java)
+//                        Logger.i(unit!!.PayeeCode)
+//
+//                        /*
+//                         * 根据表具类型，设置订单类型（老接口）
+//                         * 2018-02-06 leiyang
+//                         *
+//                         * 默认：机械表
+//                         */
+//                        when (result.NFCFlag) {
+//                            "0" -> intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEARREARS.name)//机械表
+//                            "1" -> {
+//                                if(TextUtils.isEmpty(result.IcCardno)) {
+//                                    intent.putExtra("OrderType", ConstantKotlin.OrderType.NFCGASFEEPREDEPOSIT.name)//NFC表
+//                                } else {
+//                                    intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEPREDEPOSIT.name)//NFC表
+//                                }
+//                            }
+//                            "2" -> intent.putExtra("OrderType", ConstantKotlin.OrderType.BLUETOOTHGASFEEPREDEPOSIT.name)//蓝牙表
+//                            else -> intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEARREARS.name)//机械表
+//                        }
+//
+//                        intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
+//                        startActivity(intent)
+//
+//                    } else {
+//                        ToastUtil.toastError(ProcessDes)
+//                        if (ProcessDes.startsWith("由于系统")) {
+//                            activityPayTheGasFeeBinding!!.buttonNext.setCardBackgroundColor(Color.parseColor("#7D7D7D"))
+//                            activityPayTheGasFeeBinding!!.tvNext.setTextColor(ContextCompat.getColor(this, R.color.dark_gray))
+//                            activityPayTheGasFeeBinding!!.buttonNext.isClickable = false
+//                        }
+//                    }
+//                }
+//            })
+//        }
+//    }
 
-                    if (ProcessCode == "0000") {
-                        val result = GasFeeResult()
-                        result.UserAddr = ResponseFields.getString("UserAddr")
-                        result.UserNb = ResponseFields.getString("UserNb")
-                        result.UserName = ResponseFields.getString("UserName")
-                        result.EasyNo = ResponseFields.getString("EasyNo")
-                        result.ICcardNo = ResponseFields.getString("ICcardNo")
-                        result.UserCanAmount = ResponseFields.getFloatValue("UserCanAmount")
-                        result.PriceId = ResponseFields.getFloatValue("PriceId")
-                        result.QueryId = ResponseFields.getString("QueryId")
-                        result.NFCLimitGasFee = ResponseFields.getFloatValue("NFCLimitGasFee")
-                        result.NFCICSumCount = ResponseFields.getInteger("NFCICSumCount")
-                        result.NFCFlag = ResponseFields.getString("NFCFlag")
 
-                        result.AllGasfee = ResponseFields.getString("ALL_GASFEE")
-                        result.FeeCount = ResponseFields.getString("FEE_COUNT")
-                        result.HasBusifee = ResponseFields.getString("HasBusifee")
-
-                        if ("14" != result.NFCFlag) {
-                            MaterialDialog.Builder(this@PayTheGasFeeActivity)
-                                    .title("提醒")
-                                    .content("该用户不属于NFC气量表具，请选择普通缴费")
-                                    .positiveText("确定")
-                                    .show()
-                        } else {
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity, ResultForGasFeeActivity::class.java)
-                            intent.putExtra("TYPE", 13)
-                            intent.putExtra("GasFeeResult", Parcels.wrap<GasFeeResult>(result))
-                            startActivity(intent)
-                        }
-
-                    } else {
-                        ToastUtil.toastError(ProcessDes)
-                        if (ProcessDes.startsWith("由于系统")) {
-                            activityPayTheGasFeeBinding!!.buttonNext.setCardBackgroundColor(Color.parseColor("#7D7D7D"))
-                            activityPayTheGasFeeBinding!!.tvNext.setTextColor(ContextCompat.getColor(this, R.color.dark_gray))
-                            activityPayTheGasFeeBinding!!.buttonNext.isClickable = false
-                        }
-                    }
-                }
-            })
-        }
-    }
 
     /**
      * 缴纳营业费
      */
-    private fun serach2() {
+    private fun serachOperatingFeeArrears() {
         if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
             ToastUtil.toastWarning("只允许输入数字与字母")
             return
@@ -1579,7 +923,8 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                         city!!.PcityCode
                     else
                         province!!.CityCode,
-                    city!!.CityCode, activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }), "1", unit!!.PayeeCode, null)
+                    city!!.CityCode, activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }), "1", unit!!.PayeeCode,
+                    null)
             post(HttpURLS.gasBusinessQuery, true, "BusiFee", body, OnHttpRequestListener { isError, response, type, error ->
                 if (isError) {
                     Logger.e(error.toString())
@@ -1601,74 +946,38 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                         result.EasyNo = ResponseFields.getString("EasyNo")
                         result.QueryId = ResponseFields.getString("QueryId")
                         result.PRESAVING = ResponseFields.getString("PRESAVING")
+                        result.PreStore = ResponseFields.getString("PreStore")
 
                         var lists: MutableList<BusiFeeRecord> = ArrayList()
 
-
                         if (BusifeeCountDetail == null) {
-
-                            if (unit!!.PayeeCode.equals("440000440100010072")) {
-
-                                result.CityCode = city!!.CityCode
-                                result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                        || province!!.CityCode == "9999")
-                                    city!!.PcityCode
-                                else
-                                    province!!.CityCode
-                                result.PayeeCode = unit!!.PayeeCode
-                                result.BusifeeCountDetail = lists
-                                Logger.i(result.toString())
-                                val intent = Intent(this@PayTheGasFeeActivity,
-                                        ResultForGasFeeActivity::class.java)
-
-                                Logger.i(unit!!.PayeeCode)
-
-                                intent.putExtra("TYPE", 2)
-                                intent.putExtra("BusiFeeResult", Parcels.wrap<BusiFeeResult>(result))
-                                startActivity(intent)
-
-                            } else {
-                                ToastUtil.toastInfo("没有查到营业费欠费记录")
+                            if (!"11".equals(result.PreStore)) {
+                                ToastUtil.toastInfo("没有查到营业费欠费记录!")
+                                return@OnHttpRequestListener
                             }
-
                         } else if (BusifeeCountDetail.startsWith("{")) {
                             lists.add(JSONObject.parseObject<BusiFeeRecord>(BusifeeCountDetail, BusiFeeRecord::class.java))
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.BusifeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 2)
-                            intent.putExtra("BusiFeeResult", Parcels.wrap<BusiFeeResult>(result))
-                            startActivity(intent)
                         } else if (BusifeeCountDetail.startsWith("[")) {
                             lists = JSONObject.parseArray<BusiFeeRecord>(BusifeeCountDetail, BusiFeeRecord::class.java)
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            result.BusifeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasFeeActivity::class.java)
-                            Logger.i(unit!!.PayeeCode)
-
-                            intent.putExtra("TYPE", 2)
-                            intent.putExtra("BusiFeeResult", Parcels.wrap<BusiFeeResult>(result))
-                            startActivity(intent)
                         }
+
+                        result.CityCode = city!!.CityCode
+                        result.ProvinceCode = if (province == null || province!!.CityCode == null
+                                || province!!.CityCode == "9999")
+                            city!!.PcityCode
+                        else
+                            province!!.CityCode
+                        result.PayeeCode = unit!!.PayeeCode
+                        result.BusifeeCountDetail = lists
+                        Logger.i(result.toString())
+                        val intent = Intent(this@PayTheGasFeeActivity,
+                                ResultForGasFeeActivity::class.java)
+                        Logger.i(unit!!.PayeeCode)
+
+                        intent.putExtra("OrderType", ConstantKotlin.OrderType.OPERATINGFEEARREARS.name)
+                        intent.putExtra("BusiFeeResult", Parcels.wrap<BusiFeeResult>(result))
+                        startActivity(intent)
+
                     } else {
                         ToastUtil.toastError(ProcessDes)
                         if (ProcessDes.startsWith("由于系统")) {
@@ -1685,7 +994,7 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
     /**
      * 查询气费账单
      */
-    private fun serach3() {
+    private fun serachGasFeeBill() {
         if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
             ToastUtil.toastWarning("只允许输入数字与字母")
             return
@@ -1725,45 +1034,30 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                         var lists = ArrayList<GasBillRecord>()
                         if (FeeCountDetail == null) {
                             ToastUtil.toastInfo("没有查到气费账单记录")
+                            return@OnHttpRequestListener
                         } else if (FeeCountDetail.startsWith("{")) {
                             lists.add(JSONObject.parseObject<GasBillRecord>(FeeCountDetail, GasBillRecord::class.java))
-                            result.FeeCountDetail = doSomeThing(lists)
-//                                    result.FeeCountDetail = lists
-
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasBillActivity::class.java)
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasBillResult", Parcels.wrap<GasBillResult>(result))
-                            startActivity(intent)
                         } else if (FeeCountDetail.startsWith("[")) {
-                            lists = JSONObject.parseArray<GasBillRecord>(FeeCountDetail,
-                                    GasBillRecord::class.java) as ArrayList<GasBillRecord>
-                            // result.FeeCountDetail =
-                            // doSomeThing(lists);
-                            result.FeeCountDetail = lists
-
-                            result.CityCode = city!!.CityCode
-                            result.ProvinceCode = if (province == null || province!!.CityCode == null
-                                    || province!!.CityCode == "9999")
-                                city!!.PcityCode
-                            else
-                                province!!.CityCode
-                            result.PayeeCode = unit!!.PayeeCode
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasBillActivity::class.java)
-                            intent.putExtra("TYPE", 1)
-                            intent.putExtra("GasBillResult", Parcels.wrap<GasBillResult>(result))
-                            startActivity(intent)
+                            lists = JSONObject.parseArray<GasBillRecord>(FeeCountDetail, GasBillRecord::class.java) as ArrayList<GasBillRecord>
                         }
+
+                        result.FeeCountDetail = doSomeThing(lists)
+
+                        result.CityCode = city!!.CityCode
+                        result.ProvinceCode = if (province == null || province!!.CityCode == null
+                                || province!!.CityCode == "9999")
+                            city!!.PcityCode
+                        else
+                            province!!.CityCode
+                        result.PayeeCode = unit!!.PayeeCode
+                        Logger.i(result.toString())
+                        val intent = Intent(this@PayTheGasFeeActivity,
+                                ResultForGasBillActivity::class.java)
+
+                        intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEBILL.name)
+                        intent.putExtra("GasBillResult", Parcels.wrap<GasBillResult>(result))
+                        startActivity(intent)
+
                     } else {
                         ToastUtil.toastError(ProcessDes)
                         if (ProcessDes.startsWith("由于系统")) {
@@ -1852,7 +1146,7 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
     /**
      * 查询营业费账单
      */
-    private fun serach4() {
+    private fun serachOperatingFeeBill() {
         if (!isLetterDigitOrChinese(activityPayTheGasFeeBinding!!.etNum.text.toString().trim({ it <= ' ' }))) {
             ToastUtil.toastWarning("只允许输入数字与字母")
             return
@@ -1890,29 +1184,22 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
                         var lists: MutableList<BusiBillRecord> = ArrayList()
                         if (BusifeeCountDetail == null) {
                             ToastUtil.toastInfo("没有查到营业费账单记录")
+                            return@OnHttpRequestListener
                         } else if (BusifeeCountDetail.startsWith("{")) {
                             lists.add(JSONObject.parseObject<BusiBillRecord>(BusifeeCountDetail, BusiBillRecord::class.java))
-                            result.BusifeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasBillActivity::class.java)
-                            intent.putExtra("TYPE", 2)
-                            intent.putExtra("BusiBillResult", Parcels.wrap<BusiBillResult>(result))
-                            startActivity(intent)
                         } else if (BusifeeCountDetail.startsWith("[")) {
                             lists = JSONObject.parseArray<BusiBillRecord>(BusifeeCountDetail, BusiBillRecord::class.java)
-                            result.BusifeeCountDetail = lists
-                            Logger.i(result.toString())
-                            val intent = Intent(this@PayTheGasFeeActivity,
-                                    ResultForGasBillActivity::class.java)
-                            intent.putExtra("TYPE", 2)
-                            intent.putExtra("BusiBillResult", Parcels.wrap<BusiBillResult>(result))
-                            startActivity(intent)
                         }
-                        // result.CityCode = city.CityCode;
-                        // result.ProvinceCode =
-                        // province==null||province.CityCode==null||province.CityCode.equals("9999")?city.PcityCode:province.CityCode;
-                        // result.PayeeCode = unit.PayeeCode;
+
+                        result.BusifeeCountDetail = lists
+                        Logger.i(result.toString())
+                        val intent = Intent(this@PayTheGasFeeActivity,
+                                ResultForGasBillActivity::class.java)
+
+                        intent.putExtra("OrderType", ConstantKotlin.OrderType.OPERATINGFEEBILL.name)
+                        intent.putExtra("BusiBillResult", Parcels.wrap<BusiBillResult>(result))
+                        startActivity(intent)
+
                     } else {
                         ToastUtil.toastError(ProcessDes)
                         if (ProcessDes.startsWith("由于系统")) {
@@ -1935,7 +1222,8 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
             ToastUtil.toastWarning("请选择缴费单位")
             return false
         }
-        if (type == 3 || type == 4) {
+        if (orderType == ConstantKotlin.OrderType.GASFEEBILL ||
+                orderType == ConstantKotlin.OrderType.OPERATINGFEEBILL) {
             if (TextUtils.isEmpty(activityPayTheGasFeeBinding!!.tvTime.text.toString())) {
                 ToastUtil.toastWarning("请选择起始时间")
                 return false
@@ -2136,9 +1424,44 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
     }
 
     override fun onDateSet(view: DatePickerDialog?, year: Int, monthOfYear: Int, dayOfMonth: Int, yearEnd: Int, monthOfYearEnd: Int, dayOfMonthEnd: Int) {
-        activityPayTheGasFeeBinding!!.tvTime.text = year.toString() + "." +
-                DateTextUtils.DateToString(monthOfYear + 1) + "-" + yearEnd + "." +
-                DateTextUtils.DateToString(monthOfYearEnd + 1)
+        if (year > yearEnd) {
+            MaterialDialog.Builder(this)
+                    .title("提示")
+                    .content("只能查询最近6个月账单！")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .positiveText("确定")
+                    .build().show()
+        } else if (monthOfYear > monthOfYearEnd) {
+            MaterialDialog.Builder(this)
+                    .title("提示")
+                    .content("只能查询最近6个月账单！")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .positiveText("确定")
+                    .build().show()
+        } else if (yearEnd - year > 1) {
+            MaterialDialog.Builder(this)
+                    .title("提示")
+                    .content("只能查询最近6个月账单！")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .positiveText("确定")
+                    .build().show()
+        } else if ((yearEnd == year && monthOfYearEnd - monthOfYear > 5) || (yearEnd == year + 1 && monthOfYearEnd + 12 - monthOfYear > 5)) {
+            MaterialDialog.Builder(this)
+                    .title("提示")
+                    .content("只能查询最近6个月账单！")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .positiveText("确定")
+                    .build().show()
+        } else {
+            activityPayTheGasFeeBinding!!.tvTime.text = year.toString() + "." +
+                    DateTextUtils.DateToString(monthOfYear + 1) + "-" + yearEnd + "." +
+                    DateTextUtils.DateToString(monthOfYearEnd + 1)
+        }
+
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
@@ -2161,14 +1484,6 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
         return false
     }
 
-    /**
-     * 检测设备是否支持NFC并检测是否已开启NFC
-     */
-    @SuppressLint("NewApi")
-    private fun initNFC() {
-        val mNfcAdapter = NfcAdapter.getDefaultAdapter(this)
-        isNFCOk = mNfcAdapter != null
-    }
 
     override fun onItemClick(view: View, position: Int) {
         province!!.CityCode = generalContactList!![position].privincecode
@@ -2190,15 +1505,8 @@ class PayTheGasFeeActivity : BaseActivity(), DatePickerDialog.OnDateSetListener,
 
     }
 
-    companion object {
-
-        private var type: Int = 0// 1:缴纳气费;2:缴纳营业费;3:查询气费;4:查询营业费;
-        // 5：缴纳水费;6:查询水费账单;7:NFC预存气费;8:营业费预存;9:蓝牙读卡器缴气费;
-        // 10:常用联系人缴费;11:气量表缴费NFC;12:蓝牙表预存气费;13:气量表缴费蓝牙
-
-        fun isLetterDigitOrChinese(str: String): Boolean {
-            val regex = "^[a-z0-9A-Z]+$"
-            return str.matches((regex).toRegex())
-        }
+    fun isLetterDigitOrChinese(str: String): Boolean {
+        val regex = "^[a-z0-9A-Z]+$"
+        return str.matches((regex).toRegex())
     }
 }

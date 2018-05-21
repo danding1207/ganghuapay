@@ -2,12 +2,10 @@ package com.mqt.ganghuazhifu.activity
 
 import android.annotation.SuppressLint
 import android.databinding.DataBindingUtil
+import android.net.http.SslError
 import android.os.Bundle
 import android.view.View
-import android.webkit.WebChromeClient
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 //import com.tencent.smtt.sdk.WebChromeClient
 //import com.tencent.smtt.sdk.WebSettings
 //import com.tencent.smtt.sdk.WebView
@@ -121,6 +119,9 @@ class MovableActivity : BaseActivity() {
             super.onPageFinished(view, url)
             dismissRoundProcessDialog()
             Logger.d("onPageFinished-url:" + url)
+        }
+        override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
+            handler.proceed()
         }
     }
 

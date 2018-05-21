@@ -71,7 +71,12 @@
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
             android:persistent="true"
+
             android:theme="@style/AppTheme.NoActionBar">
+
+        <meta-data
+                android:name="android.max_aspect"
+                android:value="2.1" />
 
         <!-- 适配Android N系统必需的ContentProvider声明，写权限包含应用包名-->
         <provider
@@ -94,7 +99,7 @@
         <!-- 在百度开发者中心查询应用的API Key -->
         <meta-data
                 android:name="com.baidu.push.apikey"
-                android:value="1olRgEGaKY2lkksGs9z0YMiN"/>
+                android:value="f3mjlDvvFNTyCDmSLsjtbZdM"/>
 
         <!-- 主程序 -->
         <activity
@@ -133,6 +138,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.NFCSelectActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:windowSoftInputMode="adjustPan|stateHidden">
+
+        </activity>
+
 
         <!-- 登录 -->
         <activity
@@ -226,6 +240,16 @@
                 android:screenOrientation="portrait"
                 android:launchMode="singleTask"
                 android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+
+        <!-- 手势密码 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.VeriyLockPatternActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden"/>
+
 
         <!-- 账户管理 -->
         <activity
@@ -605,6 +629,27 @@
         </activity>
 
 
+        <!-- 设置安保问题 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.SetAccountActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden">
+
+        </activity>
+
+        <!-- NFC和蓝牙 流程 展示 -->
+        <activity
+                android:name="com.mqt.ganghuazhifu.activity.NFCLiuChengActivity"
+                android:configChanges="keyboardHidden|orientation"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustPan|stateHidden">
+
+        </activity>
+
+
         <receiver android:name="com.mqt.ganghuazhifu.receiver.ApkInstallReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
@@ -722,6 +767,15 @@
                 <data android:scheme="mqt"/>
             </intent-filter>
         </activity>
+
+        <receiver android:name=".receiver.NetworkConnectChangedReceiver" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+            </intent-filter>
+        </receiver>
+
 
     </application>
 

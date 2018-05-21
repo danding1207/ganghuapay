@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -24,6 +26,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.alibaba.fastjson.JSONObject;
 import com.hwangjr.rxbus.RxBus;
@@ -36,6 +39,7 @@ import com.mqt.ganghuazhifu.http.CusFormBody;
 import com.mqt.ganghuazhifu.http.HttpRequest;
 import com.mqt.ganghuazhifu.http.HttpRequestParams;
 import com.mqt.ganghuazhifu.http.HttpURLS;
+import com.mqt.ganghuazhifu.listener.OnHttpRequestListener;
 import com.mqt.ganghuazhifu.utils.ToastUtil;
 import com.orhanobut.logger.Logger;
 import com.xt.bluecard.CardInfo;
@@ -55,6 +59,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 /**
  * 读NFC燃气表
@@ -80,7 +87,7 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
     private CardManager manager;
     private boolean isConnected = false;
     private String money;
-    private String times;
+    private int times;
     private String orderNb;
     private String UserNb;
     private String ICcardNo;
@@ -89,14 +96,14 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
     private Toolbar toolbar;
     private ImageView ib_pic_right;
     private TextView tv_name, tv_addr, tv_status, tv_res;
-    private Button bt_read, bt_pay;
+    private CardView bt_read, bt_pay;
 
-    private int shebeiType;
+    private int shebeiType; //1：金额表；2：气量表；
 
 
     private Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
-            Logger.d("msg==" + msg.what);
+            Logger.i("msg==" + msg.what);
             closeProgress();
             MaterialDialog.Builder builder = new MaterialDialog.Builder(BluetoothActivity.this)
                     .title("提醒")
@@ -137,7 +144,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                     if (cardInfo != null) {
                         int type = msg.arg1;
 
-                        times = String.valueOf(Integer.valueOf(cardInfo.buyTimes) + 1);
+                        times = cardInfo.buyTimes + 1;
+
                         Logger.i("times---->" + times);
 
 //                        UserNb = cardInfo.userCode;
@@ -263,8 +271,8 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
         tv_addr = (TextView) findViewById(R.id.tv_addr);
         tv_status = (TextView) findViewById(R.id.tv_status);
         tv_res = (TextView) findViewById(R.id.tv_res);
-        bt_read = (Button) findViewById(R.id.bt_read);
-        bt_pay = (Button) findViewById(R.id.bt_pay);
+        bt_read = (CardView) findViewById(R.id.bt_read);
+        bt_pay = (CardView) findViewById(R.id.bt_pay);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("蓝牙读卡器写卡");
@@ -285,7 +293,12 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                     .positiveText("确定")
                     .cancelable(false)
                     .canceledOnTouchOutside(false)
-                    .onPositive((dialog1, which) -> finish())
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            finish();
+                        }
+                    })
                     .show();
         } else {
             manager.disConnectBlE();
@@ -319,6 +332,12 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
             View view = View.inflate(this, R.layout.device_list, null);
             lv_devices = (ListView) view.findViewById(R.id.list);
             pb = (ProgressBar) view.findViewById(R.id.pb);
+            view.findViewById(R.id.iv_cancle).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    bluetoothDialog.dismiss();
+                }
+            });
             lv_devices.setOnItemClickListener(this);
             bluetoothDialog.setView(view);
         }
@@ -395,7 +414,7 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
      * 显示充值时需要输入的数据对话框
      */
     private void showPayDialog() {
-        CardInfo cardInfo = manager.readCard();
+        final CardInfo cardInfo = manager.readCard();
         //户号检查
         if (!cardInfo.userCode.equals(getMeterNum(UserNb))) {
             new MaterialDialog.Builder(BluetoothActivity.this)
@@ -408,16 +427,16 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
             return;
         }
         //充值次数检查
-//        if (NFCICSumCount != (cardInfo.buyTimes + 1)) {
-//            new MaterialDialog.Builder(BluetoothActivity.this)
-//                    .title("提醒")
-//                    .cancelable(false)
-//                    .positiveText("确定")
-//                    .canceledOnTouchOutside(false)
-//                    .content("卡片充值次数异常，请前往营业厅查询(系统次数：" + NFCICSumCount + ", 卡片次数：" + cardInfo.buyTimes + ")！")
-//                    .show();
-//            return;
-//        }
+        if (NFCICSumCount != times) {
+            new MaterialDialog.Builder(BluetoothActivity.this)
+                    .title("提醒")
+                    .cancelable(false)
+                    .positiveText("确定")
+                    .canceledOnTouchOutside(false)
+                    .content("卡片充值次数异常，请前往营业厅查询(系统次数：" + NFCICSumCount + ", 卡片次数：" + cardInfo.buyTimes + ")！")
+                    .show();
+            return;
+        }
 
         boolean enable = manager.isEnable(cardInfo);
         if (!enable) {
@@ -448,315 +467,55 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
             return;
         }
 
-        Observable.create((Observable.OnSubscribe<String>) subscriber -> {
-
-            CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "10",
-                    serialNum[1], random8Hex[1], null, null, null, null, null);
-            Logger.i("sendToAuth");
-            HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
-                    HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
-                    "bluetooth", body, (isError, response, type, error) -> {
-                        if (isError) {
-                            Logger.e(error.toString());
-                            subscriber.onError(error);
-                        } else {
-                            Logger.t("CardManager").i(response.toString());
-                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                            String ProcessCode = ResponseHead.getString("ProcessCode");
-                            String ProcessDes = ResponseHead.getString("ProcessDes");
-                            if (ProcessCode.equals("0000")) {
-                                String auth = ResponseFields.getString("SignMsg");
-                                auth = Utils.getMapValue(auth, "DesRandm");
-                                if (auth.equals("-1")) {
-                                    subscriber.onError(new Throwable("IP端口错误 "));
-                                } else if (auth.equals("-2")) {
-                                    subscriber.onError(new Throwable("外部认证登录失败 "));
-                                } else if (auth.equals("-3")) {
-                                    subscriber.onError(new Throwable("返回值错误 "));
-                                } else {
-                                    subscriber.onNext(auth);
-                                }
-                            } else {
-                                subscriber.onError(new Throwable(ProcessDes));
-                            }
-                        }
-                    });
-        }).flatMap(authResult -> {
-            Logger.t("CardManager").i("联网外部认证结果==" + authResult);
-            String[] transOutAuth = manager.transOutAuth(authResult);
-            if (!transOutAuth[0].equals("1")) {
-                return Observable.error(new Throwable("外部认证指令错误1：错误码：" + transOutAuth[1]));
-            }
-            //第一次外部认证成功,接下来先写金额
-
-            int fen = 0;
-            switch (shebeiType) {
-                case 1:
-                    fen = (int) Math.ceil(Double.parseDouble(money) * 100);
-                    break;
-                case 2:
-                    fen = (int) Math.ceil(Double.parseDouble(money) * 10);
-                    break;
-            }
-
-            String[] sendMoney = manager.sendMoney(fen);
-            if (!sendMoney[0].equals("1")) {
-                return Observable.error(new Throwable("发送金额数据指令失败：错误码："));
-            }
-            String time = Utils.getNowTime();
-            final int finalFen = fen;
-            return Observable.create((Observable.OnSubscribe<String[]>) subscriber -> {
-
-                CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "12",
-                        serialNum[1], null, null, null, time, sendMoney[1], String.valueOf(finalFen));
-                Logger.i(body.toString());
-                HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
-                        "bluetooth", body, (isError, response, type, error) -> {
-                            if (isError) {
-                                Logger.e(error.toString());
-                                subscriber.onError(error);
-                            } else {
-                                Logger.t("CardManager").i(response.toString());
-                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                                JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                                String ProcessCode = ResponseHead.getString("ProcessCode");
-                                String ProcessDes = ResponseHead.getString("ProcessDes");
-                                if (ProcessCode.equals("0000")) {
-                                    String quan = ResponseFields.getString("SignMsg");
-                                    quan = Utils.getMapValue(quan, "MAC");
-                                    if (quan.equals("-1")) {
-                                        subscriber.onError(new Throwable("圈存失败 "));
-                                    } else {
-                                        subscriber.onNext(new String[]{time, quan});
-                                    }
-                                } else {
-                                    subscriber.onError(new Throwable(ProcessDes));
-                                }
-                            }
-                        });
-            });
-        }).flatMap(sendQuan -> {
-
-            isQuanCunSuccessed = false;
-            String[] sendQuanMac = manager.sendQuanMac(sendQuan[0], sendQuan[1]);
-            if (!sendQuanMac[0].equals("1")) {
-                return Observable.error(new Throwable("圈存指令失败：错误码："));
-            }
-            isQuanCunSuccessed = true;
-            //圈存成功
-
-            String[] random4Hex = manager.getRandom4Hex();
-            if (!random4Hex[0].equals("1")) {
-                return Observable.error(new Throwable("获取随机数失败"));
-            }
-            String[] cardMsg = manager.getCardMsg();
-            if (!cardMsg[0].equals("1")) {
-                return Observable.error(new Throwable("获取卡待加密数据失败"));
-            }
-            return Observable.create((Observable.OnSubscribe<String[]>) subscriber -> {
-
-                StringBuffer sumTotalTwentyFour = new StringBuffer();
-                StringBuffer threeSecurityCheck = new StringBuffer();
-                if (cardInfo.securityRecord.size() > 0) {
-                    for (int i = 0; i < cardInfo.securityRecord.size(); i++) {
-                        if (i == cardInfo.securityRecord.size() - 1) {
-                            threeSecurityCheck.append(cardInfo.securityRecord.get(i) + "");
-                        } else {
-                            threeSecurityCheck.append(cardInfo.securityRecord.get(i) + "|");
-                        }
-                    }
-                }
-                if (cardInfo.historyMonthList.size() > 0) {
-                    for (int i = 0; i < cardInfo.historyMonthList.size(); i++) {
-                        if (i == cardInfo.historyMonthList.size() - 1) {
-                            sumTotalTwentyFour.append(cardInfo.historyMonthList.get(i) + "");
-                        } else {
-                            sumTotalTwentyFour.append(cardInfo.historyMonthList.get(i) + "|");
-                        }
-                    }
-                }
-
-                BigDecimal nowPrice = new BigDecimal(cardInfo.nowPrice);
-                BigDecimal nowRemainMoney = new BigDecimal(cardInfo.nowRemainMoney);
-                BigDecimal toalBuyMoney = new BigDecimal(cardInfo.toalBuyMoney);
-                BigDecimal nfcTotalMoney = new BigDecimal(cardInfo.nfcTotalMoney);
-
-                BigDecimal toatalUseGas = new BigDecimal(cardInfo.toatalUseGas);
-//                BigDecimal f = new BigDecimal(1);
-                BigDecimal f = new BigDecimal(100);
-                BigDecimal ten = new BigDecimal(10);
-
-                String nowPriceString = null;
-                String nowRemainMoneyString = null;
-                String toalBuyMoneyString = null;
-                String nfcTotalMoneyString = null;
-                String toatalUseGasString = null;
-
-                switch (shebeiType) {
-                    case 1:
-                        nowPriceString = nowPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        nowRemainMoneyString = nowRemainMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        toalBuyMoneyString = toalBuyMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        nfcTotalMoneyString = nfcTotalMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        toatalUseGasString = toatalUseGas.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        break;
-                    case 2:
-                        nowPriceString = nowPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        nowRemainMoneyString = nowRemainMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        toalBuyMoneyString = toalBuyMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        nfcTotalMoneyString = nfcTotalMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        toatalUseGasString = toatalUseGas.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                        break;
-                }
-
-                CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "11",
-                        null, random4Hex[1], times, cardMsg[1], null, null, null,
-                        cardInfo.nowTime,
-                        nowPriceString,
-                        nowRemainMoneyString,
-                        toalBuyMoneyString,
-                        cardInfo.noUseDayCount + "", cardInfo.noUseSecondsCount + "",
-                        cardInfo.nowStatus, cardInfo.dealWords,
-                        toatalUseGasString,
-                        sumTotalTwentyFour.toString(), cardInfo.securityCounts + "",
-                        threeSecurityCheck.toString(),
-                        nfcTotalMoneyString
-                );
-                Logger.i(body.toString());
-                HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
-                        HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
-                        "bluetooth", body, (isError, response, type, error) -> {
-                            if (isError) {
-                                Logger.t("CardManager").i(error.toString());
-                                subscriber.onError(error);
-                            } else {
-                                Logger.t("CardManager").i(response.toString());
-                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                                JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                                String ProcessCode = ResponseHead.getString("ProcessCode");
-                                String ProcessDes = ResponseHead.getString("ProcessDes");
-                                if (ProcessCode.equals("0000")) {
-                                    String SignMsg = ResponseFields.getString("SignMsg");
-                                    String WriteCardFlag = ResponseFields.getString("WriteCardFlag");
-                                    if (WriteCardFlag != null && WriteCardFlag.equals("10")) {
-                                        subscriber.onError(new Throwable("success"));
-                                    } else {
-                                        String[] desResult = null;
-                                        if (!Utils.isNullOrEmpty(SignMsg)) {
-                                            String enStr = null;
-                                            String mac = null;
-                                            enStr = Utils.getMapValue(SignMsg, "DesData");
-                                            mac = Utils.getMapValue(SignMsg, "MAC");
-                                            desResult = new String[]{enStr, mac};
-                                        } else {
-                                            desResult = null;
-                                        }
-                                        if (desResult == null) {
-                                            subscriber.onError(new Throwable("获取加密数据失败"));
-                                        } else {
-                                            subscriber.onNext(desResult);
-                                        }
-                                    }
-                                } else {
-                                    subscriber.onError(new Throwable(ProcessDes));
-                                }
-                            }
-                        });
-            });
-        }).flatMap(desResult -> {
-            String[] sendDesData = manager.sendDesData(desResult[0], desResult[1]);
-            if (!sendDesData[0].equals("1")) {
-                //写卡信息（充值次数）失败，消费卡金额
-                return Observable.error(new Throwable("写卡信息失败!"));
-            }
-            //写卡信息（充值次数）成功
-
-            final String[] random8Hex1 = manager.getRandom8Hex();
-            if (!random8Hex[0].equals("1")) {
-                return Observable.error(new Throwable("获取随机数失败"));
-            }
-            Logger.t("CardManager").i("随机数==8字节====2=" + random8Hex1);
-            return Observable.create((Observable.OnSubscribe<String>) subscriber -> {
+        Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(final Subscriber<? super String> subscriber) {
                 CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "10",
-                        serialNum[1], random8Hex1[1], null, null, null, null, null);
-                Logger.i(body.toString());
+                        serialNum[1], random8Hex[1], null, null, null, null, null);
+                Logger.i("sendToAuth");
                 HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
                         HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
-                        "bluetooth", body, (isError, response, type, error) -> {
-                            if (isError) {
-                                Logger.e(error.toString());
-                                subscriber.onError(error);
-                            } else {
-                                Logger.i(response.toString());
-                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                                JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                                String ProcessCode = ResponseHead.getString("ProcessCode");
-                                String ProcessDes = ResponseHead.getString("ProcessDes");
-                                if (ProcessCode.equals("0000")) {
-                                    String auth = ResponseFields.getString("SignMsg");
-                                    auth = Utils.getMapValue(auth, "DesRandm");
-                                    if (auth.equals("-1")) {
-                                        subscriber.onError(new Throwable("IP端口错误 "));
-                                    } else if (auth.equals("-2")) {
-                                        subscriber.onError(new Throwable("外部认证登录失败 "));
-                                    } else if (auth.equals("-3")) {
-                                        subscriber.onError(new Throwable("返回值错误 "));
+                        "bluetooth", body, new OnHttpRequestListener() {
+                            @Override
+                            public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                                if (isError) {
+                                    Logger.e(error.toString());
+                                    subscriber.onError(error);
+                                } else {
+                                    Logger.t("CardManager").i(response.toString());
+                                    JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                    JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                    String ProcessCode = ResponseHead.getString("ProcessCode");
+                                    String ProcessDes = ResponseHead.getString("ProcessDes");
+                                    if (ProcessCode.equals("0000")) {
+                                        String auth = ResponseFields.getString("SignMsg");
+                                        auth = Utils.getMapValue(auth, "DesRandm");
+                                        if (auth.equals("-1")) {
+                                            subscriber.onError(new Throwable("IP端口错误 "));
+                                        } else if (auth.equals("-2")) {
+                                            subscriber.onError(new Throwable("外部认证登录失败 "));
+                                        } else if (auth.equals("-3")) {
+                                            subscriber.onError(new Throwable("返回值错误 "));
+                                        } else {
+                                            subscriber.onNext(auth);
+                                        }
                                     } else {
-                                        subscriber.onNext(auth);
+                                        subscriber.onError(new Throwable(ProcessDes));
                                     }
-                                } else {
-                                    subscriber.onError(new Throwable(ProcessDes));
                                 }
                             }
                         });
-            });
-        }).flatMap(auth -> {
-            Logger.e("联网外部认证结果===2=" + auth);
+            }
+        }).flatMap(new Func1<String, Observable<String[]>>() {
+            @Override
+            public Observable<String[]> call(String authResult) {
+                Logger.t("CardManager").i("联网外部认证结果==" + authResult);
+                String[] transOutAuth = manager.transOutAuth(authResult);
+                if (!transOutAuth[0].equals("1")) {
+                    return Observable.error(new Throwable("外部认证指令错误1：错误码：" + transOutAuth[1]));
+                }
+                //第一次外部认证成功,接下来先写金额
 
-            String[] transOutAuth = manager.transOutAuth(auth);
-            if (!transOutAuth[0].equals("1")) {
-                return Observable.error(new Throwable("外部认证指令错误2：错误码：" + transOutAuth[1]));
-            }
-            boolean selectFile = manager.selectFile();
-            if (!selectFile) {
-                return Observable.error(new Throwable("选择文件失败"));
-            }
-            boolean send200 = manager.writeToZero();
-            if (!send200) {
-                return Observable.error(new Throwable("写200字节失败"));
-            }
-//            handler.obtainMessage(Constant.WRITE_CARD_OK).sendToTarget();
-            return Observable.create((Observable.OnSubscribe<Boolean>) subscriber -> {
-                CusFormBody body = HttpRequestParams.INSTANCE.getParamsForUpdateNFCPayStatus(
-                        orderNb, "11", Utils.getString(cardInfo.addjustBottom), Utils.getString(cardInfo.payBottom));
-                Logger.i(body.toString());
-                HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
-                        HttpURLS.INSTANCE.getUpdateNFCPayStatus(), false,
-                        "NFCSignMsg", body, (isError, response, type, error) -> {
-                            if (isError) {
-                                Logger.e(error.toString());
-                                subscriber.onError(error);
-                            } else {
-                                Logger.t("CardManager").i(response.toString());
-                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                                String ProcessCode = ResponseHead.getString("ProcessCode");
-                                String ProcessDes = ResponseHead.getString("ProcessDes");
-                                if (ProcessCode.equals("0000")) {
-                                    subscriber.onNext(true);
-                                } else {
-                                    subscriber.onError(new Throwable(ProcessDes));
-                                }
-                            }
-                        });
-            });
-
-        }).onErrorReturn(error1 -> {
-            if (error1 != null && "success".equals(error1.getMessage())) {
-                return true;
-            }
-
-            if (isQuanCunSuccessed) {
                 int fen = 0;
                 switch (shebeiType) {
                     case 1:
@@ -767,91 +526,417 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
                         break;
                 }
 
-                String[] sendMoney = manager.sendMoney(-fen);
+                final String[] sendMoney = manager.sendMoney(fen);
                 if (!sendMoney[0].equals("1")) {
-                    return false;
+                    return Observable.error(new Throwable("发送金额数据指令失败：错误码："));
                 }
-                String time = Utils.getNowTime();
-                Observable.create(subscriber -> {
-                    CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "12",
-                            serialNum[1], null, null, null, time, sendMoney[1], money);
-                    Logger.i(body.toString());
-                    HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
-                            "bluetooth", body, (isError, response, type, error) -> {
-                                if (isError) {
-                                    Logger.e(error.toString());
-                                    subscriber.onError(error);
-                                } else {
-                                    Logger.t("CardManager").i(response.toString());
-                                    JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                                    JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                                    String ProcessCode = ResponseHead.getString("ProcessCode");
-                                    String ProcessDes = ResponseHead.getString("ProcessDes");
-                                    String errorMessage;
-                                    if (ProcessCode.equals("0000")) {
-                                        String quan = ResponseFields.getString("SignMsg");
-                                        quan = Utils.getMapValue(quan, "MAC");
-                                        if (quan.equals("-1")) {
-                                            errorMessage = "圈存失败 ";
+                final String time = Utils.getNowTime();
+                final int finalFen = fen;
+                return Observable.create(new Observable.OnSubscribe<String[]>() {
+                    @Override
+                    public void call(final Subscriber<? super String[]> subscriber) {
+                        CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "12",
+                                serialNum[1], null, null, null, time, sendMoney[1],
+                                String.valueOf(finalFen));
+                        Logger.i(body.toString());
+                        HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
+                                "bluetooth", body, new OnHttpRequestListener() {
+                                    @Override
+                                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                                        if (isError) {
+                                            Logger.e(error.toString());
+                                            subscriber.onError(error);
                                         } else {
-                                            errorMessage = "写卡失败，重写卡，或到营业厅处理! ";
+                                            Logger.t("CardManager").i(response.toString());
+                                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                            String ProcessCode = ResponseHead.getString("ProcessCode");
+                                            String ProcessDes = ResponseHead.getString("ProcessDes");
+                                            if (ProcessCode.equals("0000")) {
+                                                String quan = ResponseFields.getString("SignMsg");
+                                                quan = Utils.getMapValue(quan, "MAC");
+                                                if (quan.equals("-1")) {
+                                                    subscriber.onError(new Throwable("圈存失败 "));
+                                                } else {
+                                                    subscriber.onNext(new String[]{time, quan});
+                                                }
+                                            } else {
+                                                subscriber.onError(new Throwable(ProcessDes));
+                                            }
                                         }
-
-                                        String[] sendQuanMac = manager.sendQuanMac(time, quan);
-                                        if (!sendQuanMac[0].equals("1")) {
-                                            errorMessage = "圈存指令失败：错误码! ";
-                                        }
-
-                                    } else {
-                                        errorMessage = ProcessDes;
                                     }
-                                    if (error != null && error.getMessage() != null) {
-                                        errorMessage = error.getMessage();
-                                    } else {
-                                        errorMessage = "写卡失败,请确认将燃气CPU卡放在读卡器上，确认网络畅通，然后重试。";
-                                    }
-                                    new MaterialDialog.Builder(BluetoothActivity.this)
-                                            .title("提醒")
-                                            .content(errorMessage)
-                                            .positiveText("确定")
-                                            .cancelable(false)
-                                            .canceledOnTouchOutside(false)
-                                            .show();
-                                }
-                            });
+                                });
+                    }
                 });
-            } else {
-                String errorMessage;
-                if (error1 != null && error1.getMessage() != null) {
-                    errorMessage = formatStackTrace(error1);
-//                    errorMessage = error1.getMessage() + error1.getCause();
-                } else {
-                    errorMessage = "写卡失败,请确认将燃气CPU卡放在读卡器上，确认网络畅通，然后重试。";
+            }
+        }).flatMap(new Func1<String[], Observable<String[]>>() {
+            @Override
+            public Observable<String[]> call(String[] sendQuan) {
+                isQuanCunSuccessed = false;
+                String[] sendQuanMac = manager.sendQuanMac(sendQuan[0], sendQuan[1]);
+                if (!sendQuanMac[0].equals("1")) {
+                    return Observable.error(new Throwable("圈存指令失败：错误码："));
                 }
-                new MaterialDialog.Builder(BluetoothActivity.this)
+                isQuanCunSuccessed = true;
+                //圈存成功
+
+                final String[] random4Hex = manager.getRandom4Hex();
+                Logger.e("random4Hex:" + random4Hex[1]);
+                if (!random4Hex[0].equals("1")) {
+                    return Observable.error(new Throwable("获取随机数失败"));
+                }
+                final String[] cardMsg = manager.getCardMsg();
+                Logger.e("cardMsg:" + cardMsg[1]);
+                if (!cardMsg[0].equals("1")) {
+                    return Observable.error(new Throwable("获取卡待加密数据失败"));
+                }
+                Logger.e("times:" + times);
+
+
+                return Observable.create(new Observable.OnSubscribe<String[]>() {
+                    @Override
+                    public void call(final Subscriber<? super String[]> subscriber) {
+                        //                BigDecimal f = new BigDecimal(1);
+                        BigDecimal f = new BigDecimal(100);
+                        BigDecimal ten = new BigDecimal(10);
+
+                        StringBuffer sumTotalTwentyFour = new StringBuffer();
+                        StringBuffer threeSecurityCheck = new StringBuffer();
+                        if (cardInfo.securityRecord.size() > 0) {
+                            for (int i = 0; i < cardInfo.securityRecord.size(); i++) {
+                                if (i == cardInfo.securityRecord.size() - 1) {
+                                    threeSecurityCheck.append(cardInfo.securityRecord.get(i) + "");
+                                } else {
+                                    threeSecurityCheck.append(cardInfo.securityRecord.get(i) + "|");
+                                }
+                            }
+                        }
+                        if (cardInfo.monthUseList.size() > 0) {
+                            for (int i = 0; i < cardInfo.monthUseList.size(); i++) {
+                                if (i == cardInfo.monthUseList.size() - 1) {
+                                    sumTotalTwentyFour.append(new BigDecimal(cardInfo.monthUseList.get(i)).divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "");
+                                } else {
+                                    sumTotalTwentyFour.append(new BigDecimal(cardInfo.monthUseList.get(i)).divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "|");
+                                }
+                            }
+                        }
+
+                        BigDecimal nowPrice = new BigDecimal(cardInfo.nowPrice);
+                        BigDecimal nowRemainMoney = new BigDecimal(cardInfo.nowRemainMoney);
+                        BigDecimal toalBuyMoney = new BigDecimal(cardInfo.toalBuyMoney);
+                        BigDecimal nfcTotalMoney = new BigDecimal(cardInfo.nfcTotalMoney);
+
+                        BigDecimal toatalUseGas = new BigDecimal(cardInfo.toatalUseGas);
+
+
+                        String nowPriceString = null;
+                        String nowRemainMoneyString = null;
+                        String toalBuyMoneyString = null;
+                        String nfcTotalMoneyString = null;
+                        String toatalUseGasString = null;
+
+                        switch (shebeiType) {
+                            case 1:
+                                nowPriceString = nowPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                nowRemainMoneyString = nowRemainMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                toalBuyMoneyString = toalBuyMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                nfcTotalMoneyString = nfcTotalMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                toatalUseGasString = toatalUseGas.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                break;
+                            case 2:
+                                nowPriceString = nowPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                nowRemainMoneyString = nowRemainMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                toalBuyMoneyString = toalBuyMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                nfcTotalMoneyString = nfcTotalMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                toatalUseGasString = toatalUseGas.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                                break;
+                        }
+
+                        CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(
+                                orderNb, UserNb, "11",
+                                null, random4Hex[1],
+                                String.valueOf(times),
+                                cardMsg[1], null, null, null,
+                                cardInfo.nowTime,
+                                nowPriceString,
+                                nowRemainMoneyString,
+                                toalBuyMoneyString,
+                                cardInfo.noUseDayCount + "", cardInfo.noUseSecondsCount + "",
+                                cardInfo.nowStatus, cardInfo.dealWords,
+                                toatalUseGasString,
+                                sumTotalTwentyFour.toString(), cardInfo.securityCounts + "",
+                                threeSecurityCheck.toString(),
+                                nfcTotalMoneyString
+                        );
+                        Logger.i(body.toString());
+                        HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
+                                HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
+                                "bluetooth", body, new OnHttpRequestListener() {
+                                    @Override
+                                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                                        if (isError) {
+                                            Logger.t("CardManager").i(error.toString());
+                                            subscriber.onError(error);
+                                        } else {
+                                            Logger.t("CardManager").i(response.toString());
+                                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                            String ProcessCode = ResponseHead.getString("ProcessCode");
+                                            String ProcessDes = ResponseHead.getString("ProcessDes");
+                                            if (ProcessCode.equals("0000")) {
+                                                String SignMsg = ResponseFields.getString("SignMsg");
+                                                String WriteCardFlag = ResponseFields.getString("WriteCardFlag");
+                                                if (WriteCardFlag != null && WriteCardFlag.equals("10")) {
+                                                    subscriber.onError(new Throwable("success"));
+                                                } else {
+                                                    String[] desResult = null;
+                                                    if (!Utils.isNullOrEmpty(SignMsg)) {
+                                                        String enStr = null;
+                                                        String mac = null;
+                                                        enStr = Utils.getMapValue(SignMsg, "DesData");
+                                                        mac = Utils.getMapValue(SignMsg, "MAC");
+                                                        desResult = new String[]{enStr, mac};
+                                                    } else {
+                                                        desResult = null;
+                                                    }
+                                                    if (desResult == null) {
+                                                        subscriber.onError(new Throwable("获取加密数据失败"));
+                                                    } else {
+                                                        subscriber.onNext(desResult);
+                                                    }
+                                                }
+                                            } else {
+                                                subscriber.onError(new Throwable(ProcessDes));
+                                            }
+                                        }
+                                    }
+                                });
+                    }
+                });
+            }
+        }).flatMap(new Func1<String[], Observable<String>>() {
+            @Override
+            public Observable<String> call(String[] desResult) {
+                String[] sendDesData = manager.sendDesData(desResult[0], desResult[1]);
+                if (!sendDesData[0].equals("1")) {
+                    //写卡信息（充值次数）失败，消费卡金额
+                    return Observable.error(new Throwable("写卡信息失败!"));
+                }
+                //写卡信息（充值次数）成功
+
+                final String[] random8Hex1 = manager.getRandom8Hex();
+                if (!random8Hex[0].equals("1")) {
+                    return Observable.error(new Throwable("获取随机数失败"));
+                }
+                Logger.t("CardManager").i("随机数==8字节====2=" + random8Hex1);
+                return Observable.create(new Observable.OnSubscribe<String>() {
+
+                    @Override
+                    public void call(final Subscriber<? super String> subscriber) {
+                        CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "10",
+                                serialNum[1], random8Hex1[1], null, null, null, null, null);
+                        Logger.i(body.toString());
+                        HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
+                                HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
+                                "bluetooth", body, new OnHttpRequestListener() {
+                                    @Override
+                                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                                        if (isError) {
+                                            Logger.e(error.toString());
+                                            subscriber.onError(error);
+                                        } else {
+                                            Logger.i(response.toString());
+                                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                            String ProcessCode = ResponseHead.getString("ProcessCode");
+                                            String ProcessDes = ResponseHead.getString("ProcessDes");
+                                            if (ProcessCode.equals("0000")) {
+                                                String auth = ResponseFields.getString("SignMsg");
+                                                auth = Utils.getMapValue(auth, "DesRandm");
+                                                if (auth.equals("-1")) {
+                                                    subscriber.onError(new Throwable("IP端口错误 "));
+                                                } else if (auth.equals("-2")) {
+                                                    subscriber.onError(new Throwable("外部认证登录失败 "));
+                                                } else if (auth.equals("-3")) {
+                                                    subscriber.onError(new Throwable("返回值错误 "));
+                                                } else {
+                                                    subscriber.onNext(auth);
+                                                }
+                                            } else {
+                                                subscriber.onError(new Throwable(ProcessDes));
+                                            }
+                                        }
+                                    }
+                                });
+                    }
+                });
+            }
+        }).flatMap(new Func1<String, Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call(String auth) {
+                Logger.e("联网外部认证结果===2=" + auth);
+
+                String[] transOutAuth = manager.transOutAuth(auth);
+                if (!transOutAuth[0].equals("1")) {
+                    return Observable.error(new Throwable("外部认证指令错误2：错误码：" + transOutAuth[1]));
+                }
+                boolean selectFile = manager.selectFile();
+                if (!selectFile) {
+                    return Observable.error(new Throwable("选择文件失败"));
+                }
+                boolean send200 = manager.writeToZero();
+                if (!send200) {
+                    return Observable.error(new Throwable("写200字节失败"));
+                }
+//            handler.obtainMessage(Constant.WRITE_CARD_OK).sendToTarget();
+                return Observable.create(new Observable.OnSubscribe<Boolean>() {
+                    @Override
+                    public void call(final Subscriber<? super Boolean> subscriber) {
+                        CusFormBody body = HttpRequestParams.INSTANCE.getParamsForUpdateNFCPayStatus(
+                                orderNb, "11", Utils.getString(cardInfo.addjustBottom), Utils.getString(cardInfo.payBottom));
+                        Logger.i(body.toString());
+                        HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this,
+                                HttpURLS.INSTANCE.getUpdateNFCPayStatus(), false,
+                                "NFCSignMsg", body, new OnHttpRequestListener() {
+                                    @Override
+                                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                                        if (isError) {
+                                            Logger.e(error.toString());
+                                            subscriber.onError(error);
+                                        } else {
+                                            Logger.t("CardManager").i(response.toString());
+                                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                            String ProcessCode = ResponseHead.getString("ProcessCode");
+                                            String ProcessDes = ResponseHead.getString("ProcessDes");
+                                            if (ProcessCode.equals("0000")) {
+                                                subscriber.onNext(true);
+                                            } else {
+                                                subscriber.onError(new Throwable(ProcessDes));
+                                            }
+                                        }
+                                    }
+                                });
+                    }
+                });
+            }
+        }).onErrorReturn(new Func1<Throwable, Boolean>() {
+            @Override
+            public Boolean call(Throwable error1) {
+//                if (error1 != null && "success".equals(error1.getMessage())) {
+//                    return true;
+//                }
+
+                if (isQuanCunSuccessed) {
+                    int fen = 0;
+                    switch (shebeiType) {
+                        case 1:
+                            fen = (int) Math.ceil(Double.parseDouble(money) * 100);
+                            break;
+                        case 2:
+                            fen = (int) Math.ceil(Double.parseDouble(money) * 10);
+                            break;
+                    }
+
+                    final String[] sendMoney = manager.sendMoney(-fen);
+                    if (!sendMoney[0].equals("1")) {
+                        return false;
+                    }
+                    final String time = Utils.getNowTime();
+                    Observable.create(new Observable.OnSubscribe<Boolean>() {
+                        @Override
+                        public void call(final Subscriber<? super Boolean> subscriber) {
+                            CusFormBody body = HttpRequestParams.INSTANCE.getParamsForBluetoothSignMsg(orderNb, UserNb, "12",
+                                    serialNum[1], null, null, null, time, sendMoney[1], money);
+                            Logger.i(body.toString());
+                            HttpRequest.Companion.getInstance().httpPost(BluetoothActivity.this, HttpURLS.INSTANCE.getBluetoothSignMsg(), false,
+                                    "bluetooth", body, new OnHttpRequestListener() {
+                                        @Override
+                                        public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                                            if (isError) {
+                                                Logger.e(error.toString());
+                                                subscriber.onError(error);
+                                            } else {
+                                                Logger.t("CardManager").i(response.toString());
+                                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                                JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                                String ProcessCode = ResponseHead.getString("ProcessCode");
+                                                String ProcessDes = ResponseHead.getString("ProcessDes");
+                                                String errorMessage;
+                                                if (ProcessCode.equals("0000")) {
+                                                    String quan = ResponseFields.getString("SignMsg");
+                                                    quan = Utils.getMapValue(quan, "MAC");
+                                                    if (quan.equals("-1")) {
+                                                        errorMessage = "圈存失败 ";
+                                                    } else {
+                                                        errorMessage = "写卡失败，重写卡，或到营业厅处理! ";
+                                                    }
+
+                                                    String[] sendQuanMac = manager.sendQuanMac(time, quan);
+                                                    if (!sendQuanMac[0].equals("1")) {
+                                                        errorMessage = "圈存指令失败：错误码! ";
+                                                    }
+
+                                                } else {
+                                                    errorMessage = ProcessDes;
+                                                }
+                                                if (error != null && error.getMessage() != null) {
+                                                    errorMessage = error.getMessage();
+                                                } else {
+                                                    errorMessage = "写卡失败,请确认将燃气CPU卡放在读卡器上，确认网络畅通，然后重试。";
+                                                }
+                                                new MaterialDialog.Builder(BluetoothActivity.this)
+                                                        .title("提醒")
+                                                        .content(errorMessage)
+                                                        .positiveText("确定")
+                                                        .cancelable(false)
+                                                        .canceledOnTouchOutside(false)
+                                                        .show();
+                                            }
+                                        }
+                                    });
+                        }
+                    });
+                } else {
+                    String errorMessage;
+                    if (error1 != null && error1.getMessage() != null) {
+                        errorMessage = formatStackTrace(error1);
+//                    errorMessage = error1.getMessage() + error1.getCause();
+                    } else {
+                        errorMessage = "写卡失败,请确认将燃气CPU卡放在读卡器上，确认网络畅通，然后重试。";
+                    }
+                    new MaterialDialog.Builder(BluetoothActivity.this)
+                            .title("提醒")
+                            .content(errorMessage)
+                            .positiveText("确定")
+                            .cancelable(false)
+                            .canceledOnTouchOutside(false)
+                            .show();
+                }
+                return false;
+            }
+        }).subscribe(new Action1<Boolean>() {
+            @Override
+            public void call(Boolean isOk) {
+                closeProgress();
+                Logger.t("CardManager").i(isOk + "");
+                MaterialDialog.Builder builder = new MaterialDialog.Builder(BluetoothActivity.this)
                         .title("提醒")
-                        .content(errorMessage)
                         .positiveText("确定")
                         .cancelable(false)
-                        .canceledOnTouchOutside(false)
-                        .show();
-            }
-            return false;
-        }).subscribe(isOk -> {
-            closeProgress();
-            Logger.t("CardManager").i(isOk + "");
-            MaterialDialog.Builder builder = new MaterialDialog.Builder(BluetoothActivity.this)
-                    .title("提醒")
-                    .positiveText("确定")
-                    .cancelable(false)
-                    .onPositive((dialog1, which) -> {
-                        RxBus.get().post(new RecordChangedEvent());
-                        bt_pay.setVisibility(View.INVISIBLE);
-                    })
-                    .canceledOnTouchOutside(false);
-            if (isOk) {
-                builder.content("写卡成功！");
-                builder.show();
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                RxBus.get().post(new RecordChangedEvent());
+                                bt_pay.setVisibility(View.INVISIBLE);
+                            }
+                        })
+                        .canceledOnTouchOutside(false);
+                if (isOk) {
+                    builder.content("写卡成功！");
+                    builder.show();
+                    Logger.i("EventBus.getDefault().post");
+                    RxBus.get().post(new RecordChangedEvent());
+                }
             }
         });
     }
@@ -920,29 +1005,28 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
         tv_res.append("用户号：" + cardInfo.userCode + "\n");
         tv_res.append("购气次数：" + cardInfo.buyTimes + "\n");
         tv_res.append("表当前时间：" + cardInfo.nowTime + "\n");
-        tv_res.append("表当前单价：" + nowPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
+        tv_res.append("表当前单价(元)：" + nowPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
 
         switch (shebeiType) {
             case 1:
                 thisMoneyString = thisMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                 nowRemainMoneyString = nowRemainMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                 toalBuyMoneyString = toalBuyMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                tv_res.append("本次购气金额：" + thisMoneyString + "元\n");
-                tv_res.append("表剩余金额：" + nowRemainMoneyString + "元\n");
-                tv_res.append("表累计购气金额：" + toalBuyMoneyString + "元\n");
+                tv_res.append("本次购气金额(元)：" + thisMoneyString + "\n");
+                tv_res.append("表剩余金额(元)：" + nowRemainMoneyString + "\n");
+                tv_res.append("表累计购气金额(元)：" + toalBuyMoneyString + "\n");
                 break;
             case 2:
                 thisMoneyString = thisMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                 nowRemainMoneyString = nowRemainMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                 toalBuyMoneyString = toalBuyMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                tv_res.append("本次购气气量：" + thisMoneyString + "m³\n");
-                tv_res.append("表剩余气量：" + nowRemainMoneyString + "m³\n");
-                tv_res.append("表累计购气气量：" + toalBuyMoneyString + "m³\n");
+                tv_res.append("本次购气气量(m³)：" + thisMoneyString + "\n");
+                tv_res.append("表剩余气量(m³)：" + nowRemainMoneyString + "\n");
+                tv_res.append("表累计购气气量(m³)：" + toalBuyMoneyString + "\n");
                 break;
         }
 
-        tv_res.append("表累计用气量：" + toatalUseGas.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
-
+        tv_res.append("表累计用气量(m³)：" + toatalUseGas.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
 
 //        tv_res.append("NFC购气次数：" + cardInfo.nfcTimes + "\n");
 //        tv_res.append("NFC购气金额：" + nfcMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "\n");
@@ -1002,7 +1086,7 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
 //        tv_res.append("安检返写条数：" + cardInfo.securityCounts + "\n");
 //        tv_res.append("安检返写记录：" + cardInfo.securityRecord + "\n");
 //        tv_res.append("最近一次关阀记录：" + cardInfo.recentClose + "\n");
-//
+
 //        tv_res.append(
 //                "月累计消耗量日期：" + (cardInfo.historyMonthList == null ? "" : cardInfo.historyMonthList.toString()) + "\n");
 //        tv_res.append("TCIS调价日：" + Utils.getString(cardInfo.addjustDate) + "\n");
@@ -1063,7 +1147,7 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
     /**
      * 连接蓝牙
      */
-    private void connect(String device) {
+    private void connect(final String device) {
 
         tv_status.setText("正在连接……");
         showProgress("正在连接蓝牙,请稍后……");
@@ -1083,10 +1167,6 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
      * 断开蓝牙
      */
     private void disConnect() {
-//        if (!manager.isBlEConnected()) {
-//            ToastUtil.Companion.toastWarning("蓝牙未连接");
-//            return;
-//        }
         manager.disConnectBlE();
         tv_status.setText("未连接");
         tv_res.setText("蓝牙已断开");
@@ -1139,7 +1219,7 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
     @Override
     public void onActivitySaveInstanceState(@NotNull Bundle savedInstanceState) {
         savedInstanceState.putString(STATE_MONEY, money);
-        savedInstanceState.putString(STATE_TIME, times);
+        savedInstanceState.putInt(STATE_TIME, times);
         savedInstanceState.putString(STATE_ORDERNB, orderNb);
         savedInstanceState.putString(STATE_USERNB, UserNb);
     }
@@ -1147,7 +1227,7 @@ public class BluetoothActivity extends BaseActivity implements OnItemClickListen
     @Override
     public void onActivityRestoreInstanceState(@NotNull Bundle savedInstanceState) {
         money = savedInstanceState.getString(STATE_MONEY);
-        times = savedInstanceState.getString(STATE_TIME);
+        times = savedInstanceState.getInt(STATE_TIME);
         orderNb = savedInstanceState.getString(STATE_ORDERNB);
         UserNb = savedInstanceState.getString(STATE_USERNB);
     }

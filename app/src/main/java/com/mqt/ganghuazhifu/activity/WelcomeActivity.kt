@@ -10,6 +10,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.KeyEvent
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.baidu.android.pushservice.PushConstants
 import com.baidu.android.pushservice.PushManager
@@ -30,6 +32,7 @@ import com.mqt.ganghuazhifu.http.HttpURLS
 import com.mqt.ganghuazhifu.listener.OnHttpRequestListener
 import com.mqt.ganghuazhifu.utils.*
 import com.orhanobut.logger.Logger
+import qiu.niorgai.StatusBarCompat
 import rx.Subscriber
 import rx.lang.kotlin.observable
 import java.io.ByteArrayInputStream
@@ -70,8 +73,15 @@ class WelcomeActivity : BaseActivity() {
     private var activityWelcomeBinding: ActivityWelcomeBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        this.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        StatusBarCompat.translucentStatusBar(this)
+
         super.onCreate(savedInstanceState)
-        activityWelcomeBinding = DataBindingUtil.setContentView<ActivityWelcomeBinding>(this, R.layout.activity_welcome)
+
+        activityWelcomeBinding = DataBindingUtil.setContentView<ActivityWelcomeBinding>(this,
+                R.layout.activity_welcome)
         context = this
 
         if (!this.isTaskRoot) { //判断该Activity是不是任务空间的源Activity

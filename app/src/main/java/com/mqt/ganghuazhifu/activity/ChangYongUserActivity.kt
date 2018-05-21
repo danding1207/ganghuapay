@@ -37,7 +37,8 @@ class ChangYongUserActivity : BaseActivity(), OnItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityChangYongUserBinding = DataBindingUtil.setContentView<ActivityChangYongUserBinding>(this, R.layout.activity_chang_yong_user)
+        activityChangYongUserBinding = DataBindingUtil.setContentView<ActivityChangYongUserBinding>(this,
+                R.layout.activity_chang_yong_user)
         initView()
     }
 

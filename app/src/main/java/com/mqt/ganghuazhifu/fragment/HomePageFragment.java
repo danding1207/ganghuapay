@@ -1,10 +1,9 @@
 package com.mqt.ganghuazhifu.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
-import android.text.InputFilter;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.alibaba.fastjson.JSONObject;
-import com.bigkoo.convenientbanner.ConvenientBanner;
-import com.bigkoo.convenientbanner.holder.CBViewHolderCreator;
 import com.bigkoo.convenientbanner.listener.OnItemClickListener;
 import com.mqt.ganghuazhifu.MainActivity;
 import com.mqt.ganghuazhifu.R;
@@ -23,35 +20,53 @@ import com.mqt.ganghuazhifu.activity.PayTheGasFeeActivity;
 import com.mqt.ganghuazhifu.activity.WelcomeActivity;
 import com.mqt.ganghuazhifu.adapter.NetworkImageHolderView;
 import com.mqt.ganghuazhifu.bean.BeanBinnal;
+import com.mqt.ganghuazhifu.event.ConstantKotlin;
 import com.mqt.ganghuazhifu.http.CusFormBody;
 import com.mqt.ganghuazhifu.http.HttpRequest;
 import com.mqt.ganghuazhifu.http.HttpRequestParams;
 import com.mqt.ganghuazhifu.http.HttpURLS;
+import com.mqt.ganghuazhifu.listener.OnHttpRequestListener;
 import com.mqt.ganghuazhifu.utils.DataBaiduPush;
 import com.mqt.ganghuazhifu.utils.EncryptedPreferencesUtils;
 import com.mqt.ganghuazhifu.utils.UnitConversionUtils;
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.orhanobut.logger.Logger;
+import com.zhouwei.mzbanner.MZBannerView;
+import com.zhouwei.mzbanner.holder.MZHolderCreator;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ *
+ * 首页
+ *
+ * @author yang.lei
+ * @date 2014-12-24
+ *
+ * 2018-02-06（yang.lei）：整合优化各个界面传递订单类型的方式-枚举；修改首页轮播图样式
+ *
+ *
+ */
 public class HomePageFragment extends BaseFragment implements OnItemClickListener {
 
-    private ConvenientBanner convenientBanner;
+    private MZBannerView convenientBanner;
     public static ArrayList<BeanBinnal> list;
     private RelativeLayout rl_gas_gasbill;
     private CardView cardView_gas_or_water, cardView_water;
     private LinearLayout ll_gas_gasbill, ll_water, lay_gas, lay_gasbill;
     public static boolean isShowSecondMenu = false;
+    public Activity activity;
 
-    public void newInstence() {
+    public void newInstence(Activity activity) {
+        this.activity = activity;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home_page, null);
-        convenientBanner = (ConvenientBanner) view.findViewById(R.id.convenientBanner);
+        convenientBanner = (MZBannerView) view.findViewById(R.id.convenientBanner);
         ll_gas_gasbill = (LinearLayout) view.findViewById(R.id.ll_gas_gasbill);
         cardView_gas_or_water = (CardView) view.findViewById(R.id.cardView_gas_or_water);
         lay_gas = (LinearLayout) view.findViewById(R.id.lay_gas);
@@ -69,17 +84,21 @@ public class HomePageFragment extends BaseFragment implements OnItemClickListene
             WelcomeActivity.Companion.setScreenwidth(EncryptedPreferencesUtils.getScreenSize()[0]);
             WelcomeActivity.Companion.setScreenhigh(EncryptedPreferencesUtils.getScreenSize()[1]);
         }
-        int height = (int) ((float) (WelcomeActivity.Companion.getScreenwidth() -
-                UnitConversionUtils.dipTopx(getActivity(), 28)) * 429 / 572);
+        int height = (int) ((float) WelcomeActivity.Companion.getScreenwidth() * 429 / 572);
         LinearLayout.LayoutParams paramsx = new LinearLayout.LayoutParams(
-                (WelcomeActivity.Companion.getScreenwidth() - UnitConversionUtils.dipTopx(getActivity(), 28)), height);
+                WelcomeActivity.Companion.getScreenwidth(),
+                height);
         paramsx.topMargin = UnitConversionUtils.dipTopx(getActivity(), 12);
-        paramsx.leftMargin = UnitConversionUtils.dipTopx(getActivity(), 14);
-        paramsx.rightMargin = UnitConversionUtils.dipTopx(getActivity(), 14);
+//        paramsx.leftMargin = UnitConversionUtils.dipTopx(getActivity(), 14);
+//        paramsx.rightMargin = UnitConversionUtils.dipTopx(getActivity(), 14);
         paramsx.bottomMargin = UnitConversionUtils.dipTopx(getActivity(), 12);
         convenientBanner.setLayoutParams(paramsx);
-        convenientBanner.stopTurning();
-        convenientBanner.startTurning(3000);
+//        convenientBanner.stopTurning();
+//        convenientBanner.startTurning(3000);
+        //设置BannerView 的切换时间间隔
+        convenientBanner.setDelayedTime(4000);
+        //设置ViewPager（Banner）切换速度
+        convenientBanner.setDuration(4000);
 
         setViewClick(view, R.id.button_gas);
         setViewClick(view, R.id.button_water);
@@ -101,49 +120,76 @@ public class HomePageFragment extends BaseFragment implements OnItemClickListene
     public void initAdvertisementViews() {
         CusFormBody body = HttpRequestParams.INSTANCE.getParamsForAdvertisement(null, "03");
         HttpRequest.Companion.getInstance().httpPost(getActivity(), HttpURLS.INSTANCE.getProcessQuery(), false, "Advertisement", body,
-                (isError, response, type, error) -> {
-                    if (isError) {
-                        Logger.e(error.toString());
-                    } else {
-                        Logger.i(response.toString());
-                        JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                        String ResponseFields = response.getString("ResponseFields");
-                        String ProcessCode = ResponseHead.getString("ProcessCode");
-                        if (ProcessCode.equals("0000") && ResponseFields != null) {
-                            list = (ArrayList<BeanBinnal>) JSONObject.parseArray(ResponseFields, BeanBinnal.class);
-                            for (BeanBinnal bean : list) {
-                                if (bean.comval.contains("prize")) {
-                                    ArrayList<BeanBinnal> s = new ArrayList<>();
-                                    s.add(bean);
-                                    convenientBanner.setPages(
-                                            new CBViewHolderCreator<NetworkImageHolderView>() {
-                                                @Override
-                                                public NetworkImageHolderView createHolder() {
-                                                    return new NetworkImageHolderView();
-                                                }
-                                            }, s)
-                                            //设置两个点图片作为翻页指示器，不设置则没有指示器，可以根据自己需求自行配合自己的指示器,不需要圆点指示器可用不设
-                                            .setPageIndicator(new int[]{R.drawable.dot_while, R.drawable.dot_blue})
-                                            //设置指示器的方向
-                                            .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.CENTER_HORIZONTAL)
-//                .setOnPageChangeListener(this)//监听翻页事件
-                                            .setOnItemClickListener(HomePageFragment.this);
-                                    return;
+                new OnHttpRequestListener() {
+                    @Override
+                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                        if (isError) {
+                            Logger.e(error.toString());
+                        } else {
+                            Logger.i(response.toString());
+                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                            String ResponseFields = response.getString("ResponseFields");
+                            String ProcessCode = ResponseHead.getString("ProcessCode");
+                            if (ProcessCode.equals("0000") && ResponseFields != null) {
+                                list = (ArrayList<BeanBinnal>) JSONObject.parseArray(ResponseFields, BeanBinnal.class);
+                                for (BeanBinnal bean : list) {
+                                    if (bean.comval.contains("prize")) {
+                                        ArrayList<BeanBinnal> s = new ArrayList<>();
+                                        s.add(bean);
+
+                                        convenientBanner.setPages(s, new MZHolderCreator<NetworkImageHolderView>() {
+                                            @Override
+                                            public NetworkImageHolderView createViewHolder() {
+                                                return new NetworkImageHolderView();
+                                            }
+                                        });
+                                        convenientBanner.setBannerPageClickListener(new MZBannerView.BannerPageClickListener() {
+                                            @Override
+                                            public void onPageClick(View view, int position) {
+                                                startActivity(new Intent(getActivity(), MovableActivity.class));
+                                            }
+                                        });
+                                        convenientBanner.start();
+//                                        convenientBanner.setPages(
+//                                                new CBViewHolderCreator<NetworkImageHolderView>() {
+//                                                    @Override
+//                                                    public NetworkImageHolderView createHolder() {
+//                                                        return new NetworkImageHolderView();
+//                                                    }
+//                                                }, s)
+//                                                //设置两个点图片作为翻页指示器，不设置则没有指示器，可以根据自己需求自行配合自己的指示器,不需要圆点指示器可用不设
+//                                                .setPageIndicator(new int[]{R.drawable.dot_while, R.drawable.dot_blue})
+//                                                //设置指示器的方向
+//                                                .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.CENTER_HORIZONTAL)
+////                .setOnPageChangeListener(this)//监听翻页事件
+//                                                .setOnItemClickListener(HomePageFragment.this);
+                                        return;
+                                    }
                                 }
+//                                convenientBanner.setPages(
+//                                        new CBViewHolderCreator<NetworkImageHolderView>() {
+//                                            @Override
+//                                            public NetworkImageHolderView createHolder() {
+//                                                return new NetworkImageHolderView();
+//                                            }
+//                                        }, list)
+//                                        //设置两个点图片作为翻页指示器，不设置则没有指示器，可以根据自己需求自行配合自己的指示器,不需要圆点指示器可用不设
+//                                        .setPageIndicator(new int[]{R.drawable.dot_while, R.drawable.dot_blue})
+//                                        //设置指示器的方向
+//                                        .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.CENTER_HORIZONTAL)
+////                .setOnPageChangeListener(this)//监听翻页事件
+//                                        .setOnItemClickListener(null);
+
+                                convenientBanner.setPages(list, new MZHolderCreator<NetworkImageHolderView>() {
+                                    @Override
+                                    public NetworkImageHolderView createViewHolder() {
+                                        return new NetworkImageHolderView();
+                                    }
+                                });
+
+                                convenientBanner.setBannerPageClickListener(null);
+                                convenientBanner.start();
                             }
-                            convenientBanner.setPages(
-                                    new CBViewHolderCreator<NetworkImageHolderView>() {
-                                        @Override
-                                        public NetworkImageHolderView createHolder() {
-                                            return new NetworkImageHolderView();
-                                        }
-                                    }, list)
-                                    //设置两个点图片作为翻页指示器，不设置则没有指示器，可以根据自己需求自行配合自己的指示器,不需要圆点指示器可用不设
-                                    .setPageIndicator(new int[]{R.drawable.dot_while, R.drawable.dot_blue})
-                                    //设置指示器的方向
-                                    .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.CENTER_HORIZONTAL)
-//                .setOnPageChangeListener(this)//监听翻页事件
-                                    .setOnItemClickListener(null);
                         }
                     }
                 });
@@ -171,7 +217,6 @@ public class HomePageFragment extends BaseFragment implements OnItemClickListene
                     ll_gas_gasbill.setVisibility(View.INVISIBLE);
                 if (ll_gas_gasbill != null && cardView_gas_or_water != null)
                     moveToLeft(cardView_gas_or_water, rl_gas_gasbill, UnitConversionUtils.getScreenWidth(getActivity()));
-
                 DataBaiduPush.setGOW(2);
                 MainActivity.tv_title.setCompoundDrawables(null, null, null, null); // 设置左图
                 MainActivity.tv_title.setText("水务");
@@ -179,59 +224,39 @@ public class HomePageFragment extends BaseFragment implements OnItemClickListene
                 break;
             case R.id.button_gas_fee:
                 intent = new Intent(getActivity(), PayTheGasFeeActivity.class);
-                intent.putExtra("TYPE", 1);
+                intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEARREARS.name());
                 DataBaiduPush.setPmttp("010001");
                 DataBaiduPush.setPmttpType("01");
                 break;
             case R.id.button_busi_fee:
                 intent = new Intent(getActivity(), PayTheGasFeeActivity.class);
-                intent.putExtra("TYPE", 2);
+                intent.putExtra("OrderType", ConstantKotlin.OrderType.OPERATINGFEEARREARS.name());
                 DataBaiduPush.setPmttp("010002");
                 DataBaiduPush.setPmttpType("01");
                 break;
             case R.id.button_gas_bill:
                 intent = new Intent(getActivity(), PayTheGasFeeActivity.class);
-                intent.putExtra("TYPE", 3);
+                intent.putExtra("OrderType", ConstantKotlin.OrderType.GASFEEBILL.name());
                 DataBaiduPush.setPmttp("010001");
                 DataBaiduPush.setPmttpType("01");
                 break;
             case R.id.button_busi_bill:
                 intent = new Intent(getActivity(), PayTheGasFeeActivity.class);
-                intent.putExtra("TYPE", 4);
+                intent.putExtra("OrderType", ConstantKotlin.OrderType.OPERATINGFEEBILL.name());
                 DataBaiduPush.setPmttp("010002");
                 DataBaiduPush.setPmttpType("01");
                 break;
             case R.id.button_water_fee:
-                // 跳转到指定的水务页面
                 intent = new Intent(getActivity(), PayTheGasFeeActivity.class);
-                intent.putExtra("TYPE", 5);
+                intent.putExtra("OrderType", ConstantKotlin.OrderType.WATERFEEARREARS.name());
                 DataBaiduPush.setPmttp("020001");
                 DataBaiduPush.setPmttpType("02");
                 break;
             case R.id.button_water_bill:
-                // 跳转到指定的水务页面
                 intent = new Intent(getActivity(), PayTheGasFeeActivity.class);
-                intent.putExtra("TYPE", 6);
+                intent.putExtra("OrderType", ConstantKotlin.OrderType.WATERFEEBILL.name());
                 DataBaiduPush.setPmttp("020001");
                 DataBaiduPush.setPmttpType("02");
-                break;
-            case R.id.button_gas_blue_jine:
-                intent = new Intent(getActivity(), PayTheGasFeeActivity.class);
-                intent.putExtra("TYPE", 9);
-                DataBaiduPush.setPmttp("010001");
-                DataBaiduPush.setPmttpType("01");
-                break;
-            case R.id.button_gas_nfc_qiliang:
-                intent = new Intent(getActivity(), PayTheGasFeeActivity.class);
-                intent.putExtra("TYPE", 11);
-                DataBaiduPush.setPmttp("010001");
-                DataBaiduPush.setPmttpType("01");
-                break;
-            case R.id.button_gas_blue_qiliang:
-                intent = new Intent(getActivity(), PayTheGasFeeActivity.class);
-                intent.putExtra("TYPE", 13);
-                DataBaiduPush.setPmttp("010001");
-                DataBaiduPush.setPmttpType("01");
                 break;
         }
 
@@ -271,6 +296,18 @@ public class HomePageFragment extends BaseFragment implements OnItemClickListene
         DataBaiduPush.setGOW(0);
         if (cardView_gas_or_water != null && rl_gas_gasbill != null)
             moveToRight(cardView_gas_or_water, rl_gas_gasbill, isFast);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        convenientBanner.start();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        convenientBanner.pause();
     }
 
     @Override

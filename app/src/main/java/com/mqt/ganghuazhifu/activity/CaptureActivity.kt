@@ -84,13 +84,15 @@ class CaptureActivity : BaseActivity(), ZXingScannerView.ResultHandler {
             startActivity(it)
         } else {
             // 解密
-            val decryptResult = AESUtils.decrypt(result)
-            Logger.e("解密后：" + decryptResult)
-            val ss = decryptResult.split("\\|".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
-            if (ss.size >= 4)
-                YucunActivity.startActivity(this@CaptureActivity, ss[0], ss[1], ss[2], ss[3])
-            else
-                ToastUtil.toastInfo(result)
+//            val decryptResult = AESUtils.decrypt(result)
+//            Logger.e("解密后：" + decryptResult)
+//            val ss = decryptResult.split("\\|".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
+//            if (ss.size >= 4)
+//                YucunActivity.startActivity(this@CaptureActivity, ss[0], ss[1], ss[2], ss[3])
+//            else
+//                ToastUtil.toastInfo(result)
+
+            ToastUtil.toastInfo(result)
         }
     }
 

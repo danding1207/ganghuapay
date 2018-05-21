@@ -72,7 +72,7 @@ class SetLockPatternActivity : BaseActivity(), OnRecyclerViewItemClickListener {
             when (position) {
                 0 -> VerifyPasswordActivity.startActivity(this@SetLockPatternActivity, 3)
                 1 -> {
-                    intent = Intent(this@SetLockPatternActivity, LockPatternActivity::class.java)
+                    intent = Intent(this@SetLockPatternActivity, VeriyLockPatternActivity::class.java)
                     intent.putExtra("TYPE", 1)
                     startActivity(intent)
                 }

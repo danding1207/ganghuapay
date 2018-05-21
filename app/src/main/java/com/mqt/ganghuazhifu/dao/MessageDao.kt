@@ -145,7 +145,7 @@ interface MessageDao {
      * 按标题或者内容查找第一个Message
      */
     @Throws(SQLException::class)
-    fun findByTopicOrMsg(topic: String, msg: Int): MessageRealm
+    fun findByTopicOrMsg(topic: String, msg: Int): MessageRealm?
 
     /**
      * 清楚所有

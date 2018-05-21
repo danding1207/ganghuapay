@@ -1,17 +1,23 @@
 package com.mqt.ganghuazhifu.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
+import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.webkit.SslErrorHandler
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import com.afollestad.materialdialogs.MaterialDialog
 import com.alibaba.fastjson.JSONObject
 import com.mqt.ganghuazhifu.BaseActivity
@@ -20,6 +26,7 @@ import com.mqt.ganghuazhifu.R
 import com.mqt.ganghuazhifu.bean.PaymentResult
 import com.mqt.ganghuazhifu.bean.ResponseHead
 import com.mqt.ganghuazhifu.databinding.ActivityUnityPayResultBinding
+import com.mqt.ganghuazhifu.ext.isCurrentActivity
 import com.mqt.ganghuazhifu.ext.post
 import com.mqt.ganghuazhifu.http.HttpRequestParams
 import com.mqt.ganghuazhifu.http.HttpURLS
@@ -28,6 +35,7 @@ import com.mqt.ganghuazhifu.utils.DataBaiduPush
 import com.mqt.ganghuazhifu.utils.ScreenManager
 import com.mqt.ganghuazhifu.utils.ToastUtil
 import com.orhanobut.logger.Logger
+import java.util.zip.Inflater
 
 /**
  * 联动优势支付——支付结果
@@ -72,6 +80,219 @@ class UnityPayResultActivity : BaseActivity() {
         supportActionBar!!.title = "支付结果"
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         activityUnityPayResultBinding!!.buttonGoHome.setOnClickListener(this)
+        activityUnityPayResultBinding!!.tvTitleRight.setOnClickListener(this)
+        activityUnityPayResultBinding!!.tvTitleRight.setOnClickListener(this)
+    }
+
+    private fun resetView() {
+        if (result != null) {
+
+            if (result!!.Status == "PR00"
+                    && result!!.PayStatus == "PR06")
+                when (result!!.NFCFlag) {
+                    "11" -> {
+                        shebeitype = 1
+
+                        activityUnityPayResultBinding!!.tvTitleRight.visibility = View.VISIBLE
+
+                        activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
+                        activityUnityPayResultBinding!!.tvGoNfc.text = "NFC刷表"
+                        activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> NFC() }
+                        MaterialDialog.Builder(this@UnityPayResultActivity)
+                                .title("提醒").content("支付成功，是否立即以NFC把金额刷到燃气表？")
+                                .onPositive { dialog, which -> NFC() }
+                                .positiveText("确定").negativeText("取消").show()
+                    }
+                    "12" -> {
+                        shebeitype = 1
+
+                        activityUnityPayResultBinding!!.tvTitleRight.visibility = View.VISIBLE
+
+                        activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
+                        activityUnityPayResultBinding!!.tvGoNfc.text = "蓝牙写卡"
+                        activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> Bluetooth() }
+
+                        MaterialDialog.Builder(this@UnityPayResultActivity)
+                                .title("提醒").content("支付成功，是否立即以蓝牙读卡器把金额写到CPU卡？")
+                                .onPositive { dialog, which -> Bluetooth() }
+                                .positiveText("确定").negativeText("取消").show()
+                    }
+                    "13" -> {
+                        activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
+                        activityUnityPayResultBinding!!.tvGoNfc.text = "蓝牙写表"
+                        activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> BluetoothToShebei() }
+
+                        activityUnityPayResultBinding!!.tvTitleRight.visibility = View.VISIBLE
+                        MaterialDialog.Builder(this@UnityPayResultActivity)
+                                .title("提醒").content("支付成功，是否立即以蓝牙金额刷到燃气表？")
+                                .onPositive { dialog, which -> BluetoothToShebei() }
+                                .positiveText("确定").negativeText("取消").show()
+                    }
+                    "14" -> {
+                        shebeitype = 2
+                        activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
+                        activityUnityPayResultBinding!!.tvGoNfc.text = "NFC写表"
+                        activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> NFC() }
+
+                        activityUnityPayResultBinding!!.tvTitleRight.visibility = View.VISIBLE
+                        MaterialDialog.Builder(this@UnityPayResultActivity)
+                                .title("提醒").content("支付成功，是否立即以NFC把气量刷到燃气表？")
+                                .onPositive { dialog, which -> NFC() }
+                                .positiveText("确定").negativeText("取消").show()
+                    }
+                    "15" -> {
+                        shebeitype = 2
+                        activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
+                        activityUnityPayResultBinding!!.tvGoNfc.text = "蓝牙写卡"
+                        activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> Bluetooth() }
+
+                        activityUnityPayResultBinding!!.tvTitleRight.visibility = View.VISIBLE
+                        MaterialDialog.Builder(this@UnityPayResultActivity)
+                                .title("提醒").content("支付成功，是否立即以蓝牙读卡器把气量写到CPU卡？")
+                                .onPositive { dialog, which -> Bluetooth() }
+                                .positiveText("确定").negativeText("取消").show()
+                    }
+                    else -> {
+                        activityUnityPayResultBinding!!.tvTitleRight.visibility = View.INVISIBLE
+                        activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.GONE
+                    }
+                }
+
+            // tv_explainer.setText(text);
+            activityUnityPayResultBinding!!.tvOrderNb.text = "订单号：" + result!!.OrderNb
+            when (result!!.Pmttp) {
+                "010001" -> activityUnityPayResultBinding!!.tvCartegray.text = "业务类型：气费"
+                "010002" -> activityUnityPayResultBinding!!.tvCartegray.text = "业务类型：营业费"
+                "020001" -> activityUnityPayResultBinding!!.tvCartegray.text = "业务类型：水费"
+            }
+
+            if (result!!.UserNm == null) {
+                result!!.UserNm = ""
+                activityUnityPayResultBinding!!.buttonGoHome.visibility = View.VISIBLE
+                activityUnityPayResultBinding!!.tvUnit.text = "收款单位：" + result!!.PayeeName
+                activityUnityPayResultBinding!!.tvHuhao.text = "缴费户号：" + result!!.UserNb
+                activityUnityPayResultBinding!!.tvName.text = "缴费户名：" + result!!.UserNm
+                activityUnityPayResultBinding!!.tvAmount.text = "交易金额：" + result!!.Amount + "元"
+            } else {
+                val nameBuilder = StringBuilder(result!!.UserNm)
+                if (result!!.UserNm.length <= 1) {
+
+                } else if (result!!.UserNm.length <= 3) {
+                    nameBuilder.setCharAt(0, '*')
+                } else {
+                    for (i in 0..result!!.UserNm.length - 2 - 1) {
+                        nameBuilder.setCharAt(i, '*')
+                    }
+                }
+
+                activityUnityPayResultBinding!!.buttonGoHome.visibility = View.VISIBLE
+                activityUnityPayResultBinding!!.tvUnit.text = "收款单位：" + result!!.PayeeName
+                activityUnityPayResultBinding!!.tvHuhao.text = "缴费户号：" + result!!.UserNb
+                activityUnityPayResultBinding!!.tvName.text = "缴费户名：" + nameBuilder.toString()
+                activityUnityPayResultBinding!!.tvAmount.text = "交易金额：" + result!!.Amount + "元"
+            }
+
+            if (result!!.OrderSetTime != null) {
+                result!!.OrderSetTime = result!!.OrderSetTime.replace("T", " ")
+            } else {
+                result!!.OrderSetTime = ""
+            }
+
+            if (result!!.PaymentTime != null) {
+                result!!.PaymentTime = result!!.PaymentTime.replace("T", " ")
+            } else {
+                result!!.PaymentTime = ""
+            }
+            if (result!!.PayTime != null) {
+                result!!.PayTime = result!!.PayTime.replace("T", " ")
+            } else {
+                result!!.PayTime = ""
+            }
+
+            activityUnityPayResultBinding!!.tvOrderSetTime.text = "订单创建时间：" + result!!.OrderSetTime
+            activityUnityPayResultBinding!!.tvPayTime.text = "付款时间：" + result!!.PaymentTime
+            activityUnityPayResultBinding!!.tvJiaofeiTime.text = "缴费时间：" + result!!.PayTime
+
+            when (result!!.Status) {
+                "PR00" -> {
+                    // 已付款
+                    activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：已付款"
+                    activityUnityPayResultBinding!!.tvExplainer.text = "恭喜你，支付成功！"
+                    activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_success)
+                }
+                "PR01" -> {
+                    // 待付款
+                    activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：待付款"
+                    activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
+                    activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
+                    activityUnityPayResultBinding!!.cardViewCanclePay.visibility = View.VISIBLE
+                    activityUnityPayResultBinding!!.cardViewCanclePay.setOnClickListener { v -> cancleDialog() }
+                }
+                "PR02" -> {
+                    // 已取消
+                    activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：已取消"
+                    activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
+                    activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
+                }
+                "PR03" -> {
+                    // 支付失败
+                    activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：支付失败"
+                    activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
+                    activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
+                    activityUnityPayResultBinding!!.cardViewCanclePay.visibility = View.VISIBLE
+                    activityUnityPayResultBinding!!.cardViewCanclePay.setOnClickListener { v -> cancleDialog() }
+                }
+                "PR04" -> {
+                    // 待退款
+                    activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：待退款"
+                    activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
+                    activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
+                }
+                "PR05" -> {
+                    // 已退款
+                    activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：已退款"
+                    activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
+                    activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
+                }
+            }
+
+            when (result!!.PayStatus) {
+                "PR06" -> {
+                    if("320000321100019998".equals(result!!.PayeeCode)) {
+                        isCurrentActivity()
+                        MaterialDialog.Builder(this@UnityPayResultActivity)
+                                .title("提醒").content("请再次查询，查看有无欠费")
+                                .onPositive { dialog, which ->
+                                    run {
+                                        val intent = Intent(this@UnityPayResultActivity, PayTheGasFeeActivity::class.java)
+                                        intent.putExtra("TYPE", 1)
+                                        DataBaiduPush.setPmttp("010001")
+                                        DataBaiduPush.setPmttpType("01")
+                                        startActivity(intent)
+                                        finish()
+                                    }
+                                }
+                                .positiveText("确定").negativeText("取消").show()
+                    }
+                    // 缴费成功
+                    activityUnityPayResultBinding!!.tvOrderStatus.text = "缴费状态：缴费成功"
+                }
+                "PR07" -> {
+                    // 缴费失败
+                    activityUnityPayResultBinding!!.tvOrderStatus.text = "缴费状态：缴费失败"
+                }
+                "PR08" -> {
+                    // 未缴费
+                    activityUnityPayResultBinding!!.tvOrderStatus.text = "缴费状态：未缴费"
+                }
+            }
+
+            if (result!!.ErrorMsg != null) {
+                activityUnityPayResultBinding!!.tvFailReason.text = "操作描述：" + result!!.ErrorMsg
+            } else {
+                activityUnityPayResultBinding!!.tvFailReason.text = ""
+            }
+        }
     }
 
     override fun onStart() {
@@ -85,6 +306,46 @@ class UnityPayResultActivity : BaseActivity() {
     override fun OnViewClick(v: View) {
         when (v.id) {
             R.id.button_go_home -> ScreenManager.getScreenManager().popAllActivityExceptOne(MainActivity::class.java)
+            R.id.tv_title_right -> {
+                when (result!!.NFCFlag) {
+                    "11" -> {
+                        val intent = Intent(this@UnityPayResultActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 1)
+                        startActivity(intent)
+                    }
+                    "12" -> {
+                        val intent = Intent(this@UnityPayResultActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 2)
+                        startActivity(intent)
+                    }
+                    "13" -> {
+                        val intent = Intent(this@UnityPayResultActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 2)
+                        startActivity(intent)
+                    }
+                    "14" -> {
+                        val intent = Intent(this@UnityPayResultActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 1)
+                        startActivity(intent)
+                    }
+                    "15" -> {
+                        val intent = Intent(this@UnityPayResultActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 2)
+                        startActivity(intent)
+                    }
+                    else -> {
+                        val intent = Intent(this@UnityPayResultActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 1)
+                        startActivity(intent)
+                    }
+                }
+            }
         }
     }
 
@@ -102,195 +363,7 @@ class UnityPayResultActivity : BaseActivity() {
                     if (head != null && head.ProcessCode == "0000") {
                         if (ResponseFields != null) {
                             result = JSONObject.parseObject(ResponseFields, PaymentResult::class.java)
-                            if (result != null) {
-
-                                if (result!!.Status == "PR00"
-                                        && result!!.PayStatus == "PR06")
-                                    when (result!!.NFCFlag) {
-                                        "11" -> {
-                                            shebeitype = 1
-                                            activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
-                                            activityUnityPayResultBinding!!.tvGoNfc.text = "NFC刷表"
-                                            activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> NFC() }
-                                            MaterialDialog.Builder(this@UnityPayResultActivity)
-                                                    .title("提醒").content("支付成功，是否立即以NFC把金额刷到燃气表？")
-                                                    .onPositive { dialog, which -> NFC() }
-                                                    .positiveText("确定").negativeText("取消").show()
-                                        }
-                                        "12" -> {
-                                            shebeitype = 1
-                                            activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
-                                            activityUnityPayResultBinding!!.tvGoNfc.text = "蓝牙写卡"
-                                            activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> Bluetooth() }
-                                            MaterialDialog.Builder(this@UnityPayResultActivity)
-                                                    .title("提醒").content("支付成功，是否立即以蓝牙读卡器把金额写到CPU卡？")
-                                                    .onPositive { dialog, which -> Bluetooth() }
-                                                    .positiveText("确定").negativeText("取消").show()
-                                        }
-                                        "13" -> {
-                                            activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
-                                            activityUnityPayResultBinding!!.tvGoNfc.text = "蓝牙写表"
-                                            activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> BluetoothToShebei() }
-                                            MaterialDialog.Builder(this@UnityPayResultActivity)
-                                                    .title("提醒").content("支付成功，是否立即以蓝牙金额刷到燃气表？")
-                                                    .onPositive { dialog, which -> BluetoothToShebei() }
-                                                    .positiveText("确定").negativeText("取消").show()
-                                        }
-                                        "14" -> {
-                                            shebeitype = 2
-                                            activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
-                                            activityUnityPayResultBinding!!.tvGoNfc.text = "NFC写表"
-                                            activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> NFC() }
-                                            MaterialDialog.Builder(this@UnityPayResultActivity)
-                                                    .title("提醒").content("支付成功，是否立即以NFC把气量刷到燃气表？")
-                                                    .onPositive { dialog, which -> BluetoothToShebei() }
-                                                    .positiveText("确定").negativeText("取消").show()
-                                        }
-                                        "15" -> {
-                                            shebeitype = 2
-                                            activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.VISIBLE
-                                            activityUnityPayResultBinding!!.tvGoNfc.text = "蓝牙写卡"
-                                            activityUnityPayResultBinding!!.buttonGoNfc.setOnClickListener { v -> Bluetooth() }
-                                            MaterialDialog.Builder(this@UnityPayResultActivity)
-                                                    .title("提醒").content("支付成功，是否立即以蓝牙读卡器把气量写到CPU卡？")
-                                                    .onPositive { dialog, which -> Bluetooth() }
-                                                    .positiveText("确定").negativeText("取消").show()
-                                        }
-                                        else -> activityUnityPayResultBinding!!.buttonGoNfc.visibility = View.GONE
-                                    }
-
-                                // tv_explainer.setText(text);
-                                activityUnityPayResultBinding!!.tvOrderNb.text = "订单号：" + result!!.OrderNb
-                                when (result!!.Pmttp) {
-                                    "010001" -> activityUnityPayResultBinding!!.tvCartegray.text = "业务类型：气费"
-                                    "010002" -> activityUnityPayResultBinding!!.tvCartegray.text = "业务类型：营业费"
-                                    "020001" -> activityUnityPayResultBinding!!.tvCartegray.text = "业务类型：水费"
-                                }
-
-                                if (result!!.UserNm == null) {
-                                    result!!.UserNm = ""
-                                    activityUnityPayResultBinding!!.buttonGoHome.visibility = View.VISIBLE
-                                    activityUnityPayResultBinding!!.tvUnit.text = "收款单位：" + result!!.PayeeName
-                                    activityUnityPayResultBinding!!.tvHuhao.text = "缴费户号：" + result!!.UserNb
-                                    activityUnityPayResultBinding!!.tvName.text = "缴费户名：" + result!!.UserNm
-                                    activityUnityPayResultBinding!!.tvAmount.text = "交易金额：" + result!!.Amount + "元"
-                                } else {
-                                    val nameBuilder = StringBuilder(result!!.UserNm)
-                                    if (result!!.UserNm.length <= 1) {
-
-                                    } else if (result!!.UserNm.length <= 3) {
-                                        nameBuilder.setCharAt(0, '*')
-                                    } else {
-                                        for (i in 0..result!!.UserNm.length - 2 - 1) {
-                                            nameBuilder.setCharAt(i, '*')
-                                        }
-                                    }
-
-                                    activityUnityPayResultBinding!!.buttonGoHome.visibility = View.VISIBLE
-                                    activityUnityPayResultBinding!!.tvUnit.text = "收款单位：" + result!!.PayeeName
-                                    activityUnityPayResultBinding!!.tvHuhao.text = "缴费户号：" + result!!.UserNb
-                                    activityUnityPayResultBinding!!.tvName.text = "缴费户名：" + nameBuilder.toString()
-                                    activityUnityPayResultBinding!!.tvAmount.text = "交易金额：" + result!!.Amount + "元"
-                                }
-
-                                if (result!!.OrderSetTime != null) {
-                                    result!!.OrderSetTime = result!!.OrderSetTime.replace("T", " ")
-                                } else {
-                                    result!!.OrderSetTime = ""
-                                }
-
-                                if (result!!.PaymentTime != null) {
-                                    result!!.PaymentTime = result!!.PaymentTime.replace("T", " ")
-                                } else {
-                                    result!!.PaymentTime = ""
-                                }
-                                if (result!!.PayTime != null) {
-                                    result!!.PayTime = result!!.PayTime.replace("T", " ")
-                                } else {
-                                    result!!.PayTime = ""
-                                }
-
-                                activityUnityPayResultBinding!!.tvOrderSetTime.text = "订单创建时间：" + result!!.OrderSetTime
-                                activityUnityPayResultBinding!!.tvPayTime.text = "付款时间：" + result!!.PaymentTime
-                                activityUnityPayResultBinding!!.tvJiaofeiTime.text = "缴费时间：" + result!!.PayTime
-
-                                when (result!!.Status) {
-                                    "PR00" -> {
-                                        // 已付款
-                                        activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：已付款"
-                                        activityUnityPayResultBinding!!.tvExplainer.text = "恭喜你，支付成功！"
-                                        activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_success)
-                                    }
-                                    "PR01" -> {
-                                        // 待付款
-                                        activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：待付款"
-                                        activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
-                                        activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
-                                    }
-                                    "PR02" -> {
-                                        // 已取消
-                                        activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：已取消"
-                                        activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
-                                        activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
-                                    }
-                                    "PR03" -> {
-                                        // 支付失败
-                                        activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：支付失败"
-                                        activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
-                                        activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
-                                    }
-                                    "PR04" -> {
-                                        // 待退款
-                                        activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：待退款"
-                                        activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
-                                        activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
-                                    }
-                                    "PR05" -> {
-                                        // 已退款
-                                        activityUnityPayResultBinding!!.tvPayStatus.text = "交易状态：已退款"
-                                        activityUnityPayResultBinding!!.tvExplainer.text = "很遗憾，支付失败！"
-                                        activityUnityPayResultBinding!!.ivExplainer.setImageResource(R.drawable.pay_fail)
-                                    }
-                                }
-
-                                when (result!!.PayStatus) {
-                                    "PR06" -> {
-
-                                        if(result!!.PayeeName.equals("江苏宝华天然气有限公司")) {
-
-                                            MaterialDialog.Builder(this@UnityPayResultActivity)
-                                                    .title("提醒").content("请再次查询，查看有无欠费")
-                                                    .onPositive { dialog, which ->
-                                                        run {
-                                                            val intent = Intent(this@UnityPayResultActivity, PayTheGasFeeActivity::class.java)
-                                                            intent.putExtra("TYPE", 1)
-                                                            DataBaiduPush.setPmttp("010001")
-                                                            DataBaiduPush.setPmttpType("01")
-                                                            startActivity(intent)
-                                                            finish()
-                                                        }
-                                                    }
-                                                    .positiveText("确定").negativeText("取消").show()
-                                        }
-                                        // 缴费成功
-                                        activityUnityPayResultBinding!!.tvOrderStatus.text = "缴费状态：缴费成功"
-                                    }
-                                    "PR07" -> {
-                                        // 缴费失败
-                                        activityUnityPayResultBinding!!.tvOrderStatus.text = "缴费状态：缴费失败"
-                                    }
-                                    "PR08" -> {
-                                        // 未缴费
-                                        activityUnityPayResultBinding!!.tvOrderStatus.text = "缴费状态：未缴费"
-                                    }
-                                }
-
-                                if (result!!.ErrorMsg != null) {
-                                    activityUnityPayResultBinding!!.tvFailReason.text = "操作描述：" + result!!.ErrorMsg
-                                } else {
-                                    activityUnityPayResultBinding!!.tvFailReason.text = ""
-                                }
-                            }
+                            resetView()
                         }
                     } else {
                         if (head != null && head.ProcessDes != null) {
@@ -408,21 +481,83 @@ class UnityPayResultActivity : BaseActivity() {
         }
     }
 
-    private fun join(args: Array<String?>): String {
-        val sb = StringBuffer()
-        for (ss in args) {
-            sb.append(ss)
-        }
-        return sb.toString()
+    /**
+     * 但是提示框
+     */
+    @SuppressLint("NewApi")
+    private fun cancleDialog() {
+        MaterialDialog.Builder(this@UnityPayResultActivity)
+                .title("提醒")
+                .content("如已确认扣款成功请勿取消订单！")
+                .onPositive { dialog, which -> cancleOrder() }
+                .negativeText("退出")
+                .positiveText("取消订单")
+                .show()
     }
 
-    private fun newStringArray(args0: Array<String?>, key: String): Array<String?> {
-        val n = arrayOfNulls<String?>(args0.size + 1)
-        for (i in args0.indices) {
-            n[i] = args0[i]
-        }
-        n[args0.size] = key
-        return n
+    /**
+     * 但是提示框
+     */
+    @SuppressLint("NewApi")
+    private fun refundDialog() {
+        MaterialDialog.Builder(this@UnityPayResultActivity)
+                .title("提示")
+                .content("您是否确定申请退款？")
+                .onPositive { dialog, which -> Refund() }
+                .negativeText("取消")
+                .positiveText("确定")
+                .show()
     }
+
+    private fun cancleOrder() {
+        val body = HttpRequestParams.getParamsForOrderCancle(result!!.OrderNb)
+        post(HttpURLS.orderCancel, true, "OrderCancle", body, OnHttpRequestListener { isError, response, type, error ->
+            if (isError) {
+                Logger.e(error.toString())
+            } else {
+                Logger.i(response.toString())
+                val Response = response.getString("ResponseHead")
+                if (Response != null) {
+                    val head = JSONObject.parseObject(Response, ResponseHead::class.java)
+                    if (head != null && head.ProcessCode == "0000") {
+                        ToastUtil.toastSuccess("订单已取消!")
+                        result!!.Status = "PR02"
+                        result!!.PayStatus = "PR08"
+                        resetView()
+                    } else {
+                        if (head != null && head.ProcessDes != null) {
+                            ToastUtil.toastError(head.ProcessDes)
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    private fun Refund() {
+        val body = HttpRequestParams.getParamsForOrderRefund(result!!.OrderNb)
+        post(HttpURLS.applyRefund, true, "Refund", body, OnHttpRequestListener { isError, response, type, error ->
+            if (isError) {
+                Logger.e(error.toString())
+            } else {
+                Logger.d(response.toString())
+                val Response = response.getString("ResponseHead")
+                if (Response != null) {
+                    val head = JSONObject.parseObject(Response, ResponseHead::class.java)
+                    if (head != null && head.ProcessCode == "0000") {
+                        ToastUtil.toastSuccess("已申请退款!")
+                        result!!.Status = "PR04"
+                        result!!.PayStatus = "PR07"
+                        resetView()
+                    } else {
+                        if (head != null && head.ProcessDes != null) {
+                            ToastUtil.toastError(head.ProcessDes)
+                        }
+                    }
+                }
+            }
+        })
+    }
+
 
 }

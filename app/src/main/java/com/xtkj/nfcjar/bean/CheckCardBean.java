@@ -5,7 +5,6 @@
 
 package com.xtkj.nfcjar.bean;
 
-import com.xtkj.nfcjar.bean.PriceGroup;
 import java.io.Serializable;
 import java.util.List;
 

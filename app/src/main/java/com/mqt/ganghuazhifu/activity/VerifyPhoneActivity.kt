@@ -56,7 +56,7 @@ class VerifyPhoneActivity : BaseActivity() {
     private var yzm: String? = null
     private var verificationKey: String? = null
     private var time: Long = 0
-    private var type: Int = 0// 1:注册;2:忘记密码;3:安保问题管理;4:修改登录密码;5:修改手机号码   ***1,2,5 已废弃
+    private var type: Int = 0// 1:注册;2:忘记密码;3:安保问题管理;4:修改登录密码;5:修改手机号码   ***1,2,3,5 已废弃
     private var ok: Int = 0
     private var ImageKey = ""
     private var ImageCode = ""

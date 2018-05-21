@@ -19,6 +19,11 @@ public class GasFeeResult {
     public String EasyNo;// 速记号
     public String UserNb;// 户号
     public String NFCFlag;// NFC标识
+    public String MeterType;// 金额表类型
+    public String SecurAlert;// NFC表安检提醒
+    public float LimitGasfee;// 限购金额
+    public String NfcSumcount;// 购气次数
+    public String IcCardno;// IC卡号
     public String UserName;// 客户名
     public String UserAddr;// 地址
     public String HasBusifee;// 营业费标记 0：无营业欠费 ；1：有营业费欠费
@@ -28,77 +33,79 @@ public class GasFeeResult {
     public List<GasFeeRecord> FeeCountDetail;
     public String QuerySeq;//查询序列号
 
-    public String NFCSecurAlert;//安检提示信息
-    public float NFCLimitGasFee;//NFC限购金额
     public float NFCNotWriteGas;//NFC未写卡金额
-    public int NFCICSumCount;//NFCIC卡购气次数
 
-    public String ICcardNo;//IC卡号
     public float UserCanAmount;//用户本次可购气量
     public float PriceId;//用户气价
 
-    public String QueryId;//IC卡号
+    public String QueryId;//查询号
 
 
-    public GasFeeResult(String provinceCode, String cityCode, String easyNo,
-                        String userNb, String userName, String userAddr, String hasBusifee,
-                        String allGasfee, String feeCount, List<GasFeeRecord> feeCountDetail, String querySeq,
-                        String nFCSecurAlert, float nFCLimitGasFee, float nFCNotWriteGas,
-                        String iCcardNo, float userCanAmount, float priceId,
-                        String nFCFlag, String queryId
-    ) {
 
-        super();
-        ProvinceCode = provinceCode;
-        CityCode = cityCode;
-        EasyNo = easyNo;
-        UserNb = userNb;
-        UserName = userName;
-        UserAddr = userAddr;
-        HasBusifee = hasBusifee;
-        AllGasfee = allGasfee;
-        FeeCount = feeCount;
-        FeeCountDetail = feeCountDetail;
-        QuerySeq = querySeq;
-        NFCSecurAlert = nFCSecurAlert;
-        NFCLimitGasFee = nFCLimitGasFee;
-        NFCNotWriteGas = nFCNotWriteGas;
-        NFCFlag = nFCFlag;
-        ICcardNo = iCcardNo;
-        UserCanAmount = userCanAmount;
-        PriceId = priceId;
-        QueryId = queryId;
-    }
 
     public GasFeeResult() {
         FeeCountDetail = new ArrayList<>();
     }
 
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("ProvinceCode--->" + ProvinceCode + "/n");
-        sb.append("CityCode--->" + CityCode + "/n");
-        sb.append("EasyNo--->" + EasyNo + "/n");
-        sb.append("UserNb--->" + UserNb + "/n");
-        sb.append("UserName--->" + UserName + "/n");
-        sb.append("UserAddr--->" + UserAddr + "/n");
-        sb.append("HasBusifee--->" + HasBusifee + "/n");
-        sb.append("AllGasfee--->" + AllGasfee + "/n");
-        sb.append("FeeCount--->" + FeeCount + "/n");
-        sb.append("QuerySeq--->" + QuerySeq + "/n");
-        sb.append("NFCSecurAlert--->" + NFCSecurAlert + "/n");
-        sb.append("NFCLimitGasFee--->" + NFCLimitGasFee + "/n");
-        sb.append("NFCNotWriteGas--->" + NFCNotWriteGas + "/n");
-        sb.append("NFCFlag--->" + NFCFlag + "/n");
-        sb.append("ICcardNo--->" + ICcardNo + "/n");
-        sb.append("UserCanAmount--->" + UserCanAmount + "/n");
-        sb.append("PriceId--->" + PriceId + "/n");
-        sb.append("QueryId--->" + QueryId + "/n");
-        for (GasFeeRecord gasFeeRecord : FeeCountDetail) {
-            if (gasFeeRecord != null)
-                sb.append(gasFeeRecord.toString());
-        }
-        return sb.toString();
+    public GasFeeResult(String payeeCode, String provinceCode, String cityCode, String easyNo,
+                        String userNb, String NFCFlag, String meterType, String securAlert,
+                        float limitGasfee, String nfcSumcount, String icCardno, String userName,
+                        String userAddr, String hasBusifee, String allGasfee, String feeCount,
+                        String dueMonth, List<GasFeeRecord> feeCountDetail, String querySeq,
+                        float NFCNotWriteGas, float userCanAmount, float priceId,
+                        String queryId) {
+        PayeeCode = payeeCode;
+        ProvinceCode = provinceCode;
+        CityCode = cityCode;
+        EasyNo = easyNo;
+        UserNb = userNb;
+        this.NFCFlag = NFCFlag;
+        MeterType = meterType;
+        SecurAlert = securAlert;
+        LimitGasfee = limitGasfee;
+        NfcSumcount = nfcSumcount;
+        IcCardno = icCardno;
+        UserName = userName;
+        UserAddr = userAddr;
+        HasBusifee = hasBusifee;
+        AllGasfee = allGasfee;
+        FeeCount = feeCount;
+        DueMonth = dueMonth;
+        FeeCountDetail = feeCountDetail;
+        QuerySeq = querySeq;
+        this.NFCNotWriteGas = NFCNotWriteGas;
+        UserCanAmount = userCanAmount;
+        PriceId = priceId;
+        QueryId = queryId;
     }
 
+
+    @Override
+    public String toString() {
+        return "GasFeeResult{" +
+                "PayeeCode='" + PayeeCode + '\'' +
+                ", ProvinceCode='" + ProvinceCode + '\'' +
+                ", CityCode='" + CityCode + '\'' +
+                ", EasyNo='" + EasyNo + '\'' +
+                ", UserNb='" + UserNb + '\'' +
+                ", NFCFlag='" + NFCFlag + '\'' +
+                ", MeterType='" + MeterType + '\'' +
+                ", SecurAlert='" + SecurAlert + '\'' +
+                ", LimitGasfee='" + LimitGasfee + '\'' +
+                ", NfcSumcount='" + NfcSumcount + '\'' +
+                ", IcCardno='" + IcCardno + '\'' +
+                ", UserName='" + UserName + '\'' +
+                ", UserAddr='" + UserAddr + '\'' +
+                ", HasBusifee='" + HasBusifee + '\'' +
+                ", AllGasfee='" + AllGasfee + '\'' +
+                ", FeeCount='" + FeeCount + '\'' +
+                ", DueMonth='" + DueMonth + '\'' +
+                ", FeeCountDetail=" + FeeCountDetail +
+                ", QuerySeq='" + QuerySeq + '\'' +
+                ", NFCNotWriteGas='" + NFCNotWriteGas + '\'' +
+                ", UserCanAmount=" + UserCanAmount +
+                ", PriceId=" + PriceId +
+                ", QueryId='" + QueryId + '\'' +
+                '}';
+    }
 }

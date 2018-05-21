@@ -11,6 +11,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.alibaba.fastjson.JSONException
 import com.alibaba.fastjson.JSONObject
 import com.mqt.ganghuazhifu.App
+import com.mqt.ganghuazhifu.BuildConfig
 import com.mqt.ganghuazhifu.activity.LoginActivity
 import com.mqt.ganghuazhifu.listener.OnHttpRequestListener
 import com.mqt.ganghuazhifu.utils.ScreenManager
@@ -28,7 +29,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
-
+import javax.net.ssl.X509TrustManager
 
 class HttpRequest private constructor() {
 
@@ -49,6 +50,18 @@ class HttpRequest private constructor() {
      */
     fun httpPost(mContext: Activity?, url: String, isShow: Boolean, tag: String, body: RequestBody?,
                  requestListener: OnHttpRequestListener?) {
+        if(!isNetworkReachable(mContext!!)) {
+            MaterialDialog.Builder(mContext)
+                    .title("提醒")
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .onPositive { dialog, which ->
+                    }
+                    .positiveText("确定")
+                    .content("当前网络不可用！").build().show()
+            return
+        }
+
         if (isShow)
             showRoundProcessDialog(mContext, tag)
         Logger.i(url)
@@ -254,29 +267,35 @@ class HttpRequest private constructor() {
             val builder = OkHttpClient.Builder().connectTimeout(120, TimeUnit.SECONDS)
                     .writeTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS)
             try {
-                val certificates: InputStream = App.instance.assets.open("pay.jiaoyibao.com.cn.cer")
+                val certificates: InputStream = App.instance.assets.open("pay.jiaoyibao.com.cn.crt")
                 val certificateFactory = CertificateFactory.getInstance("X.509")
                 val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
                 keyStore.load(null)
                 val certificateAlias = Integer.toString(0)
                 keyStore.setCertificateEntry(certificateAlias, certificateFactory.generateCertificate(certificates))
                 try {
-                    if (certificates != null)
-                        certificates!!.close()
+                    certificates.close()
                 } catch (e: IOException) {
                 }
                 val sslContext = SSLContext.getInstance("TLS")
                 val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
                 trustManagerFactory.init(keyStore)
+                val trustManagers = trustManagerFactory.trustManagers
+                if (trustManagers.size != 1 || trustManagers[0] !is X509TrustManager) {
+                    throw IllegalStateException("Unexpected default trust managers:"
+                            + Arrays.toString(trustManagers))
+                }
+                val trustManager: X509TrustManager = trustManagers[0] as X509TrustManager
+
                 sslContext.init(
                         null,
                         trustManagerFactory.trustManagers,
                         SecureRandom()
                 )
-
                 builder.retryOnConnectionFailure(false)
-                if (HttpURLS.ip.equals("https://pay.jiaoyibao.com.cn")) {
-                    builder.sslSocketFactory(sslContext.socketFactory)
+                if ("dongguan".equals(BuildConfig.FLAVOR)) {
+                    Logger.e("dongguan -------SSL")
+                    builder.sslSocketFactory(sslContext.socketFactory, trustManager)
                 }
                 httpClient = builder.build()
             } catch (e: Exception) {
@@ -306,16 +325,6 @@ class HttpRequest private constructor() {
             response
         }
 
-        /**
-         * 判断网络是否可用
-
-         * @param context Context对象
-         */
-        fun isNetworkReachable(context: Context): Boolean {
-            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val current = cm.activeNetworkInfo ?: return false
-            return current.isAvailable
-        }
 
         fun getNetworkType(context: Context): String {
             var strNetworkType = ""
@@ -351,6 +360,16 @@ class HttpRequest private constructor() {
             Logger.e("Network Type : " + strNetworkType)
             return strNetworkType
         }
+    }
+
+    /**
+     * 判断网络是否可用
+     * @param context Context对象
+     */
+    fun isNetworkReachable(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val current = cm.activeNetworkInfo ?: return false
+        return current.isAvailable
     }
 
 }

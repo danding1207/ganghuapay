@@ -1,0 +1,37 @@
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fitsSystemWindows="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_bg"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
+
+
+
+    <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    <com.mqt.ganghuazhifu.view.ShuiyinView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/shuiyin"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+    />
+
+    <ImageView
+            android:id="@+id/iv_cancle"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/history_cancle"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="8dp"
+    />
+
+</RelativeLayout>

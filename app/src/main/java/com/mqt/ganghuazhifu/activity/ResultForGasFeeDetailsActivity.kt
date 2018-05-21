@@ -17,6 +17,7 @@ import com.mqt.ganghuazhifu.bean.BusiFeeResult
 import com.mqt.ganghuazhifu.bean.GasFeeRecord
 import com.mqt.ganghuazhifu.bean.GasFeeResult
 import com.mqt.ganghuazhifu.databinding.ActivityResultForGasFeeDetailsBinding
+import com.mqt.ganghuazhifu.event.ConstantKotlin
 import com.mqt.ganghuazhifu.ext.post
 import com.mqt.ganghuazhifu.http.CusFormBody
 import com.mqt.ganghuazhifu.http.HttpRequest
@@ -44,23 +45,25 @@ class ResultForGasFeeDetailsActivity : BaseActivity() {
     private var nanJingGasFeeResultAdapter: NanJingGasFeeResultAdapter? = null
     private var baoHuaGasFeeResultAdapter: BaoHuaGasFeeResultAdapter? = null
     private var busiFeeResultAdapter: BusiFeeResultAdapter? = null
-    private var type: Int = 0// 1:缴纳气费;2:缴纳营业费;7:NFC预存气费;
-    private var body: CusFormBody? = null
+    private var orderType: ConstantKotlin.OrderType = ConstantKotlin.OrderType.GASFEEARREARS
+
     private var activityResultForGasFeeDetailsBinding: ActivityResultForGasFeeDetailsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityResultForGasFeeDetailsBinding = DataBindingUtil.setContentView<ActivityResultForGasFeeDetailsBinding>(this, R.layout.activity_result_for_gas_fee_details)
-        type = intent.getIntExtra("TYPE", 1)
+        activityResultForGasFeeDetailsBinding = DataBindingUtil.setContentView<ActivityResultForGasFeeDetailsBinding>(this,
+                R.layout.activity_result_for_gas_fee_details)
+
+        Logger.e("ConstantKotlin.OrderType.name:  " + intent.getStringExtra("OrderType"))
+        orderType = ConstantKotlin.OrderType.valueOf(intent.getStringExtra("OrderType"))
+
         gasFeeResult = Parcels.unwrap<GasFeeResult>(intent.getParcelableExtra<Parcelable>("GasFeeResult"))
         busiFeeResult = Parcels.unwrap<BusiFeeResult>(intent.getParcelableExtra<Parcelable>("BusiFeeResult"))
 
-        Logger.d("ResultForGasFeeDetailsActivity:type--->" + type)
-
         if (gasFeeResult != null) {
-            Logger.d("size--->" + if (gasFeeResult!!.FeeCountDetail == null) 0 else gasFeeResult!!.FeeCountDetail.size)
+            Logger.i("size--->" + if (gasFeeResult!!.FeeCountDetail == null) 0 else gasFeeResult!!.FeeCountDetail.size)
         } else if (busiFeeResult != null) {
-            Logger.d("size--->" + if (busiFeeResult!!.BusifeeCountDetail == null) 0 else busiFeeResult!!.BusifeeCountDetail.size)
+            Logger.i("size--->" + if (busiFeeResult!!.BusifeeCountDetail == null) 0 else busiFeeResult!!.BusifeeCountDetail.size)
         }
 
         initView()
@@ -68,31 +71,31 @@ class ResultForGasFeeDetailsActivity : BaseActivity() {
     }
 
     private fun setDatatoView() {
-        when (type) {
-            7, 1 -> if (gasFeeResult != null) {
-                Logger.d("PayeeCode--->" + gasFeeResult!!.PayeeCode)
+        when (orderType) {
+            ConstantKotlin.OrderType.GASFEEARREARS -> if (gasFeeResult != null) {
+                Logger.i("PayeeCode--->" + gasFeeResult!!.PayeeCode)
                 when (gasFeeResult!!.PayeeCode) {
-                    "320000320100019999" -> {
-                        Logger.d("NanJingGasFeeResultAdapter")
+                    ConstantKotlin.NanJingCode -> {
+                        Logger.i("NanJingGasFeeResultAdapter")
                         nanJingGasFeeResultAdapter = NanJingGasFeeResultAdapter(this)
                         activityResultForGasFeeDetailsBinding!!.listViewGasFeeDetail.adapter = nanJingGasFeeResultAdapter
                         nanJingGasFeeResultAdapter!!.updateList(gasFeeResult!!.FeeCountDetail as ArrayList<GasFeeRecord>)
                     }
-                    "320000321100019998" -> {
-                        Logger.d("BaoHuaGasFeeResultAdapter")
+                    ConstantKotlin.BaoHuaCode -> {
+                        Logger.i("BaoHuaGasFeeResultAdapter")
                         baoHuaGasFeeResultAdapter = BaoHuaGasFeeResultAdapter(this)
                         activityResultForGasFeeDetailsBinding!!.listViewGasFeeDetail.adapter = baoHuaGasFeeResultAdapter
                         baoHuaGasFeeResultAdapter!!.updateList(gasFeeResult!!.FeeCountDetail as ArrayList<GasFeeRecord>)
                     }
                     else -> {
-                        Logger.d("GasFeeResultAdapter")
+                        Logger.i("GasFeeResultAdapter")
                         gasFeeResultAdapter = GasFeeResultAdapter(this)
                         activityResultForGasFeeDetailsBinding!!.listViewGasFeeDetail.adapter = gasFeeResultAdapter
                         gasFeeResultAdapter!!.updateList(gasFeeResult!!.FeeCountDetail as ArrayList<GasFeeRecord>)
                     }
                 }
             }
-            2 -> if (busiFeeResult != null) {
+            ConstantKotlin.OrderType.OPERATINGFEEARREARS -> if (busiFeeResult != null) {
                 busiFeeResultAdapter = BusiFeeResultAdapter(this)
                 activityResultForGasFeeDetailsBinding!!.listViewGasFeeDetail.adapter = busiFeeResultAdapter
                 busiFeeResultAdapter!!.updateList(busiFeeResult!!.BusifeeCountDetail as ArrayList<BusiFeeRecord>)
@@ -117,78 +120,6 @@ class ResultForGasFeeDetailsActivity : BaseActivity() {
     }
 
     override fun OnViewClick(v: View) {
-        when (v.id) {
-            R.id.button_payment -> if (java.lang.Float.parseFloat(gasFeeResult!!.AllGasfee) > 0) {
-                val Pmttp: String?
-                val user = EncryptedPreferencesUtils.getUser()
-                when (type) {
-                    7 -> {
-                        Pmttp = "010001"
-                        if (gasFeeResult!!.PayeeCode == "320000320100019999") {
-                            body = HttpRequestParams.getParamsForOrderSubmit(Pmttp, gasFeeResult!!.AllGasfee,
-                                    gasFeeResult!!.UserNb, gasFeeResult!!.UserName, gasFeeResult!!.UserAddr,
-                                    gasFeeResult!!.CityCode, gasFeeResult!!.ProvinceCode, gasFeeResult!!.PayeeCode,
-                                    user.LoginAccount, null, null, null, "11", null, null, 0, null, gasFeeResult!!.QueryId, null)
-                        } else {
-                            body = HttpRequestParams.getParamsForOrderSubmit(Pmttp, gasFeeResult!!.AllGasfee,
-                                    gasFeeResult!!.UserNb, gasFeeResult!!.UserName, gasFeeResult!!.UserAddr,
-                                    gasFeeResult!!.CityCode, gasFeeResult!!.ProvinceCode, gasFeeResult!!.PayeeCode,
-                                    user.LoginAccount, null, null, null, "11", null, null, 0, null, gasFeeResult!!.QueryId, null)
-                        }
-                    }
-                    1 -> {
-                        Pmttp = "010001"
-                        if (gasFeeResult!!.PayeeCode == "320000320100019999") {
-                            body = HttpRequestParams.getParamsForOrderSubmit(Pmttp, gasFeeResult!!.AllGasfee,
-                                    gasFeeResult!!.UserNb, gasFeeResult!!.UserName, gasFeeResult!!.UserAddr,
-                                    gasFeeResult!!.CityCode, gasFeeResult!!.ProvinceCode, gasFeeResult!!.PayeeCode,
-                                    user.LoginAccount, null, null, null, null, null, null, 0, null, gasFeeResult!!.QueryId, null)
-                        } else {
-                            body = HttpRequestParams.getParamsForOrderSubmit(Pmttp, gasFeeResult!!.AllGasfee,
-                                    gasFeeResult!!.UserNb, gasFeeResult!!.UserName, gasFeeResult!!.UserAddr,
-                                    gasFeeResult!!.CityCode, gasFeeResult!!.ProvinceCode, gasFeeResult!!.PayeeCode,
-                                    user.LoginAccount, null, null, null, null, null, null, 0, null, gasFeeResult!!.QueryId, null)
-                        }
-                    }
-                    2 -> {
-                        Pmttp = "010002"
-                        if (gasFeeResult!!.PayeeCode == "320000320100019999") {
-                            body = HttpRequestParams.getParamsForOrderSubmit(Pmttp, gasFeeResult!!.AllGasfee,
-                                    gasFeeResult!!.UserNb, gasFeeResult!!.UserName, gasFeeResult!!.UserAddr,
-                                    gasFeeResult!!.CityCode, gasFeeResult!!.ProvinceCode, gasFeeResult!!.PayeeCode,
-                                    user.LoginAccount, null, null, null, "11", null, null, 0, null, gasFeeResult!!.QueryId, null)
-                        } else {
-                            body = HttpRequestParams.getParamsForOrderSubmit(Pmttp, gasFeeResult!!.AllGasfee,
-                                    gasFeeResult!!.UserNb, gasFeeResult!!.UserName, gasFeeResult!!.UserAddr,
-                                    gasFeeResult!!.CityCode, gasFeeResult!!.ProvinceCode, gasFeeResult!!.PayeeCode,
-                                    user.LoginAccount, null, null, null, "11", null, null, 0, null, gasFeeResult!!.QueryId, null)
-                        }
-                    }
-                }
-                post(HttpURLS.orderSubmit, true, "OrderSubmit", body, OnHttpRequestListener { isError, response, type, error ->
-                    if (isError) {
-                        Logger.e(error.toString())
-                    } else {
-                        Logger.d(response.toString())
-                        val ResponseHead = response.getJSONObject("ResponseHead")
-                        val ResponseFields = response.getJSONObject("ResponseFields")
-                        val ProcessCode = ResponseHead.getString("ProcessCode")
-                        val ProcessDes = ResponseHead.getString("ProcessDes")
-                        if (ProcessCode == "0000") {
-                            val OrderNb = ResponseFields.getString("OrderNb")
-                            Logger.d("OrderNb--->" + OrderNb)
-                            val intent1 = Intent(this@ResultForGasFeeDetailsActivity, PayActivity::class.java)
-                            intent1.putExtra("Ordernb", OrderNb)
-                            startActivity(intent1)
-                        } else {
-                            ToastUtil.toastError(ProcessDes)
-                        }
-                    }
-                })
-            } else {
-                ToastUtil.toastInfo("本月无欠费!")
-            }
-        }
     }
 
     override fun onActivitySaveInstanceState(savedInstanceState: Bundle) {

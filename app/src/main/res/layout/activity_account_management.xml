@@ -1,19 +1,19 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:fitsSystemWindows="true">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fitsSystemWindows="true">
 
     <data>
 
-        <import type="android.view.View" />
+        <import type="android.view.View"/>
     </data>
 
     <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/main_bg"
-        android:orientation="vertical"
-        tools:context=".MainActivity">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/main_bg"
+            android:orientation="vertical"
+            tools:context=".MainActivity">
 
         <android.support.design.widget.AppBarLayout
                 android:id="@+id/appBarLayout"
@@ -35,7 +35,20 @@
                     android:background="@drawable/title_bg"
                     app:layout_collapseMode="pin"
                     tools:layout_editor_absoluteX="0dp"
-                    tools:layout_editor_absoluteY="0dp"/>
+                    tools:layout_editor_absoluteY="0dp">
+
+                <TextView
+                        android:id="@+id/tv_title_right"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|right"
+                        android:layout_marginRight="4dp"
+                        android:padding="6dp"
+                        android:text="编辑"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/font_size_button"/>
+
+            </android.support.v7.widget.Toolbar>
 
         </android.support.design.widget.AppBarLayout>
 
@@ -51,14 +64,15 @@
                 tools:layout_constraintRight_creator="1"
                 tools:layout_constraintTop_creator="1"
                 app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
-                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="0dp"></android.support.v7.widget.RecyclerView>
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="0dp"></android.support.v7.widget.RecyclerView>
 
         <com.mqt.ganghuazhifu.view.ShuiyinView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/shuiyin"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/shuiyin"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"/>
 
 
     </android.support.constraint.ConstraintLayout>

@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -28,6 +29,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -88,9 +90,9 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        BindService();
-        registerScreenACTIONSCREENONReceiver();
-        registerScreenACTIONSCREENOFFReceiver();
+        //BindService();
+        //registerScreenACTIONSCREENONReceiver();
+        //registerScreenACTIONSCREENOFFReceiver();
     }
 
     @Override
@@ -116,8 +118,8 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
     }
 
     private void BindService() {
-        bindIntent = new Intent(MainActivity.this, RunningInfoService.class);
-        startService(bindIntent);
+        //bindIntent = new Intent(MainActivity.this, RunningInfoService.class);
+        //startService(bindIntent);
 //        bindService(bindIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -183,16 +185,19 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
         bottom_navigation.setNotification("", 1);
 
         // Set listeners
-        bottom_navigation.setOnTabSelectedListener((position, wasSelected) -> {
-            viewPager.setCurrentItem(position, false);
-            if (isShowPopupWindow) {
-                isShowPopupWindow = false;
-                if (position == 1)
-                    tv_title_right.setText("筛选");
-                handler.sendEmptyMessage(2);
+        bottom_navigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+            @Override
+            public boolean onTabSelected(int position, boolean wasSelected) {
+                viewPager.setCurrentItem(position, false);
+                if (isShowPopupWindow) {
+                    isShowPopupWindow = false;
+                    if (position == 1)
+                        tv_title_right.setText("筛选");
+                    handler.sendEmptyMessage(2);
+                }
+                notifyTitleView(position);
+                return true;
             }
-            notifyTitleView(position);
-            return true;
         });
         User user = EncryptedPreferencesUtils.getUser();
         if ("0".equals(user.getFunction1())) {
@@ -200,13 +205,13 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
         }
         fragments = new ArrayList<>();
         homePageFragment = new HomePageFragment();
-        homePageFragment.newInstence();
+        homePageFragment.newInstence(this);
         recordFragment = new RecordFragment();
-        recordFragment.newInstence(tv_title_right);
+        recordFragment.newInstence(tv_title_right, this);
         accountFragment = new AccountFragment();
-        accountFragment.newInstence();
+        accountFragment.newInstence(this);
         moreFragment = new MoreFragment();
-        moreFragment.newInstence();
+        moreFragment.newInstence(this);
         handler = recordFragment.getHandler();
         fragments.add(homePageFragment);
         fragments.add(recordFragment);
@@ -223,10 +228,13 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
                 .title("提醒")
                 .cancelable(false)
                 .canceledOnTouchOutside(false)
-                .onPositive((dialog, which) -> {
-                    Intent intent = new Intent(MainActivity.this, SelectUnityListActivity.class);
-                    intent.putExtra("TYPE", 2);
-                    startActivity(intent);
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        Intent intent = new Intent(MainActivity.this, SelectUnityListActivity.class);
+                        intent.putExtra("TYPE", 2);
+                        startActivity(intent);
+                    }
                 })
                 .positiveText("确定")
                 .content("请您选择常用缴费单位！");
@@ -248,7 +256,12 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
                 tv_title_right.setVisibility(View.GONE);
                 ib_pic_left.setVisibility(View.GONE);
                 ib_pic_left.setOnClickListener(null);
-                ib_pic_right.setOnClickListener(arg0 -> startActivity(new Intent(MainActivity.this, MessageCenterActivity.class)));
+                ib_pic_right.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(MainActivity.this, MessageCenterActivity.class));
+                    }
+                });
                 if (homePageFragment.list.size() == 0) {
                     homePageFragment.initAdvertisementViews();
                 }
@@ -280,15 +293,18 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
                 tv_title_right.setVisibility(View.VISIBLE);
                 tv_title.setText("交易记录");
                 tv_title_right.setText("筛选");
-                tv_title_right.setOnClickListener(v -> {
-                    if (isShowPopupWindow) {
-                        isShowPopupWindow = false;
-                        tv_title_right.setText("筛选");
-                        handler.sendEmptyMessage(3);
-                    } else {
-                        isShowPopupWindow = true;
-                        tv_title_right.setText("确定");
-                        handler.sendEmptyMessage(1);
+                tv_title_right.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (isShowPopupWindow) {
+                            isShowPopupWindow = false;
+                            tv_title_right.setText("筛选");
+                            handler.sendEmptyMessage(3);
+                        } else {
+                            isShowPopupWindow = true;
+                            tv_title_right.setText("确定");
+                            handler.sendEmptyMessage(1);
+                        }
                     }
                 });
                 break;
@@ -313,7 +329,12 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
                 tv_title_right.setVisibility(View.GONE);
                 tv_title.setText("更多");
                 ib_pic_right.setImageResource(R.drawable.rightmore);
-                ib_pic_right.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CaptureActivity.class)));
+                ib_pic_right.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(MainActivity.this, CaptureActivity.class));
+                    }
+                });
                 break;
         }
     }
@@ -372,7 +393,12 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
                 }
                 ib_pic_right.setVisibility(View.VISIBLE);
                 tv_title_right.setVisibility(View.GONE);
-                ib_pic_right.setOnClickListener(arg0 -> startActivity(new Intent(MainActivity.this, MessageCenterActivity.class)));
+                ib_pic_right.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(MainActivity.this, MessageCenterActivity.class));
+                    }
+                });
 
                 tv_title.setText("港华交易宝");
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -425,19 +451,24 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
                 ib_pic_right.setImageResource(R.drawable.message);
             }
             ib_pic_right.setVisibility(View.VISIBLE);
-            ib_pic_right.setOnClickListener(arg0 -> startActivity(new Intent(MainActivity.this, MessageCenterActivity.class)));
+            ib_pic_right.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(new Intent(MainActivity.this, MessageCenterActivity.class));
+                }
+            });
         }
         super.onResume();
     }
 
     @Override
     protected void onDestroy() {
-        stopService(bindIntent);
+        //stopService(bindIntent);
 //        viewPager = null;
 //        toolbar = null;
 //        bottom_navigation = null;
-        unregisterReceiver(receiver);
-        unregisterReceiver(receiver2);
+        //unregisterReceiver(receiver);
+        //unregisterReceiver(receiver2);
         super.onDestroy();
     }
 
@@ -484,7 +515,12 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
                 }
                 ib_pic_right.setVisibility(View.VISIBLE);
                 tv_title_right.setVisibility(View.GONE);
-                ib_pic_right.setOnClickListener(arg0 -> startActivity(new Intent(MainActivity.this, MessageCenterActivity.class)));
+                ib_pic_right.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(MainActivity.this, MessageCenterActivity.class));
+                    }
+                });
                 tv_title.setText("港华交易宝");
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 break;
@@ -509,19 +545,19 @@ public class MainActivity extends BaseActivity implements OnPageChangeListener {
             fragments = new ArrayList<>();
             if (homePageFragment == null) {
                 homePageFragment = new HomePageFragment();
-                homePageFragment.newInstence();
+                homePageFragment.newInstence(this);
             }
             if (recordFragment == null) {
                 recordFragment = new RecordFragment();
-                recordFragment.newInstence(tv_title_right);
+                recordFragment.newInstence(tv_title_right, this);
             }
             if (accountFragment == null) {
                 accountFragment = new AccountFragment();
-                accountFragment.newInstence();
+                accountFragment.newInstence(this);
             }
             if (moreFragment == null) {
                 moreFragment = new MoreFragment();
-                moreFragment.newInstence();
+                moreFragment.newInstence(this);
             }
             if (handler == null)
                 handler = recordFragment.getHandler();

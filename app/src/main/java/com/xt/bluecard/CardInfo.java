@@ -5,7 +5,6 @@
 
 package com.xt.bluecard;
 
-import com.xt.bluecard.PriceGroup;
 import java.io.Serializable;
 import java.util.List;
 

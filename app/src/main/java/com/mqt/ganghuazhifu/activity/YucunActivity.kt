@@ -26,7 +26,7 @@ import org.parceler.Parcels
 import java.util.*
 
 /**
- * 营业费预存
+ * 营业费预存（废弃）
  *
  * @author yang.lei
  * *
@@ -252,9 +252,9 @@ class YucunActivity : BaseActivity() {
                         result1.AllGasfee = ResponseFields.getString("AllGasfee")
                         result1.EasyNo = ResponseFields.getString("EasyNo")
                         result1.NFCFlag = ResponseFields.getString("NFCFlag")
-                        result1.NFCSecurAlert = ResponseFields.getString("NFCSecurAlert")
-                        result1.NFCLimitGasFee = ResponseFields.getFloatValue("NFCLimitGasFee")
-                        result1.NFCNotWriteGas = ResponseFields.getFloatValue("NFCNotWriteGas")
+//                        result1.NFCSecurAlert = ResponseFields.getString("NFCSecurAlert")
+//                        result1.NFCLimitGasFee = ResponseFields.getFloatValue("NFCLimitGasFee")
+//                        result1.NFCNotWriteGas = ResponseFields.getFloatValue("NFCNotWriteGas")
 //                        result1.NFCICSumCount = ResponseFields.getInteger("NFCICSumCount")
 
                         var lists: MutableList<GasFeeRecord> = ArrayList()

@@ -12,6 +12,10 @@ import com.mqt.ganghuazhifu.http.HttpURLS
 //import com.tencent.smtt.sdk.WebView
 //import com.tencent.smtt.sdk.WebViewClient
 import com.orhanobut.logger.Logger
+import android.net.http.SslError
+import android.webkit.SslErrorHandler
+
+
 
 /**
  * 用户协议
@@ -43,13 +47,14 @@ class UserAgreementActivity : BaseActivity() {
 
         activityUserAgreementBinding!!.webView.settings.javaScriptCanOpenWindowsAutomatically = true// 设置js可以直接打开窗口，如window.open()，默认为false
         activityUserAgreementBinding!!.webView.settings.javaScriptEnabled = true// 是否允许执行js，默认为false。设置true时，会提醒可能造成XSS漏洞
-        activityUserAgreementBinding!!.webView.settings.setSupportZoom(false)// 是否可以缩放，默认true
-        activityUserAgreementBinding!!.webView.settings.builtInZoomControls = false// 是否显示缩放按钮，默认false
+        activityUserAgreementBinding!!.webView.settings.setSupportZoom(true)// 是否可以缩放，默认true
+        activityUserAgreementBinding!!.webView.settings.builtInZoomControls = true// 是否显示缩放按钮，默认false
         activityUserAgreementBinding!!.webView.settings.useWideViewPort = true// 设置此属性，可任意比例缩放。大视图模式
         activityUserAgreementBinding!!.webView.settings.loadWithOverviewMode = true// 和setUseWideViewPort(true)一起解决网页自适应问题
         activityUserAgreementBinding!!.webView.settings.setAppCacheEnabled(false)// 是否使用缓存
         activityUserAgreementBinding!!.webView.settings.domStorageEnabled = false// DOM Storage
         activityUserAgreementBinding!!.webView.settings.defaultTextEncodingName = "GBK"// 设置字符编码
+        activityUserAgreementBinding!!.webView.setWebViewClient(WebViewClientDemo())
         activityUserAgreementBinding!!.webView.loadUrl(HttpURLS.ganghua_user_agreement)
     }
 
@@ -77,6 +82,10 @@ class UserAgreementActivity : BaseActivity() {
             super.onPageFinished(view, url)
             dismissRoundProcessDialog()
             Logger.d("onPageFinished-url:" + url)
+        }
+
+        override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
+            handler.proceed()
         }
     }
 

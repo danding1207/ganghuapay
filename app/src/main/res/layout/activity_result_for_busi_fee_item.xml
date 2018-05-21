@@ -20,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="服务费欠费"
+            tools:text="服务费欠费:"
             android:textColor="@color/black"
             android:textSize="@dimen/font_size_Medium" />
 
@@ -28,7 +28,8 @@
             android:id="@+id/tv_busi_fee_amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="200元"
+            tools:text="200元"
+            android:layout_marginLeft="4dp"
             android:textColor="@color/black"
             android:textSize="@dimen/font_size_Medium" />
     </LinearLayout>

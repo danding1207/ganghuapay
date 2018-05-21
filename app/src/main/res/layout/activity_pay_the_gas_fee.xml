@@ -39,7 +39,147 @@
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+            >
+
+
+                <LinearLayout
+                        android:id="@+id/ll_shebei_select_detail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginRight="12dp"
+                        android:visibility="gone"
+                >
+
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="表具类型"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"
+                            android:layout_marginTop="8dp"
+                    />
+
+                    <RadioGroup
+                            android:id="@+id/radioGroup_category"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+
+                        <RadioButton
+                                android:id="@+id/radioButton_category_0"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@drawable/popwindow_radiobutton_bg"
+                                android:button="@null"
+                                android:checked="true"
+                                android:gravity="center"
+                                android:padding="6dp"
+                                android:text="机械表"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/font_size_Medium" />
+
+                        <RadioButton
+                                android:id="@+id/radioButton_category_1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="6dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/popwindow_radiobutton_bg"
+                                android:button="@null"
+                                android:gravity="center"
+                                android:padding="6dp"
+                                android:text="金额表"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/font_size_Medium"/>
+
+                        <RadioButton
+                                android:id="@+id/radioButton_category_2"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="6dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/popwindow_radiobutton_bg"
+                                android:button="@null"
+                                android:gravity="center"
+                                android:padding="6dp"
+                                android:text="气量表"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/font_size_Medium" />
+
+                        <RadioButton
+                                android:id="@+id/radioButton_category_3"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="6dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/popwindow_radiobutton_bg"
+                                android:button="@null"
+                                android:gravity="center"
+                                android:padding="6dp"
+                                android:text="蓝牙表"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/font_size_Medium" />
+
+                    </RadioGroup>
+
+                    <TextView
+                            android:id="@+id/tv_fangshi"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="充值方式"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/font_size_Medium"
+                            android:layout_marginTop="8dp"
+                            android:visibility="gone"
+                    />
+
+                    <RadioGroup
+                            android:id="@+id/radioGroup_fangshi"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="8dp"
+                            android:visibility="gone"
+                            android:orientation="horizontal">
+
+                        <RadioButton
+                                android:id="@+id/radioButton_fangshi_0"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@drawable/popwindow_radiobutton_bg"
+                                android:button="@null"
+                                android:checked="true"
+                                android:gravity="center"
+                                android:padding="6dp"
+                                android:text="NFC写表"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/font_size_Medium" />
+
+                        <RadioButton
+                                android:id="@+id/radioButton_fangshi_1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="6dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/popwindow_radiobutton_bg"
+                                android:button="@null"
+                                android:gravity="center"
+                                android:padding="6dp"
+                                android:text="蓝牙写卡"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/font_size_Medium"/>
+
+                    </RadioGroup>
+
+
+                </LinearLayout>
+
 
                 <LinearLayout
                         android:id="@+id/linearLayout_city"
@@ -169,7 +309,7 @@
                         android:layout_marginBottom="12dp"
                         android:layout_marginLeft="12dp"
                         android:layout_marginRight="12dp"
-                        android:layout_marginTop="100dp"
+                        android:layout_marginTop="60dp"
                         android:foreground="?android:attr/selectableItemBackground"
                         app:cardBackgroundColor="#46872B">
 

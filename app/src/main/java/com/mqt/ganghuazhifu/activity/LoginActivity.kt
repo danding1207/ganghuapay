@@ -248,7 +248,7 @@ class LoginActivity : BaseActivity(), OnRecyclerViewItemClickListener, LoginCoun
                     + Encrypt.MD5(password).toUpperCase(Locale.CHINA).substring(0, 6)).toUpperCase(Locale.CHINA)
 
             Logger.e(MD5Util.getMD5String(password).toUpperCase(Locale.CHINA).substring(0, 6))
-            Logger.e(password)
+            Logger.e(password.toString())
 
         }
 

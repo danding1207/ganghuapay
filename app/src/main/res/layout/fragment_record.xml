@@ -96,6 +96,31 @@
 
     </LinearLayout>
 
+    <LinearLayout
+            android:id="@+id/ll_emptyview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="invisible"
+    >
+
+        <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/icon_null_data"
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="当前条件查询到0条数据"
+                android:layout_marginTop="12dp"
+        />
+
+    </LinearLayout>
+
     <include layout="@layout/popupwindow"
              android:visibility="gone"
     />

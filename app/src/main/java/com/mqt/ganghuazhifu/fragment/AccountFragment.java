@@ -1,11 +1,13 @@
 package com.mqt.ganghuazhifu.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.alibaba.fastjson.JSONObject;
 import com.lqr.picselect.LQRPhotoSelectUtils;
@@ -38,6 +41,7 @@ import com.mqt.ganghuazhifu.http.CusFormBody;
 import com.mqt.ganghuazhifu.http.HttpRequest;
 import com.mqt.ganghuazhifu.http.HttpRequestParams;
 import com.mqt.ganghuazhifu.http.HttpURLS;
+import com.mqt.ganghuazhifu.listener.OnHttpRequestListener;
 import com.mqt.ganghuazhifu.listener.OnRecyclerViewItemClickListener;
 import com.mqt.ganghuazhifu.utils.Bimp;
 import com.mqt.ganghuazhifu.utils.EncryptedPreferencesUtils;
@@ -67,7 +71,10 @@ public class AccountFragment extends BaseFragment implements OnRecyclerViewItemC
     private boolean isinitData = false;
     private LQRPhotoSelectUtils mLqrPhotoSelectUtils;
 
-    public void newInstence() {
+    public Activity activity;
+
+    public void newInstence(Activity activity) {
+        this.activity = activity;
     }
 
     @Override
@@ -93,28 +100,31 @@ public class AccountFragment extends BaseFragment implements OnRecyclerViewItemC
         User user = EncryptedPreferencesUtils.getUser();
         CusFormBody body = HttpRequestParams.INSTANCE.getParamsForAccountInfo(user.getLoginAccount(), "1001000001");
         HttpRequest.Companion.getInstance().httpPost(getActivity(), HttpURLS.INSTANCE.getProcessQuery(), false, "AccountInfo", body,
-                (isError, response, type, error) -> {
-                    if (isError) {
-                        Logger.e(error.toString());
-                        initView();
-                    } else {
-                        Logger.i(response.toString());
-                        JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                        JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                        String ProcessCode = ResponseHead.getString("ProcessCode");
-                        if (ProcessCode.equals("0000")) {
-                            isinitData = true;
-                            String QryResults = ResponseFields.getString("QryResults");
-                            User user1 = JSONObject.parseObject(QryResults, User.class);
-                            EncryptedPreferencesUtils.setEmail(user1.getEmail());
-                            EncryptedPreferencesUtils.setOccupation(user1.getOccupation());
-                            EncryptedPreferencesUtils.setIdcardNb(user1.getIdcardNb());
-                            EncryptedPreferencesUtils.setRealName(user1.getRealName());
-                            EncryptedPreferencesUtils.setGender(user1.getGender());
-                            EncryptedPreferencesUtils.setPhoneNb(user1.getPhoneNb());
-                            EncryptedPreferencesUtils.setPhoneFlag(user1.getPhoneFlag());
+                new OnHttpRequestListener() {
+                    @Override
+                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                        if (isError) {
+                            Logger.e(error.toString());
+                            initView();
+                        } else {
+                            Logger.i(response.toString());
+                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                            String ProcessCode = ResponseHead.getString("ProcessCode");
+                            if (ProcessCode.equals("0000")) {
+                                isinitData = true;
+                                String QryResults = ResponseFields.getString("QryResults");
+                                User user1 = JSONObject.parseObject(QryResults, User.class);
+                                EncryptedPreferencesUtils.setEmail(user1.getEmail());
+                                EncryptedPreferencesUtils.setOccupation(user1.getOccupation());
+                                EncryptedPreferencesUtils.setIdcardNb(user1.getIdcardNb());
+                                EncryptedPreferencesUtils.setRealName(user1.getRealName());
+                                EncryptedPreferencesUtils.setGender(user1.getGender());
+                                EncryptedPreferencesUtils.setPhoneNb(user1.getPhoneNb());
+                                EncryptedPreferencesUtils.setPhoneFlag(user1.getPhoneFlag());
+                            }
+                            initView();
                         }
-                        initView();
                     }
                 });
     }
@@ -189,25 +199,28 @@ public class AccountFragment extends BaseFragment implements OnRecyclerViewItemC
 
         mLqrPhotoSelectUtils = new LQRPhotoSelectUtils(getActivity(), this, false);
 
-        dialog = new CategoryDialog(getActivity(), type -> {
-            String sdcardState = Environment.getExternalStorageState();
-            switch (type) {
-                case CategoryDialog.CAMERATYPE:
-                    if (Environment.MEDIA_MOUNTED.equals(sdcardState)) {
-                        // 调用相机进行拍照
-                        mLqrPhotoSelectUtils.takePhoto();
-                    } else {
-                        ToastUtil.Companion.toastError("sdcard已拔出，不能拍摄照片");
-                    }
-                    break;
-                case CategoryDialog.PHOTOTYPE:
-                    if (Environment.MEDIA_MOUNTED.equals(sdcardState)) {
-                        // 调用图库选取图片
-                        mLqrPhotoSelectUtils.selectPhoto();
-                    } else {
-                        ToastUtil.Companion.toastError("sdcard已拔出，不能拍摄照片");
-                    }
-                    break;
+        dialog = new CategoryDialog(getActivity(), new CategoryDialog.OnCategorySelectedListener() {
+            @Override
+            public void OnCategorySelected(int type) {
+                String sdcardState = Environment.getExternalStorageState();
+                switch (type) {
+                    case CategoryDialog.CAMERATYPE:
+                        if (Environment.MEDIA_MOUNTED.equals(sdcardState)) {
+                            // 调用相机进行拍照
+                            mLqrPhotoSelectUtils.takePhoto();
+                        } else {
+                            ToastUtil.Companion.toastError("sdcard已拔出，不能拍摄照片");
+                        }
+                        break;
+                    case CategoryDialog.PHOTOTYPE:
+                        if (Environment.MEDIA_MOUNTED.equals(sdcardState)) {
+                            // 调用图库选取图片
+                            mLqrPhotoSelectUtils.selectPhoto();
+                        } else {
+                            ToastUtil.Companion.toastError("sdcard已拔出，不能拍摄照片");
+                        }
+                        break;
+                }
             }
         });
 
@@ -232,20 +245,23 @@ public class AccountFragment extends BaseFragment implements OnRecyclerViewItemC
         User user = EncryptedPreferencesUtils.getUser();
         CusFormBody body = HttpRequestParams.INSTANCE.getParamsForSetFuntion(user.getLoginAccount(), "1");
         HttpRequest.Companion.getInstance().httpPost(getActivity(), HttpURLS.INSTANCE.getUserUpdate(), false, "SetFuntion", body,
-                (isError, response, type, error) -> {
-                    if (isError) {
-                        Logger.e(error.toString());
-                    } else {
-                        Logger.i(response.toString());
-                        JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                        String ProcessCode = ResponseHead.getString("ProcessCode");
-                        String ProcessDes = ResponseHead.getString("ProcessDes");
-                        if (ProcessCode.equals("0000")) {
-                            MainActivity.bottom_navigation.setNotification("", 2);
-                            EncryptedPreferencesUtils.setFunction1("1");
-                            initView();
+                new OnHttpRequestListener() {
+                    @Override
+                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                        if (isError) {
+                            Logger.e(error.toString());
                         } else {
-                            ToastUtil.Companion.toastError(ProcessDes);
+                            Logger.i(response.toString());
+                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                            String ProcessCode = ResponseHead.getString("ProcessCode");
+                            String ProcessDes = ResponseHead.getString("ProcessDes");
+                            if (ProcessCode.equals("0000")) {
+                                MainActivity.bottom_navigation.setNotification("", 2);
+                                EncryptedPreferencesUtils.setFunction1("1");
+                                initView();
+                            } else {
+                                ToastUtil.Companion.toastError(ProcessDes);
+                            }
                         }
                     }
                 });
@@ -268,20 +284,23 @@ public class AccountFragment extends BaseFragment implements OnRecyclerViewItemC
     private void upLoadFile() {
         CusFormBody body = HttpRequestParams.INSTANCE.getParamsForImageHandle(bitmapToBase64(headerpic), "10");
         HttpRequest.Companion.getInstance().httpPost(getActivity(), HttpURLS.INSTANCE.getImageHandle(), true, "imageHandle", body,
-                (isError, response, type, error) -> {
-                    if (isError) {
-                        Logger.e(error.toString());
-                    } else {
-                        Logger.i(response.toString());
-                        JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                        String Response = response.getString("ResponseHead");
-                        if (Response != null) {
-                            ResponseHead head = JSONObject.parseObject(Response, ResponseHead.class);
-                            if (head != null && head.ProcessCode.equals("0000")) {
-                                iv_head_pic.setImageBitmap(headerpic);
-                            } else {
-                                if (head != null && head.ProcessDes != null) {
-                                    ToastUtil.Companion.toastError(head.ProcessDes);
+                new OnHttpRequestListener() {
+                    @Override
+                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                        if (isError) {
+                            Logger.e(error.toString());
+                        } else {
+                            Logger.i(response.toString());
+                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                            String Response = response.getString("ResponseHead");
+                            if (Response != null) {
+                                ResponseHead head = JSONObject.parseObject(Response, ResponseHead.class);
+                                if (head != null && head.ProcessCode.equals("0000")) {
+                                    iv_head_pic.setImageBitmap(headerpic);
+                                } else {
+                                    if (head != null && head.ProcessDes != null) {
+                                        ToastUtil.Companion.toastError(head.ProcessDes);
+                                    }
                                 }
                             }
                         }
@@ -294,25 +313,28 @@ public class AccountFragment extends BaseFragment implements OnRecyclerViewItemC
             return;
         CusFormBody body = HttpRequestParams.INSTANCE.getParamsForImageHandle(null, "11");
         HttpRequest.Companion.getInstance().httpPost(getActivity(), HttpURLS.INSTANCE.getImageHandle(), false, "imageHandle", body,
-                (isError, response, type, error) -> {
-                    if (isError) {
-                        Logger.e(error.toString());
-                    } else {
-                        JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                        String Response = response.getString("ResponseHead");
-                        if (Response != null && ResponseFields != null) {
-                            ResponseHead head = JSONObject.parseObject(Response, ResponseHead.class);
-                            if (head != null && head.ProcessCode.equals("0000")) {
-                                String ImageBase64 = ResponseFields.getString("ImageBase64");
-                                if (ImageBase64 != null) {
-                                    headerpic = base64ToBitmap(ImageBase64);
-                                    iv_head_pic.setImageBitmap(headerpic);
+                new OnHttpRequestListener() {
+                    @Override
+                    public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                        if (isError) {
+                            Logger.e(error.toString());
+                        } else {
+                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                            String Response = response.getString("ResponseHead");
+                            if (Response != null && ResponseFields != null) {
+                                ResponseHead head = JSONObject.parseObject(Response, ResponseHead.class);
+                                if (head != null && head.ProcessCode.equals("0000")) {
+                                    String ImageBase64 = ResponseFields.getString("ImageBase64");
+                                    if (ImageBase64 != null) {
+                                        headerpic = base64ToBitmap(ImageBase64);
+                                        iv_head_pic.setImageBitmap(headerpic);
 //                                    frisson_view.setBitmap(headerpic);
-                                    isdownLoadFile = true;
-                                }
-                            } else {
-                                if (head != null && head.ProcessDes != null) {
-                                    ToastUtil.Companion.toastError(head.ProcessDes);
+                                        isdownLoadFile = true;
+                                    }
+                                } else {
+                                    if (head != null && head.ProcessDes != null) {
+                                        ToastUtil.Companion.toastError(head.ProcessDes);
+                                    }
                                 }
                             }
                         }
@@ -431,10 +453,13 @@ public class AccountFragment extends BaseFragment implements OnRecyclerViewItemC
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
                 .title("提醒")
                 .content("请您选择常用缴费单位！")
-                .onPositive((dialog1, which) -> {
-                    Intent intent = new Intent(getActivity(), SelectUnityListActivity.class);
-                    intent.putExtra("TYPE", 2);
-                    startActivity(intent);
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        Intent intent = new Intent(getActivity(), SelectUnityListActivity.class);
+                        intent.putExtra("TYPE", 2);
+                        startActivity(intent);
+                    }
                 })
                 .cancelable(false)
                 .canceledOnTouchOutside(false)
@@ -456,8 +481,6 @@ public class AccountFragment extends BaseFragment implements OnRecyclerViewItemC
                 .setMaxHeight(160)
                 .setQuality(55)
                 .setCompressFormat(Bitmap.CompressFormat.WEBP)
-                .setDestinationDirectoryPath(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .build()
                 .compressToFile(outputFile);
 

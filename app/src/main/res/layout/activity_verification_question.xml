@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="您正在找回密码，请验证手机号码，并设置新的密码。"
+                    android:text="您正在找回密码，请验证您的手机号，完成最后一步"
                     android:textColor="@color/gray"
                     android:textSize="@dimen/font_size_large"/>
         </LinearLayout>

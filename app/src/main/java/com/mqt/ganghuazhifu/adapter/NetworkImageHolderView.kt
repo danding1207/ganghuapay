@@ -9,12 +9,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.mqt.ganghuazhifu.R
 import com.mqt.ganghuazhifu.bean.BeanBinnal
+import com.zhouwei.mzbanner.holder.MZViewHolder
 
 /**
  * Created by msc on 2016/9/9.
  */
 
-class NetworkImageHolderView : Holder<BeanBinnal> {
+class NetworkImageHolderView : MZViewHolder<BeanBinnal> {
+
 
     private var imageView: ImageView? = null
 
@@ -25,12 +27,16 @@ class NetworkImageHolderView : Holder<BeanBinnal> {
         return imageView!!
     }
 
-    override fun UpdateUI(context: Context, position: Int, data: BeanBinnal) {
+    override fun onBind(context: Context?, position: Int, data: BeanBinnal?) {
         Glide.with(context)
-                .load(data.comval)
+                .load(data!!.comval)
                 .centerCrop().dontAnimate()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.advertisement_placeholder)
                 .crossFade().into(imageView!!)
     }
+
+//    override fun UpdateUI(context: Context, position: Int, data: BeanBinnal) {
+//
+//    }
 }

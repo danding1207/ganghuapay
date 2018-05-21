@@ -4,9 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.text.TextUtils
 import android.widget.Toast
+import com.afollestad.materialdialogs.MaterialDialog
 import com.mqt.ganghuazhifu.http.HttpRequest
 import com.mqt.ganghuazhifu.listener.OnHttpRequestListener
+import com.mqt.ganghuazhifu.utils.ScreenManager
 import okhttp3.RequestBody
+import java.lang.CharSequence
 
 /**
  * Created by danding1207 on 16/10/20.
@@ -20,14 +23,18 @@ fun Activity.post(url: String, isShow: Boolean = true, tag: String, body: Reques
     HttpRequest.instance.httpPost(this, url, isShow, tag, body, requestListener)
 }
 
-fun Activity.showRoundProcessDialog( tag: String) {
+fun Activity.isCurrentActivity() : Boolean {
+    return ScreenManager.getScreenManager().isCurrentActivity(this.javaClass)
+}
+
+
+fun Activity.showRoundProcessDialog(tag: String) {
 //    HttpRequest.instance.httpGet(this, url, isShow, tag, requestListener)
 }
 
 fun Activity.get(url: String, isShow: Boolean = true, tag: String, requestListener: OnHttpRequestListener?) {
     HttpRequest.instance.httpGet(this, url, isShow, tag, requestListener)
 }
-
 
 
 fun Context.isNotEmpty(message: String?): Boolean {

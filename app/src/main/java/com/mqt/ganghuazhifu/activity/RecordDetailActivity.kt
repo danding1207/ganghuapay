@@ -8,14 +8,19 @@ import android.databinding.DataBindingUtil
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
 import android.graphics.Point
+import android.net.http.SslError
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.text.TextUtils
+import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
+import android.webkit.SslErrorHandler
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import com.afollestad.materialdialogs.MaterialDialog
 import com.alibaba.fastjson.JSONObject
 import com.bumptech.glide.Glide
@@ -43,10 +48,13 @@ import java.util.*
 
 /**
  * 快钱支付
-
+ *
  * @author yang.lei
- * *
  * @date 2014-12-24
+ *
+ *
+ * 2018-02-06（yang.lei）：添加易通表具充值方式的操作指引
+ *
  */
 @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface")
 open class RecordDetailActivity : BaseActivity() {
@@ -56,8 +64,8 @@ open class RecordDetailActivity : BaseActivity() {
     private var imageName: String? = null
     private var activityRecordDetailBinding: ActivityRecordDetailBinding? = null
 
-    private var blueType:Int = 1
-    private var shebeiType:Int = 1
+    private var blueType: Int = 1
+    private var shebeiType: Int = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +83,7 @@ open class RecordDetailActivity : BaseActivity() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         val nameBuilder: StringBuilder
         supportActionBar!!.title = "交易记录"
+        activityRecordDetailBinding!!.tvTitleRight.setOnClickListener(this)
         if (!TextUtils.isEmpty(record!!.usernm) && record!!.usernm != "[]") {
             // 用户名*加密
             nameBuilder = StringBuilder(record!!.usernm)
@@ -136,6 +145,9 @@ open class RecordDetailActivity : BaseActivity() {
                     if ("11" == record!!.nfcflag) {
                         shebeiType = 1
 
+                        activityRecordDetailBinding!!.tvTitleRight.visibility = View.VISIBLE
+
+
                         activityRecordDetailBinding!!.llNfcstatus.visibility = View.VISIBLE
                         activityRecordDetailBinding!!.tvNfcstatusName.text = "NFC写表状态："
                         if ("11" == record!!.nfcpayflag) {// 成功
@@ -152,6 +164,8 @@ open class RecordDetailActivity : BaseActivity() {
                     } else if ("12" == record!!.nfcflag) {
                         shebeiType = 1
 
+                        activityRecordDetailBinding!!.tvTitleRight.visibility = View.VISIBLE
+
                         activityRecordDetailBinding!!.llNfcstatus.visibility = View.VISIBLE
                         activityRecordDetailBinding!!.tvNfcstatusName.text = "蓝牙写卡状态："
                         if ("11" == record!!.nfcpayflag) {// 成功
@@ -167,6 +181,9 @@ open class RecordDetailActivity : BaseActivity() {
                             activityRecordDetailBinding!!.tvNfcstatus.text = "未写入"
                         }
                     } else if ("13" == record!!.nfcflag) {
+
+                        activityRecordDetailBinding!!.tvTitleRight.visibility = View.VISIBLE
+
                         activityRecordDetailBinding!!.llNfcstatus.visibility = View.VISIBLE
                         activityRecordDetailBinding!!.tvNfcstatusName.text = "蓝牙写表状态："
                         if ("11" == record!!.nfcpayflag) {// 成功
@@ -183,6 +200,9 @@ open class RecordDetailActivity : BaseActivity() {
                         }
                     } else if ("14" == record!!.nfcflag) {
                         shebeiType = 2
+
+                        activityRecordDetailBinding!!.tvTitleRight.visibility = View.VISIBLE
+
                         activityRecordDetailBinding!!.llNfcstatus.visibility = View.VISIBLE
                         activityRecordDetailBinding!!.tvNfcstatusName.text = "NFC写表状态："
                         if ("11" == record!!.nfcpayflag) {// 成功
@@ -198,6 +218,9 @@ open class RecordDetailActivity : BaseActivity() {
                         }
                     } else if ("15" == record!!.nfcflag) {
                         shebeiType = 2
+
+                        activityRecordDetailBinding!!.tvTitleRight.visibility = View.VISIBLE
+
                         activityRecordDetailBinding!!.llNfcstatus.visibility = View.VISIBLE
                         activityRecordDetailBinding!!.tvNfcstatusName.text = "蓝牙写表状态："
                         if ("11" == record!!.nfcpayflag) {// 成功
@@ -221,7 +244,7 @@ open class RecordDetailActivity : BaseActivity() {
                 // 待付款
                 activityRecordDetailBinding!!.tvStatus.text = "待付款"
                 activityRecordDetailBinding!!.cardViewGoPay.visibility = View.VISIBLE
-                activityRecordDetailBinding!!.cardViewCanclePay.visibility = View.GONE
+                activityRecordDetailBinding!!.cardViewCanclePay.visibility = View.VISIBLE
                 activityRecordDetailBinding!!.cardViewCanclePay.setOnClickListener { v -> cancleDialog() }
             } else if (record!!.status == "PR02") {
                 // 已取消
@@ -232,7 +255,7 @@ open class RecordDetailActivity : BaseActivity() {
                 // 支付失败
                 activityRecordDetailBinding!!.tvStatus.text = "支付失败"
                 activityRecordDetailBinding!!.cardViewGoPay.visibility = View.VISIBLE
-                activityRecordDetailBinding!!.cardViewCanclePay.visibility = View.GONE
+                activityRecordDetailBinding!!.cardViewCanclePay.visibility = View.VISIBLE
                 activityRecordDetailBinding!!.cardViewCanclePay.setOnClickListener { v -> cancleDialog() }
             } else if (record!!.status == "PR04") {
                 // 待退款
@@ -312,14 +335,6 @@ open class RecordDetailActivity : BaseActivity() {
                 startActivity(intent1)
             }
         }
-
-//        if (record != null) {
-//            if ("11" == record!!.nfcflag || "12" == record!!.nfcflag || "13" == record!!.nfcflag) {
-//                activityRecordDetailBinding!!.llNfcstatus.visibility = View.VISIBLE
-//            } else {
-//                activityRecordDetailBinding!!.llNfcstatus.visibility = View.GONE
-//            }
-//        }
     }
 
     private fun Refund() {
@@ -365,7 +380,7 @@ open class RecordDetailActivity : BaseActivity() {
             if (isError) {
                 Logger.e(error.toString())
             } else {
-                Logger.d(response.toString())
+                Logger.i(response.toString())
                 val Response = response.getString("ResponseHead")
                 if (Response != null) {
                     val head = JSONObject.parseObject(Response, ResponseHead::class.java)
@@ -398,7 +413,7 @@ open class RecordDetailActivity : BaseActivity() {
 
     @Subscribe(thread = EventThread.MAIN_THREAD)
     fun onRecordChangedEvent(event: RecordChangedEvent) {
-        Logger.d("onEventMainThread")
+        Logger.i("onEventMainThread")
         if (record != null) {
             record!!.nfcpayflag = "11"
             initView()
@@ -410,7 +425,48 @@ open class RecordDetailActivity : BaseActivity() {
     }
 
     override fun OnViewClick(v: View) {
-
+        when (v.id) {
+            R.id.tv_title_right -> {
+                when (record!!.nfcflag) {
+                    "11" -> {
+                        val intent = Intent(this@RecordDetailActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 1)
+                        startActivity(intent)
+                    }
+                    "12" -> {
+                        val intent = Intent(this@RecordDetailActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 2)
+                        startActivity(intent)
+                    }
+                    "13" -> {
+                        val intent = Intent(this@RecordDetailActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 2)
+                        startActivity(intent)
+                    }
+                    "14" -> {
+                        val intent = Intent(this@RecordDetailActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 1)
+                        startActivity(intent)
+                    }
+                    "15" -> {
+                        val intent = Intent(this@RecordDetailActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 2)
+                        startActivity(intent)
+                    }
+                    else -> {
+                        val intent = Intent(this@RecordDetailActivity,
+                                NFCLiuChengActivity::class.java)
+                        intent.putExtra("TYPE", 1)
+                        startActivity(intent)
+                    }
+                }
+            }
+        }
     }
 
     internal inner class keepImageOnClickListener : OnClickListener {
@@ -607,9 +663,9 @@ open class RecordDetailActivity : BaseActivity() {
         if (requestCode == ACCESS_COARSE_LOCATION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission Granted
-                if(blueType==1) {
+                if (blueType == 1) {
                     Bluetooth()
-                } else if(blueType==2) {
+                } else if (blueType == 2) {
                     BluetoothToShebei()
                 }
             } else {
@@ -618,9 +674,9 @@ open class RecordDetailActivity : BaseActivity() {
         } else if (requestCode == ACCESS_FINE_LOCATION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission Granted
-                if(blueType==1) {
+                if (blueType == 1) {
                     Bluetooth()
-                } else if(blueType==2) {
+                } else if (blueType == 2) {
                     BluetoothToShebei()
                 }
             } else {
@@ -632,6 +688,25 @@ open class RecordDetailActivity : BaseActivity() {
     companion object {
 
         val RECORD = "Record"
+    }
+
+    private inner class WebViewClientDemo : WebViewClient() {
+        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+            Logger.d("shouldOverrideUrlLoading-url:" + url)
+            view.loadUrl(url)// 当打开新链接时，使用当前的 WebView，不会使用系统其他浏览器
+            return true
+        }
+
+        override fun onPageFinished(view: WebView, url: String) {
+            super.onPageFinished(view, url)
+            Logger.d("onPageFinished-url:" + url)
+        }
+
+        override fun onReceivedSslError(view: WebView,
+                                        handler: SslErrorHandler, error: SslError) {
+            handler.proceed()// 接受所有网站的证书
+        }
+
     }
 
 }

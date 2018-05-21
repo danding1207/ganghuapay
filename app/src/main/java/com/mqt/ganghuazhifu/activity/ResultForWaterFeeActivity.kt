@@ -199,7 +199,7 @@ class ResultForWaterFeeActivity : BaseActivity() {
                 if (isError) {
                     Logger.e(error.toString())
                 } else {
-                    Logger.d(response.toString())
+                    Logger.i(response.toString())
                     val ResponseHead = response
                             .getJSONObject("ResponseHead")
                     val ResponseFields = response

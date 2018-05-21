@@ -18,11 +18,13 @@ import com.mqt.ganghuazhifu.http.CusFormBody;
 import com.mqt.ganghuazhifu.http.HttpRequest;
 import com.mqt.ganghuazhifu.http.HttpRequestParams;
 import com.mqt.ganghuazhifu.http.HttpURLS;
+import com.mqt.ganghuazhifu.listener.OnHttpRequestListener;
 import com.mqt.ganghuazhifu.utils.DataBaiduPush;
 import com.mqt.ganghuazhifu.utils.ToastUtil;
 import com.mqt.ganghuazhifu.view.ScrollerNumberPicker.OnSelectListener;
 import com.mqt.ganghuazhifu.view.ScrollerNumberPicker.OnSingleTouchListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -202,62 +204,65 @@ public class UnitPicker extends LinearLayout {
 		DataBaiduPush.setHaveUnit(0);
 		CusFormBody body = HttpRequestParams.INSTANCE.getParamsForPayeesQuery(code, pmttp);
 		HttpRequest.Companion.getInstance().httpPost((Activity) getContext(), HttpURLS.INSTANCE.getPayeesQuery(), true, "PayeesQuery", body,
-				(isError, response, type, error) -> {
-                    if(isError) {
-                        if (onInitdataedListener != null && unit != null && unit.size() > 0) {
-                            onInitdataedListener.Initdataed(null);
-                        }
-						ToastUtil.Companion.toastError("获取缴费单位失败，请重新选择城市！");
-                    } else {
-                        JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                        String ProcessCode = ResponseHead.getString("ProcessCode");
-                        String ProcessDes = ResponseHead.getString("ProcessDes");
-                        // 判断返回是jsonObject还是jsonArray
-                        switch (type) {
-                            case 0:
-                                // unit = new ArrayList<Unit>();
-                                handler.sendEmptyMessage(CLEAR_VIEW);
-                                // onInitdataedListener.Initdataed(null);
-                                DataBaiduPush.setHaveUnit(0);
-								ToastUtil.Companion.toastInfo("该城市暂未开通服务");
-                                unitPicker.refresh();
-                                break;
-                            case 1:
-                                DataBaiduPush.setHaveUnit(1);
-                                String ResponseFields = response.getString("ResponseFields");
-                                if (ResponseFields != null) {
-                                    unit = new ArrayList<>();
-                                    if (ProcessCode.equals("0000")) {
-                                        unit = (ArrayList<Unit>) JSONObject.parseArray(ResponseFields, Unit.class);
-                                    }
-                                    handler.sendEmptyMessage(GETUNIT);
-                                } else {
-                                    if (onInitdataedListener != null && unit != null && unit.size() > 0) {
-                                        onInitdataedListener.Initdataed(null);
-                                    }
+				new OnHttpRequestListener() {
+					@Override
+					public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+						if(isError) {
+							if (onInitdataedListener != null && unit != null && unit.size() > 0) {
+								onInitdataedListener.Initdataed(null);
+							}
+							ToastUtil.Companion.toastError("获取缴费单位失败，请重新选择城市！");
+						} else {
+							JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+							String ProcessCode = ResponseHead.getString("ProcessCode");
+							String ProcessDes = ResponseHead.getString("ProcessDes");
+							// 判断返回是jsonObject还是jsonArray
+							switch (type) {
+								case 0:
+									// unit = new ArrayList<Unit>();
+									handler.sendEmptyMessage(CLEAR_VIEW);
+									// onInitdataedListener.Initdataed(null);
+									DataBaiduPush.setHaveUnit(0);
 									ToastUtil.Companion.toastInfo("该城市暂未开通服务");
-                                }
-                                break;
-                            case 2:
-                                DataBaiduPush.setHaveUnit(1);
-                                JSONObject ResponseFields1 = response.getJSONObject("ResponseFields");
-                                if (ResponseFields1 != null) {
-                                    String PayeesDetail = ResponseFields1.getString("PayeesDetail");
-                                    unit = new ArrayList<>();
-                                    if (ProcessCode.equals("0000")) {
-                                        unit.add(JSONObject.parseObject(PayeesDetail, Unit.class));
-                                    }
-                                    handler.sendEmptyMessage(GETUNIT);
-                                } else {
-                                    if (onInitdataedListener != null && unit != null && unit.size() > 0) {
-                                        onInitdataedListener.Initdataed(null);
-                                    }
-									ToastUtil.Companion.toastInfo("该城市暂未开通服务");
-                                }
-                                break;
-                        }
-                    }
-                });
+									unitPicker.refresh();
+									break;
+								case 1:
+									DataBaiduPush.setHaveUnit(1);
+									String ResponseFields = response.getString("ResponseFields");
+									if (ResponseFields != null) {
+										unit = new ArrayList<>();
+										if (ProcessCode.equals("0000")) {
+											unit = (ArrayList<Unit>) JSONObject.parseArray(ResponseFields, Unit.class);
+										}
+										handler.sendEmptyMessage(GETUNIT);
+									} else {
+										if (onInitdataedListener != null && unit != null && unit.size() > 0) {
+											onInitdataedListener.Initdataed(null);
+										}
+										ToastUtil.Companion.toastInfo("该城市暂未开通服务");
+									}
+									break;
+								case 2:
+									DataBaiduPush.setHaveUnit(1);
+									JSONObject ResponseFields1 = response.getJSONObject("ResponseFields");
+									if (ResponseFields1 != null) {
+										String PayeesDetail = ResponseFields1.getString("PayeesDetail");
+										unit = new ArrayList<>();
+										if (ProcessCode.equals("0000")) {
+											unit.add(JSONObject.parseObject(PayeesDetail, Unit.class));
+										}
+										handler.sendEmptyMessage(GETUNIT);
+									} else {
+										if (onInitdataedListener != null && unit != null && unit.size() > 0) {
+											onInitdataedListener.Initdataed(null);
+										}
+										ToastUtil.Companion.toastInfo("该城市暂未开通服务");
+									}
+									break;
+							}
+						}
+					}
+				});
 	}
 
 	/**
@@ -268,62 +273,65 @@ public class UnitPicker extends LinearLayout {
 		tempUnitIndex = 0;
 		CusFormBody body = HttpRequestParams.INSTANCE.getParamsForPayeesQuery(code, pmttp);
 		HttpRequest.Companion.getInstance().httpPost((Activity) getContext(), HttpURLS.INSTANCE.getPayeesQuery(), true, "PayeesQuery", body,
-				(isError, response, type, error) -> {
-                    if(isError) {
-                        if (onInitdataedListener != null && unit != null && unit.size() > 0) {
-                            onInitdataedListener.Initdataed(null);
-                        }
-						ToastUtil.Companion.toastError("获取缴费单位失败，请重新选择城市");
-                    } else {
-                        JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                        String ProcessCode = ResponseHead.getString("ProcessCode");
-                        String ProcessDes = ResponseHead.getString("ProcessDes");
-                        // 判断返回是jsonObject还是jsonArray
-                        switch (type) {
-                            case 0:
-                                // unit = new ArrayList<Unit>();
-                                handler.sendEmptyMessage(CLEAR_VIEW);
-                                // onInitdataedListener.Initdataed(null);
-                                DataBaiduPush.setHaveUnit(0);
-								ToastUtil.Companion.toastInfo("该城市暂未开通服务!");
-                                unitPicker.refresh();
-                                break;
-                            case 1:
-                                String ResponseFields = response.getString("ResponseFields");
-                                DataBaiduPush.setHaveUnit(1);
-                                if (ResponseFields != null) {
-                                    unit = new ArrayList<>();
-                                    if (ProcessCode.equals("0000")) {
-                                        unit = (ArrayList<Unit>) JSONObject.parseArray(ResponseFields, Unit.class);
-                                    }
-                                    handler.sendEmptyMessage(SETUNIT);
-                                } else {
-                                    if (onInitdataedListener != null && unit != null && unit.size() > 0) {
-                                        onInitdataedListener.Initdataed(null);
-                                    }
+				new OnHttpRequestListener() {
+					@Override
+					public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+						if(isError) {
+							if (onInitdataedListener != null && unit != null && unit.size() > 0) {
+								onInitdataedListener.Initdataed(null);
+							}
+							ToastUtil.Companion.toastError("获取缴费单位失败，请重新选择城市");
+						} else {
+							JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+							String ProcessCode = ResponseHead.getString("ProcessCode");
+							String ProcessDes = ResponseHead.getString("ProcessDes");
+							// 判断返回是jsonObject还是jsonArray
+							switch (type) {
+								case 0:
+									// unit = new ArrayList<Unit>();
+									handler.sendEmptyMessage(CLEAR_VIEW);
+									// onInitdataedListener.Initdataed(null);
+									DataBaiduPush.setHaveUnit(0);
 									ToastUtil.Companion.toastInfo("该城市暂未开通服务!");
-                                }
-                                break;
-                            case 2:
-                                DataBaiduPush.setHaveUnit(1);
-                                JSONObject ResponseFields1 = response.getJSONObject("ResponseFields");
-                                if (ResponseFields1 != null) {
-                                    String PayeesDetail = ResponseFields1.getString("PayeesDetail");
-                                    unit = new ArrayList<>();
-                                    if (ProcessCode.equals("0000")) {
-                                        unit.add(JSONObject.parseObject(PayeesDetail, Unit.class));
-                                    }
-                                    handler.sendEmptyMessage(SETUNIT);
-                                } else {
-                                    if (onInitdataedListener != null && unit != null && unit.size() > 0) {
-                                        onInitdataedListener.Initdataed(null);
-                                    }
-									ToastUtil.Companion.toastInfo("该城市暂未开通服务!");
-                                }
-                                break;
-                        }
-                    }
-                });
+									unitPicker.refresh();
+									break;
+								case 1:
+									String ResponseFields = response.getString("ResponseFields");
+									DataBaiduPush.setHaveUnit(1);
+									if (ResponseFields != null) {
+										unit = new ArrayList<>();
+										if (ProcessCode.equals("0000")) {
+											unit = (ArrayList<Unit>) JSONObject.parseArray(ResponseFields, Unit.class);
+										}
+										handler.sendEmptyMessage(SETUNIT);
+									} else {
+										if (onInitdataedListener != null && unit != null && unit.size() > 0) {
+											onInitdataedListener.Initdataed(null);
+										}
+										ToastUtil.Companion.toastInfo("该城市暂未开通服务!");
+									}
+									break;
+								case 2:
+									DataBaiduPush.setHaveUnit(1);
+									JSONObject ResponseFields1 = response.getJSONObject("ResponseFields");
+									if (ResponseFields1 != null) {
+										String PayeesDetail = ResponseFields1.getString("PayeesDetail");
+										unit = new ArrayList<>();
+										if (ProcessCode.equals("0000")) {
+											unit.add(JSONObject.parseObject(PayeesDetail, Unit.class));
+										}
+										handler.sendEmptyMessage(SETUNIT);
+									} else {
+										if (onInitdataedListener != null && unit != null && unit.size() > 0) {
+											onInitdataedListener.Initdataed(null);
+										}
+										ToastUtil.Companion.toastInfo("该城市暂未开通服务!");
+									}
+									break;
+							}
+						}
+					}
+				});
 	}
 
 	public void refreshUnit() {

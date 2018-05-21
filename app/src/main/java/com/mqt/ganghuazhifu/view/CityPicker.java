@@ -16,9 +16,11 @@ import com.mqt.ganghuazhifu.http.CusFormBody;
 import com.mqt.ganghuazhifu.http.HttpRequest;
 import com.mqt.ganghuazhifu.http.HttpRequestParams;
 import com.mqt.ganghuazhifu.http.HttpURLS;
+import com.mqt.ganghuazhifu.listener.OnHttpRequestListener;
 import com.mqt.ganghuazhifu.utils.ToastUtil;
 import com.mqt.ganghuazhifu.view.ScrollerNumberPicker.OnSelectListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -90,19 +92,22 @@ public class CityPicker extends LinearLayout {
 		// 获取控件引用
 		provincePicker = (ScrollerNumberPicker) findViewById(R.id.province);
 		cityPicker = (ScrollerNumberPicker) findViewById(R.id.city);
-		cityPicker.setOnSingleTouchListener(() -> {
-            // ToastUtil.toast(getContext(), "单击--1");
-            if (onSelectedListener != null) {
-                if (provinces != null && citys != null && provinces.size() > tempProvinceIndex && citys.size() > temCityIndex) {
-                    // ToastUtil.toast(getContext(),
-                    // "temCityIndex--->"+temCityIndex);
-                    onSelectedListener.selected(provinces.get(tempProvinceIndex), citys.get(temCityIndex));
-                } else {
-                    onSelectedListener.selected(null, null);
-                }
-                // et_serach_city.setText("");
-            }
-        });
+		cityPicker.setOnSingleTouchListener(new ScrollerNumberPicker.OnSingleTouchListener() {
+			@Override
+			public void onSingleTouch() {
+				// ToastUtil.toast(getContext(), "单击--1");
+				if (onSelectedListener != null) {
+					if (provinces != null && citys != null && provinces.size() > tempProvinceIndex && citys.size() > temCityIndex) {
+						// ToastUtil.toast(getContext(),
+						// "temCityIndex--->"+temCityIndex);
+						onSelectedListener.selected(provinces.get(tempProvinceIndex), citys.get(temCityIndex));
+					} else {
+						onSelectedListener.selected(null, null);
+					}
+					// et_serach_city.setText("");
+				}
+			}
+		});
 
 		// et_serach_city = (EditText) findViewById(R.id.et_serach_city);
 		// et_serach_city.setImeOptions(EditorInfo.IME_ACTION_SEND);
@@ -240,81 +245,87 @@ public class CityPicker extends LinearLayout {
 	private void getProvince(String pmtty) {
 		CusFormBody body = HttpRequestParams.INSTANCE.getParamsForCityCodeQuery("086", "01", pmtty);
 		HttpRequest.Companion.getInstance().httpPost((Activity) getContext(), HttpURLS.INSTANCE.getCityCodeQuery(), false, "cityCodeQuery", body,
-				(isError, response, type, error) -> {
-                    if(isError) {
-						ToastUtil.Companion.toastError("获取省份失败！");
-                    } else {
-                        // TODO Auto-generated method stub
-                        JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                        String ProcessCode = ResponseHead.getString("ProcessCode");
-                        String ProcessDes = ResponseHead.getString("ProcessDes");
-                        String a = response.getString("ResponseFields");
-                        if (ProcessCode.equals("0000")) {
-                            switch (type) {
-                                case 0:
-                                    break;
-                                case 1:
-                                    String ResponseFields = response.getString("ResponseFields");
-                                    if(ResponseFields != null){
-                                        provinces = new ArrayList<>();
-                                        provinces = (ArrayList<City>) JSONObject.parseArray(ResponseFields, City.class);
-                                        Message message = new Message();
-                                        message.what = REFRESH_PROVINCE;
-                                        handler.sendMessage(message);
-                                    }
-                                    break;
+				new OnHttpRequestListener() {
+					@Override
+					public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+						if(isError) {
+							ToastUtil.Companion.toastError("获取省份失败！");
+						} else {
+							// TODO Auto-generated method stub
+							JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+							String ProcessCode = ResponseHead.getString("ProcessCode");
+							String ProcessDes = ResponseHead.getString("ProcessDes");
+							String a = response.getString("ResponseFields");
+							if (ProcessCode.equals("0000")) {
+								switch (type) {
+									case 0:
+										break;
+									case 1:
+										String ResponseFields = response.getString("ResponseFields");
+										if(ResponseFields != null){
+											provinces = new ArrayList<>();
+											provinces = (ArrayList<City>) JSONObject.parseArray(ResponseFields, City.class);
+											Message message = new Message();
+											message.what = REFRESH_PROVINCE;
+											handler.sendMessage(message);
+										}
+										break;
 
-                                case 2:
-                                    JSONObject ResponseFields1 = response.getJSONObject("ResponseFields");
-                                    if (ResponseFields1 != null){
-                                        String proinfo = ResponseFields1.getString("CityDetail");
-                                        provinces = new ArrayList<>();
-                                        if (proinfo.startsWith("[")) {
-                                            provinces = (ArrayList<City>) JSONObject.parseArray(proinfo,City.class);
-                                        } else if (proinfo.startsWith("{")) {
-                                            provinces.add(JSONObject.parseObject(proinfo, City.class));
-                                        };
-                                        Message message = new Message();
-                                        message.what = REFRESH_PROVINCE;
-                                        handler.sendMessage(message);
-                                    }
-                                    break;
+									case 2:
+										JSONObject ResponseFields1 = response.getJSONObject("ResponseFields");
+										if (ResponseFields1 != null){
+											String proinfo = ResponseFields1.getString("CityDetail");
+											provinces = new ArrayList<>();
+											if (proinfo.startsWith("[")) {
+												provinces = (ArrayList<City>) JSONObject.parseArray(proinfo,City.class);
+											} else if (proinfo.startsWith("{")) {
+												provinces.add(JSONObject.parseObject(proinfo, City.class));
+											};
+											Message message = new Message();
+											message.what = REFRESH_PROVINCE;
+											handler.sendMessage(message);
+										}
+										break;
 
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                });
+									default:
+										break;
+								}
+							}
+						}
+					}
+				});
 	}
 
 	private void getCitys(String provinceCode, String pmtty) {
 		CusFormBody body = HttpRequestParams.INSTANCE.getParamsForCityCodeQuery(provinceCode, "02", pmtty);
 
 		HttpRequest.Companion.getInstance().httpPost((Activity) getContext(), HttpURLS.INSTANCE.getCityCodeQuery(), false, "cityCodeQuery", body,
-				(isError, response, type, error) -> {
-                    if(isError) {
-						ToastUtil.Companion.toastError("获取市失败！");
-                    } else {
-                        // TODO Auto-generated method stub
-                        JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                        String ProcessCode = ResponseHead.getString("ProcessCode");
-                        if (ProcessCode.equals("0000")) {
-                            citys = new ArrayList<>();
-                            String ResponseFields = response.getString("ResponseFields");
-                            if (type == 1) {
-                                citys = (ArrayList<City>) JSONObject.parseArray(ResponseFields, City.class);
-                            } else if (type == 2) {
-                                JSONObject ResponseField1 = response.getJSONObject("ResponseFields");
-                                String cityDetail = ResponseField1.getString("CityDetail");
-                                citys.add(JSONObject.parseObject(cityDetail, City.class));
-                            }
-                            Message message = new Message();
-                            message.what = REFRESH_CITY;
-                            handler.sendMessage(message);
-                        }
-                    }
-                });
+				new OnHttpRequestListener() {
+					@Override
+					public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+						if(isError) {
+							ToastUtil.Companion.toastError("获取市失败！");
+						} else {
+							// TODO Auto-generated method stub
+							JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+							String ProcessCode = ResponseHead.getString("ProcessCode");
+							if (ProcessCode.equals("0000")) {
+								citys = new ArrayList<>();
+								String ResponseFields = response.getString("ResponseFields");
+								if (type == 1) {
+									citys = (ArrayList<City>) JSONObject.parseArray(ResponseFields, City.class);
+								} else if (type == 2) {
+									JSONObject ResponseField1 = response.getJSONObject("ResponseFields");
+									String cityDetail = ResponseField1.getString("CityDetail");
+									citys.add(JSONObject.parseObject(cityDetail, City.class));
+								}
+								Message message = new Message();
+								message.what = REFRESH_CITY;
+								handler.sendMessage(message);
+							}
+						}
+					}
+				});
 
 	}
 

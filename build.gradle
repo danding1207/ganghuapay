@@ -4,16 +4,17 @@ buildscript {
     repositories {
         jcenter()
         maven {
-
             url 'http://oss.jfrog.org/artifactory/oss-snapshot-local'
         }
+        maven { url 'https://jitpack.io' }
+        maven { url "https://maven.google.com" }
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.2'
         classpath 'com.tencent.bugly:symtabfileuploader:latest.release'
-        classpath 'me.tatarka:gradle-retrolambda:3.3.0'
-        classpath 'io.realm:realm-gradle-plugin:3.5.0'
+//        classpath 'me.tatarka:gradle-retrolambda:3.3.0'
+        classpath 'io.realm:realm-gradle-plugin:4.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }

@@ -38,13 +38,16 @@ public class MyWindow {
         params.height = WindowManager.LayoutParams.WRAP_CONTENT;
         params.gravity = Gravity.TOP;
         //点击back键，关闭window
-        mView.setOnKeyListener((v, keyCode, event) -> {
-            switch (keyCode) {
-                case KeyEvent.KEYCODE_BACK:
-                    hideMyWindow();
-                    return true;
-                default:
-                    return false;
+        mView.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_BACK:
+                        hideMyWindow();
+                        return true;
+                    default:
+                        return false;
+                }
             }
         });
         mwinWindowManager.addView(mView, params);

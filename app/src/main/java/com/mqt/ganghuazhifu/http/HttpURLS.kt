@@ -12,7 +12,7 @@ object HttpURLS {
     /** 请求 IP   */
     val ip = BuildConfig.Httpurlip
     /** 快钱接收  */
-    val ReceivePayUrl1 = BuildConfig.Receivepayurl1
+    val ReceivePayUrl1 = ip + "/wap/99bill.html"
     val ReceivePayUrl2 = BuildConfig.Receivepayurl2
 
     /** 注册协议  */

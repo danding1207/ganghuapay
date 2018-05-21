@@ -78,8 +78,8 @@ class TwoWeiMaActivity : BaseActivity() {
             WelcomeActivity.screenwidth = EncryptedPreferencesUtils.getScreenSize()[0]
             WelcomeActivity.screenhigh = EncryptedPreferencesUtils.getScreenSize()[1]
         }
-        Logger.d("screenwidth--->" + WelcomeActivity.screenwidth)
-        Logger.d("screenhigh--->" + WelcomeActivity.screenhigh)
+        Logger.i("screenwidth--->" + WelcomeActivity.screenwidth)
+        Logger.i("screenhigh--->" + WelcomeActivity.screenhigh)
         QR_WIDTH = WelcomeActivity.screenwidth * 4 / 5
         QR_HEIGHT = QR_WIDTH
         getStaffQRcode()

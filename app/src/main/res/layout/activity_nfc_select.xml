@@ -1,0 +1,200 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fitsSystemWindows="true"
+>
+
+    <data>
+        <import type="android.view.View"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/main_bg"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:context=".MainActivity">
+
+        <android.support.design.widget.AppBarLayout
+                android:id="@+id/appBarLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                tools:layout_constraintTop_creator="1"
+                tools:layout_constraintRight_creator="1"
+                app:layout_constraintRight_toRightOf="parent"
+                tools:layout_constraintLeft_creator="1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+        >
+
+            <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/title_bg"
+                    app:layout_collapseMode="pin"
+                    tools:layout_editor_absoluteX="0dp"
+                    tools:layout_editor_absoluteY="0dp"/>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v7.widget.CardView
+                android:id="@+id/cardView_nfc"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                app:cardCornerRadius="60dp"
+                app:cardElevation="8dp"
+                android:layout_marginLeft="8dp" app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginRight="8dp" app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginStart="8dp" android:layout_marginEnd="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+                app:layout_constraintBottom_toTopOf="@+id/cardView_bluetooth"
+                android:layout_marginTop="16dp">
+
+            <ImageView
+                    android:id="@+id/nfc_icon_logo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitXY"
+                    android:layout_margin="22dp"
+                    android:src="@drawable/nfc_icon_logo"
+            />
+
+        </android.support.v7.widget.CardView>
+
+        <CheckBox
+                android:id="@+id/checkBox_nfc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="12dp"
+                android:paddingTop="12dp"
+                android:text="选择 NFC 写表"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/cardView_nfc"
+                android:layout_marginRight="84dp"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:checked="true"
+                app:layout_constraintHorizontal_bias="0.502"/>
+
+        <android.support.v7.widget.CardView
+                android:id="@+id/cardView_bluetooth"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginRight="16dp" android:layout_marginStart="16dp"
+                app:layout_constraintLeft_toLeftOf="parent" android:layout_marginLeft="16dp"
+                app:cardCornerRadius="60dp"
+                app:cardElevation="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/button_next"
+                app:layout_constraintTop_toBottomOf="@+id/cardView_nfc">
+
+            <ImageView
+                    android:id="@+id/bluetooth_icon_logo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/bluetooth_icon_logo"
+                    />
+
+        </android.support.v7.widget.CardView>
+
+        <CheckBox
+                android:id="@+id/checkBox_bluetooth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="12dp"
+                android:paddingTop="12dp"
+                android:text="选择蓝牙读卡器写IC卡"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_size_Medium"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/cardView_bluetooth"
+                android:layout_marginRight="84dp"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+        />
+
+        <com.mqt.ganghuazhifu.view.ShuiyinView
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:src="@drawable/shuiyin"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintRight_toRightOf="parent" android:layout_marginEnd="8dp"/>
+
+        <android.support.v7.widget.CardView
+                android:id="@+id/button_next"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardBackgroundColor="#46872B"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp" android:layout_marginRight="8dp"
+                app:layout_constraintRight_toRightOf="parent" android:layout_marginLeft="8dp"
+                app:layout_constraintLeft_toLeftOf="parent" android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp">
+
+            <TextView
+                    android:id="@+id/tv_next"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="下一步"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/font_size_large"/>
+
+        </android.support.v7.widget.CardView>
+
+        <TextView
+                android:text="《流程说明》"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_nfc"
+                android:textColor="@color/dark_green"
+                app:layout_constraintTop_toTopOf="@+id/checkBox_nfc"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/checkBox_nfc"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintLeft_toRightOf="@+id/checkBox_nfc"
+                android:layout_marginLeft="0dp"/>
+
+
+        <TextView
+                android:text="《流程说明》"
+                android:layout_width="84dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_bluetooth"
+                android:textColor="@color/dark_green"
+                app:layout_constraintTop_toTopOf="@+id/checkBox_bluetooth"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/checkBox_bluetooth"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintLeft_toRightOf="@+id/checkBox_bluetooth"
+                android:layout_marginLeft="0dp"/>
+
+
+        <TextView
+                android:text="因您使用表具为易通表金额表，可以选择下列方式进\n行充值，请点击相应流程说明查看充值条件后选择合适的方式"
+                android:layout_width="0dp"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView8" android:layout_marginLeft="16dp"
+                app:layout_constraintLeft_toLeftOf="parent" android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+                android:layout_marginRight="16dp" app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"/>
+
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

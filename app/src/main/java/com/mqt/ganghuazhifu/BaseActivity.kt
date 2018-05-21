@@ -18,6 +18,10 @@ import com.mqt.ganghuazhifu.utils.ScreenManager
 import com.mqt.ganghuazhifu.view.LoadingDialog
 import com.orhanobut.logger.Logger
 import android.view.ViewGroup
+import android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+import android.view.WindowManager
+import qiu.niorgai.StatusBarCompat
+
 
 abstract class BaseActivity : AppCompatActivity(), OnClickListener {
 
@@ -26,10 +30,19 @@ abstract class BaseActivity : AppCompatActivity(), OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        colorChange(this, Color.parseColor("#44000000"))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-        }
+//        colorChange(this, Color.parseColor("#00000000"))
+
+        StatusBarCompat.setStatusBarColor(this, R.color.clarity)
+
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            val window = window
+//            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+//            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+//            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+//        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//        }
+
         ScreenManager.getScreenManager().pushActivity(this)
         RxBus.get().register(this)
     }

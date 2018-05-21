@@ -8,8 +8,13 @@ import android.support.multidex.MultiDex
 import android.view.inputmethod.InputMethodManager
 import com.mqt.ganghuazhifu.utils.BanksUtils
 import com.mqt.ganghuazhifu.utils.PhoneActiveInfo
+import com.orhanobut.logger.CsvFormatStrategy
+import com.orhanobut.logger.DiskLogAdapter
 import com.orhanobut.logger.Logger
 import com.tencent.bugly.crashreport.CrashReport
+import com.orhanobut.logger.AndroidLogAdapter
+
+
 
 class App : Application() {
 
@@ -76,7 +81,16 @@ class App : Application() {
 //        Bugly.init(context, "900027303", false, strategy)
 //        Bugly.setIsDevelopmentDevice(context, true)
 
-        Logger.init("ganghuazhifu")
+//        Logger.init("ganghuazhifu")
+
+        val formatStrategy = CsvFormatStrategy.newBuilder()
+                .tag("BlueTooth")
+                .build()
+
+        Logger.addLogAdapter(DiskLogAdapter(formatStrategy))
+
+        Logger.addLogAdapter(AndroidLogAdapter())
+
         BanksUtils.getBanksUtils().initBanks()
         context = applicationContext
     }

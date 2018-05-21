@@ -6,17 +6,15 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.text.TextUtils
 import android.view.View
-
 import com.mqt.ganghuazhifu.BaseActivity
 import com.mqt.ganghuazhifu.R
 import com.mqt.ganghuazhifu.adapter.FuntionsListAdapter
-import com.mqt.ganghuazhifu.listener.OnRecyclerViewItemClickListener
 import com.mqt.ganghuazhifu.bean.Funtions
 import com.mqt.ganghuazhifu.databinding.ActivityAccountManagementBinding
+import com.mqt.ganghuazhifu.listener.OnRecyclerViewItemClickListener
 import com.mqt.ganghuazhifu.utils.EncryptedPreferencesUtils
 import org.parceler.Parcels
-
-import java.util.ArrayList
+import java.util.*
 
 /**
  * 账户管理
@@ -32,7 +30,7 @@ class AccountManagementActivity : BaseActivity(), OnRecyclerViewItemClickListene
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityAccountManagementBinding = DataBindingUtil.setContentView<ActivityAccountManagementBinding>(this,
-                        R.layout.activity_account_management)
+                R.layout.activity_account_management)
         initView()
     }
 
@@ -45,6 +43,7 @@ class AccountManagementActivity : BaseActivity(), OnRecyclerViewItemClickListene
         setSupportActionBar(activityAccountManagementBinding!!.toolbar)
         supportActionBar!!.title = "个人资料"
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        activityAccountManagementBinding!!.tvTitleRight.setOnClickListener(this)
         activityAccountManagementBinding!!.listAccountManagementFuntions.layoutManager = LinearLayoutManager(this)
         activityAccountManagementBinding!!.listAccountManagementFuntions.setHasFixedSize(true)
         adapter = FuntionsListAdapter(this, 1)
@@ -59,17 +58,16 @@ class AccountManagementActivity : BaseActivity(), OnRecyclerViewItemClickListene
         val sb = StringBuilder()
         if (!TextUtils.isEmpty(idCard) && idCard != "[]"
                 && idCard.length > 8) {
-            sb.append(idCard.substring(0, idCard.length - 8))
-            sb.append("****")
+            sb.append("**************")
             sb.append(idCard.substring(idCard.length - 4, idCard.length))
         } else {
             sb.append("未设置")
         }
-        funtionsList!!.add(Funtions("身份证号", null, sb.toString(), 0, 1))
+        funtionsList!!.add(Funtions("身份证号", null, sb.toString(), 0, 2))
         if (TextUtils.isEmpty(realname) || realname == "[]") {
             realname = "未设置"
         }
-        funtionsList!!.add(Funtions("真实姓名", null, realname, 0, 1))
+        funtionsList!!.add(Funtions("真实姓名", null, realname, 0, 2))
         adapter!!.updateList(funtionsList)
     }
 
@@ -78,24 +76,14 @@ class AccountManagementActivity : BaseActivity(), OnRecyclerViewItemClickListene
     }
 
     override fun OnViewClick(v: View) {
+        when (v.id) {
+            R.id.tv_title_right -> startActivity(Intent(this@AccountManagementActivity,
+                    SetAccountActivity::class.java))
+        }
     }
 
     override fun onItemClick(view: View, position: Int) {
-        val intent: Intent
-        when (position) {
-            0 -> {
-                intent = Intent(this@AccountManagementActivity,
-                        SetEmailActivity::class.java)
-                intent.putExtra("TYPE", 2)
-                startActivity(intent)
-            }
-            1 -> {
-                intent = Intent(this@AccountManagementActivity,
-                        SetEmailActivity::class.java)
-                intent.putExtra("TYPE", 3)
-                startActivity(intent)
-            }
-        }
+
     }
 
     val FUNTIONLIST = "funtionsList"

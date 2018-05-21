@@ -72,6 +72,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
+
+                <!--  户号  -->
                 <LinearLayout
                         android:id="@+id/ll_account_number"
                         android:layout_width="match_parent"
@@ -91,11 +93,12 @@
 
                 </LinearLayout>
 
+
+                <!--  速记号  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_phonography_number"
                         android:layout_width="match_parent"
@@ -115,11 +118,12 @@
 
                 </LinearLayout>
 
+
+                <!--  客户名  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_account_name"
                         android:layout_width="match_parent"
@@ -139,11 +143,12 @@
 
                 </LinearLayout>
 
+
+                <!--  地址  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_account_address"
                         android:layout_width="match_parent"
@@ -163,11 +168,12 @@
 
                 </LinearLayout>
 
+
+                <!--  账期数目（南京）  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_nanjing_FeeCount"
                         android:layout_width="match_parent"
@@ -187,11 +193,12 @@
 
                 </LinearLayout>
 
+
+                <!--  查询序列号（南京）  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_nanjing_QuerySeq"
                         android:layout_width="match_parent"
@@ -211,11 +218,12 @@
 
                 </LinearLayout>
 
+
+                <!--  应收总额-欠费  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_owe_amount"
                         android:layout_width="match_parent"
@@ -235,11 +243,12 @@
 
                 </LinearLayout>
 
+
+                <!--  营业费预存余额  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_yu_amount"
                         android:layout_width="match_parent"
@@ -254,17 +263,18 @@
                             android:id="@+id/tv_yu_amount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="预存余额：560.00元"
+                            android:text="营业费预存余额：560.00元"
                             android:textColor="@color/dark_green_slow"
                             android:textSize="@dimen/font_size_Medium"/>
 
                 </LinearLayout>
 
+
+                <!--  金额/气量 输入框  -->
                 <View
                         android:layout_width="match_parent"
                         android:layout_height="10dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_money_all"
                         android:layout_width="match_parent"
@@ -298,11 +308,13 @@
 
                 </LinearLayout>
 
+
+                <!--  发票提示  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
+                        android:visibility="gone"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_limit"
                         android:layout_width="match_parent"
@@ -310,7 +322,8 @@
                         android:background="@drawable/unity_list_touch_bg"
                         android:gravity="center"
                         android:orientation="horizontal"
-                        android:padding="8dp" android:visibility="gone">
+                        android:padding="8dp"
+                        android:visibility="gone">
 
                     <TextView
                             android:id="@+id/tv_limit"
@@ -324,11 +337,13 @@
 
                 </LinearLayout>
 
+
+                <!--  是否开具发票的开关  -->
                 <View
                         android:layout_width="match_parent"
                         android:layout_height="10dp"
-                        android:background="@color/main_bg" android:visibility="gone"/>
-
+                        android:background="@color/main_bg"
+                        android:visibility="gone"/>
                 <LinearLayout
                         android:id="@+id/ll_fapiao"
                         android:layout_width="match_parent"
@@ -363,11 +378,12 @@
 
                 </LinearLayout>
 
+                <!--  发票类型  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
+                        android:visibility="gone"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_fapiaoleixing"
                         android:layout_width="match_parent"
@@ -403,11 +419,13 @@
 
                 </LinearLayout>
 
+
+                <!--  发票内容  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
+                        android:visibility="gone"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_fapiaoneirong"
                         android:layout_width="match_parent"
@@ -443,11 +461,13 @@
 
                 </LinearLayout>
 
+
+                <!--  发票抬头  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
+                        android:visibility="gone"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_fapiaotaitou"
                         android:layout_width="match_parent"
@@ -477,11 +497,12 @@
 
                 </LinearLayout>
 
+
+                <!--  营业费预存提示  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:id="@+id/ll_yucun_tip"
                         android:layout_width="match_parent"
@@ -505,11 +526,12 @@
 
                 </LinearLayout>
 
+
+                <!--  核对地址提示  -->
                 <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="1dp"
                         android:background="@color/main_bg"/>
-
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
@@ -528,6 +550,157 @@
                             android:textColor="#f00"
                             android:text=""
                             android:textSize="@dimen/font_size_Medium"/>
+
+                </LinearLayout>
+
+
+                <!--  易通表充值类型选择  -->
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/main_bg"/>
+
+                <LinearLayout
+                        android:id="@+id/ll_yitongbiao_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/unity_list_touch_bg"
+                        android:gravity="center"
+                        android:visibility="gone"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+
+                    <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                    >
+
+
+                        <android.support.v7.widget.CardView
+                                android:id="@+id/cardView_nfc"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                app:cardCornerRadius="30dp"
+                                app:cardElevation="8dp"
+                                android:layout_margin="4dp"
+                        >
+
+                            <ImageView
+                                    android:id="@+id/nfc_icon_logo"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:scaleType="fitXY"
+                                    android:src="@drawable/nfc_icon_logo"
+                            />
+
+                        </android.support.v7.widget.CardView>
+
+
+                        <LinearLayout
+                                android:id="@+id/ll_checkBox_nfc"
+                                android:orientation="horizontal"
+                                android:layout_width="wrap_content"
+                                android:gravity="center"
+                                android:layout_marginTop="8dp"
+                                android:layout_height="wrap_content">
+
+                            <CheckBox
+                                    android:id="@+id/checkBox_nfc"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" NFC 写表"
+                                    android:clickable="false"
+                                    android:textColor="@color/black"
+                                    android:textSize="@dimen/font_size_small"
+                                    android:checked="true"
+                            />
+
+                            <TextView
+                                    android:id="@+id/tv_nfc_liucheng"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/dark_green"
+                                    android:textSize="@dimen/font_size_small"
+                                    android:visibility="gone"
+                                    android:text="写表流程"
+                            />
+
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                    >
+
+
+                        <android.support.v7.widget.CardView
+                                android:id="@+id/cardView_bluetooth"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                app:cardCornerRadius="30dp"
+                                app:cardElevation="8dp"
+                                android:layout_margin="4dp"
+                        >
+
+                            <ImageView
+                                    android:id="@+id/bluetooth_icon_logo"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:scaleType="fitXY"
+                                    android:src="@drawable/bluetooth_icon_logo"
+                            />
+
+                        </android.support.v7.widget.CardView>
+
+                        <LinearLayout
+                                android:id="@+id/ll_checkBox_bluetooth"
+                                android:orientation="horizontal"
+                                android:layout_width="wrap_content"
+                                android:gravity="center"
+                                android:layout_marginTop="8dp"
+                                android:layout_height="wrap_content">
+
+                            <CheckBox
+                                    android:id="@+id/checkBox_bluetooth"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="蓝牙写IC卡"
+                                    android:clickable="false"
+                                    android:textColor="@color/black"
+                                    android:textSize="@dimen/font_size_small"
+
+                            />
+
+                            <TextView
+                                    android:id="@+id/tv_bluetooth_liucheng"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/dark_green"
+                                    android:textSize="@dimen/font_size_small"
+                                    android:visibility="gone"
+                                    android:text="写IC卡流程"
+                            />
+
+
+                        </LinearLayout>
+
+
+
+
+                    </LinearLayout>
+
 
                 </LinearLayout>
 
@@ -561,7 +734,7 @@
                 android:layout_height="100dp"
                 android:src="@drawable/shuiyin"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
+                app:layout_constraintRight_toRightOf="parent"/>
 
     </android.support.constraint.ConstraintLayout>
 </layout>

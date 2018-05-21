@@ -23,10 +23,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.alibaba.fastjson.JSONObject;
 import com.mqt.ganghuazhifu.BaseActivity;
@@ -35,6 +37,7 @@ import com.mqt.ganghuazhifu.http.CusFormBody;
 import com.mqt.ganghuazhifu.http.HttpRequest;
 import com.mqt.ganghuazhifu.http.HttpRequestParams;
 import com.mqt.ganghuazhifu.http.HttpURLS;
+import com.mqt.ganghuazhifu.listener.OnHttpRequestListener;
 import com.mqt.ganghuazhifu.utils.ToastUtil;
 import com.orhanobut.logger.Logger;
 import com.xtkj.nfcjar.StringUtil;
@@ -206,7 +209,12 @@ public class ReadNFCActivity extends BaseActivity {
                         .content("充值超时,请重试！")
                         .cancelable(false)
                         .canceledOnTouchOutside(false)
-                        .onPositive((dialog, which) -> finish())
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                finish();
+                            }
+                        })
                         .positiveText("确定")
                         .build().show();
             }
@@ -381,7 +389,6 @@ public class ReadNFCActivity extends BaseActivity {
                 // result,1--充值成功；0--充值失败；
                 // payTimes--充值次数；remianMoney--剩余金额;totalUse--累计用气量；totalPay--累计购气金额
                 showMusic();
-
                 if (bean != null) {
                     if (bean.result == 1) {
                         if (NFCPayTime == bean.payTimes) {
@@ -410,7 +417,7 @@ public class ReadNFCActivity extends BaseActivity {
                                 .positiveText("确定")
                                 .build().show();
                     } else if (bean.result == 2) {
-                        Logger.d("bean.result == 2");
+                        Logger.i("bean.result == 2");
                         isoDep.close();
                         addMoney(getTag, encodeString, desCmd);
                     }
@@ -456,7 +463,9 @@ public class ReadNFCActivity extends BaseActivity {
         time = System.currentTimeMillis();
         if (isoDep != null) {
             try {
+
                 isoDep.connect();
+
                 // 读表信息，返回读取信息对象ReadResultBean
                 // 参数说明：第一个参数为检测到的标签；第二个参数为用户号
                 ReadResultBean bean = SunNFC.readMeter(isoDep, userNum);
@@ -467,18 +476,21 @@ public class ReadNFCActivity extends BaseActivity {
                 // historyList--月用量，list中保存24个月用量，依此为当月、上月、上上月
                 showMusic();
                 if (bean.result == 1) {
-                    if (!bean.meterNum.equals(userNumInput)) {
-                        new MaterialDialog.Builder(ReadNFCActivity.this)
-                                .title("提示")
-                                .content("充值户号与表户号不对应，请检查充值信息！")
-                                .cancelable(false)
-                                .canceledOnTouchOutside(false)
-                                .positiveText("确定")
-                                .build().show();
-                        return;
+                    if (bean.nfcTimes != 0) {
+                        if (!bean.meterNum.equals(userNumInput)) {
+                            new MaterialDialog.Builder(ReadNFCActivity.this)
+                                    .title("提示")
+                                    .content("充值户号与表户号不对应，请检查充值信息！")
+                                    .cancelable(false)
+                                    .canceledOnTouchOutside(false)
+                                    .positiveText("确定")
+                                    .build().show();
+                            return;
+                        }
                     }
                     getEncode(bean);
                 } else {
+                    clickBtNum = NFC_QUERY;
                     new MaterialDialog.Builder(ReadNFCActivity.this)
                             .title("提示")
                             .content("读表失败,可能是用户号不匹配！")
@@ -514,7 +526,7 @@ public class ReadNFCActivity extends BaseActivity {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        Logger.d("isConnected--->" + isConnected);
+        Logger.i("isConnected--->" + isConnected);
         return isConnected;
     }
 
@@ -523,6 +535,10 @@ public class ReadNFCActivity extends BaseActivity {
         if (isActiveNetwork()) {
             clickBtNum = NFC_QUERYING;
             tv_version.setText("第二步:获取加密信息");
+
+            BigDecimal f = new BigDecimal(1);
+            BigDecimal ten = new BigDecimal(10);
+
             StringBuffer sumTotalTwentyFour = new StringBuffer();
             StringBuffer threeSecurityCheck = new StringBuffer();
             if (bean.securityRecords.size() > 0) {
@@ -537,9 +553,9 @@ public class ReadNFCActivity extends BaseActivity {
             if (bean.historyList.size() > 0) {
                 for (int i = 0; i < bean.historyList.size(); i++) {
                     if (i == bean.historyList.size() - 1) {
-                        sumTotalTwentyFour.append(bean.historyList.get(i) + "");
+                        sumTotalTwentyFour.append(new BigDecimal(bean.historyList.get(i)).divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "");
                     } else {
-                        sumTotalTwentyFour.append(bean.historyList.get(i) + "|");
+                        sumTotalTwentyFour.append(new BigDecimal(bean.historyList.get(i)).divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "|");
                     }
                 }
             }
@@ -552,11 +568,6 @@ public class ReadNFCActivity extends BaseActivity {
 
             BigDecimal toatalUseGas = new BigDecimal(bean.totalUse);
 
-            BigDecimal f = new BigDecimal(1);
-//            BigDecimal f = new BigDecimal(100);
-            BigDecimal ten = new BigDecimal(1);
-//            BigDecimal ten = new BigDecimal(10);
-
             String nowPriceString = null;
             String nowRemainMoneyString = null;
             String toalBuyMoneyString = null;
@@ -565,7 +576,7 @@ public class ReadNFCActivity extends BaseActivity {
             String toatalUseGasString = null;
 
             switch (shebeiType) {
-                case 1:
+                case 1://金额表
                     nowPriceString = nowPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                     nowRemainMoneyString = nowRemainMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                     toalBuyMoneyString = toalBuyMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
@@ -573,7 +584,7 @@ public class ReadNFCActivity extends BaseActivity {
                     nfcTotalMoneyString = nfcTotalMoney.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                     toatalUseGasString = toatalUseGas.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                     break;
-                case 2:
+                case 2://气量表
                     nowPriceString = nowPrice.divide(f).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                     nowRemainMoneyString = nowRemainMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
                     toalBuyMoneyString = toalBuyMoney.divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
@@ -604,38 +615,41 @@ public class ReadNFCActivity extends BaseActivity {
             time = System.currentTimeMillis();
             Logger.i("nfcTimes--->" + (bean.nfcTimes + 1));
             HttpRequest.Companion.getInstance().httpPost(ReadNFCActivity.this, HttpURLS.INSTANCE.getNFCReadNumberLoopBackAndNFCSignMsg(), true, "NFCSignMsg",
-                    body, (isError, response, type, error) -> {
-                        if (isError) {
-                            Logger.e(error.toString());
-                            new MaterialDialog.Builder(ReadNFCActivity.this)
-                                    .title("提示")
-                                    .content("请求加密信息失败，请重试！")
-                                    .cancelable(false)
-                                    .canceledOnTouchOutside(false)
-                                    .positiveText("确定")
-                                    .build().show();
-                            clickBtNum = NFC_QUERY;
-                            tv_version.setText("第一步:读取燃气表信息");
-                        } else {
-                            Logger.i(response.toString());
-                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                            String ProcessCode = ResponseHead.getString("ProcessCode");
-                            String ProcessDes = ResponseHead.getString("ProcessDes");
-                            if (ProcessCode.equals("0000") && ResponseFields != null) {
-                                SignMsg = ResponseFields.getString("SignMsg");
-                                NFCPayTime = ResponseFields.getInteger("NFCPayTime");
-                                Logger.d("SignMsg--->" + SignMsg);
-                                Logger.d("NFCPayTime--->" + NFCPayTime);
-                                getDesCmd(bean);
-                            } else {
+                    body, new OnHttpRequestListener() {
+                        @Override
+                        public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                            if (isError) {
+                                Logger.e(error.toString());
                                 new MaterialDialog.Builder(ReadNFCActivity.this)
                                         .title("提示")
-                                        .content(ProcessDes)
+                                        .content("请求加密信息失败，请重试！")
                                         .cancelable(false)
                                         .canceledOnTouchOutside(false)
                                         .positiveText("确定")
                                         .build().show();
+                                clickBtNum = NFC_QUERY;
+                                tv_version.setText("第一步:读取燃气表信息");
+                            } else {
+                                Logger.i(response.toString());
+                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                String ProcessCode = ResponseHead.getString("ProcessCode");
+                                String ProcessDes = ResponseHead.getString("ProcessDes");
+                                if (ProcessCode.equals("0000") && ResponseFields != null) {
+                                    SignMsg = ResponseFields.getString("SignMsg");
+                                    NFCPayTime = ResponseFields.getInteger("NFCPayTime");
+                                    Logger.i("SignMsg--->" + SignMsg);
+                                    Logger.i("NFCPayTime--->" + NFCPayTime);
+                                    getDesCmd(bean);
+                                } else {
+                                    new MaterialDialog.Builder(ReadNFCActivity.this)
+                                            .title("提示")
+                                            .content(ProcessDes)
+                                            .cancelable(false)
+                                            .canceledOnTouchOutside(false)
+                                            .positiveText("确定")
+                                            .build().show();
+                                }
                             }
                         }
                     });
@@ -643,8 +657,18 @@ public class ReadNFCActivity extends BaseActivity {
             new MaterialDialog.Builder(this)
                     .title("提醒")
                     .content("下一步需要连接网络，请确保您已连接网络再试")
-                    .onPositive((dialog, which) -> getEncode(bean))
-                    .onNegative((dialog, which) -> finish())
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            getEncode(bean);
+                        }
+                    })
+                    .onNegative(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            finish();
+                        }
+                    })
                     .cancelable(false)
                     .canceledOnTouchOutside(false)
                     .positiveText("确定")
@@ -660,6 +684,11 @@ public class ReadNFCActivity extends BaseActivity {
             tv_version.setText("第二步:获取加密信息");
             String random = StringUtil.createRanHex8();// 随机数
 
+            BigDecimal f = new BigDecimal(1);
+//            BigDecimal f = new BigDecimal(100);
+            //BigDecimal ten = new BigDecimal(1);
+            BigDecimal ten = new BigDecimal(10);
+
             StringBuffer sumTotalTwentyFour = new StringBuffer();
             StringBuffer threeSecurityCheck = new StringBuffer();
             if (bean.securityRecords.size() > 0) {
@@ -674,9 +703,9 @@ public class ReadNFCActivity extends BaseActivity {
             if (bean.historyList.size() > 0) {
                 for (int i = 0; i < bean.historyList.size(); i++) {
                     if (i == bean.historyList.size() - 1) {
-                        sumTotalTwentyFour.append(bean.historyList.get(i) + "");
+                        sumTotalTwentyFour.append(new BigDecimal(bean.historyList.get(i)).divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "");
                     } else {
-                        sumTotalTwentyFour.append(bean.historyList.get(i) + "|");
+                        sumTotalTwentyFour.append(new BigDecimal(bean.historyList.get(i)).divide(ten).setScale(2, BigDecimal.ROUND_HALF_DOWN).toString() + "|");
                     }
                 }
             }
@@ -688,11 +717,6 @@ public class ReadNFCActivity extends BaseActivity {
             BigDecimal nfcTotalMoney = new BigDecimal(bean.nfcTotalBuy);
 
             BigDecimal toatalUseGas = new BigDecimal(bean.totalUse);
-
-            BigDecimal f = new BigDecimal(1);
-//            BigDecimal f = new BigDecimal(100);
-            BigDecimal ten = new BigDecimal(1);
-//            BigDecimal ten = new BigDecimal(10);
 
             String nowPriceString = null;
             String nowRemainMoneyString = null;
@@ -737,36 +761,39 @@ public class ReadNFCActivity extends BaseActivity {
                     random);
             HttpRequest.Companion.getInstance().httpPost(ReadNFCActivity.this,
                     HttpURLS.INSTANCE.getNFCReadNumberLoopBackAndNFCSignMsg(), true, "DesCmd",
-                    body, (isError, response, type, error) -> {
-                        if (isError) {
-                            Logger.e(error.toString());
-                            new MaterialDialog.Builder(ReadNFCActivity.this)
-                                    .title("提示")
-                                    .content("请求加密信息失败，请重试！")
-                                    .cancelable(false)
-                                    .canceledOnTouchOutside(false)
-                                    .positiveText("确定")
-                                    .build().show();
-                            clickBtNum = NFC_QUERY;
-                            tv_version.setText("第一步:读取燃气表信息");
-                        } else {
-                            Logger.i(response.toString());
-                            JSONObject ResponseHead = response.getJSONObject("ResponseHead");
-                            JSONObject ResponseFields = response.getJSONObject("ResponseFields");
-                            String ProcessCode = ResponseHead.getString("ProcessCode");
-                            String ProcessDes = ResponseHead.getString("ProcessDes");
-                            if (ProcessCode.equals("0000") && ResponseFields != null) {
-                                DesCmd = ResponseFields.getString("SignMsg");
-                                Logger.i("SignMsg--->" + SignMsg);
-                                add();
-                            } else {
+                    body, new OnHttpRequestListener() {
+                        @Override
+                        public void OnCompleted(Boolean isError, JSONObject response, int type, IOException error) {
+                            if (isError) {
+                                Logger.e(error.toString());
                                 new MaterialDialog.Builder(ReadNFCActivity.this)
                                         .title("提示")
-                                        .content(ProcessDes)
+                                        .content("请求加密信息失败，请重试！")
                                         .cancelable(false)
                                         .canceledOnTouchOutside(false)
                                         .positiveText("确定")
                                         .build().show();
+                                clickBtNum = NFC_QUERY;
+                                tv_version.setText("第一步:读取燃气表信息");
+                            } else {
+                                Logger.i(response.toString());
+                                JSONObject ResponseHead = response.getJSONObject("ResponseHead");
+                                JSONObject ResponseFields = response.getJSONObject("ResponseFields");
+                                String ProcessCode = ResponseHead.getString("ProcessCode");
+                                String ProcessDes = ResponseHead.getString("ProcessDes");
+                                if (ProcessCode.equals("0000") && ResponseFields != null) {
+                                    DesCmd = ResponseFields.getString("SignMsg");
+                                    Logger.i("SignMsg--->" + SignMsg);
+                                    add();
+                                } else {
+                                    new MaterialDialog.Builder(ReadNFCActivity.this)
+                                            .title("提示")
+                                            .content(ProcessDes)
+                                            .cancelable(false)
+                                            .canceledOnTouchOutside(false)
+                                            .positiveText("确定")
+                                            .build().show();
+                                }
                             }
                         }
                     });
@@ -774,8 +801,18 @@ public class ReadNFCActivity extends BaseActivity {
             new MaterialDialog.Builder(this)
                     .title("提醒")
                     .content("下一步需要连接网络，请确保您已连接网络再试")
-                    .onPositive((dialog, which) -> getDesCmd(bean))
-                    .onNegative((dialog, which) -> finish())
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            getDesCmd(bean);
+                        }
+                    })
+                    .onNegative(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            finish();
+                        }
+                    })
                     .cancelable(false)
                     .canceledOnTouchOutside(false)
                     .positiveText("确定")
@@ -796,23 +833,28 @@ public class ReadNFCActivity extends BaseActivity {
      * 自定义声音播放
      */
     private void showMusic() {
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+//        setVolumeControlStream(AudioManager.STREAM_MUSIC);
         MediaPlayer mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.setOnCompletionListener(beepListener);
         AssetFileDescriptor file = getResources().openRawResourceFd(R.raw.beep);
         try {
             mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());
             file.close();
-            mediaPlayer.setVolume(0.9f, 0.9f);
+//            mediaPlayer.setVolume(0.9f, 0.9f);
             mediaPlayer.prepare();
             mediaPlayer.start();
         } catch (IOException e) {
-            mediaPlayer = null;
+
         }
     }
 
-    private final OnCompletionListener beepListener = mediaPlayer -> mediaPlayer.seekTo(0);
+    private final OnCompletionListener beepListener = new OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mediaPlayer) {
+            mediaPlayer.seekTo(0);
+        }
+    };
 
     /**
      * 检测设备是否支持NFC并检测是否已开启NFC
@@ -840,22 +882,28 @@ public class ReadNFCActivity extends BaseActivity {
      */
     private void checkNFC() {
         if (!mNfcAdapter.isEnabled()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("请打开NFC");
-            final AlertDialog alertDialog = builder.create();
-            // 确定
-            builder.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
-                // 前往NFC设置中心
-                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
-                startActivity(intent);
-            });
-            // 取消
-            builder.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-                // 关闭对话框
-                alertDialog.dismiss();
-            });
-            // 显示对话框
-            builder.show();
+            new MaterialDialog.Builder(this)
+                    .title("提醒")
+                    .content("请打开NFC，是否调转至系统设置页？")
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            // 前往NFC设置中心
+                            Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                            startActivity(intent);
+                        }
+                    })
+                    .onNegative(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                        }
+                    })
+                    .cancelable(false)
+                    .canceledOnTouchOutside(false)
+                    .positiveText("确定")
+                    .negativeText("取消")
+                    .show();
         }
     }
 

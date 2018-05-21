@@ -30,7 +30,7 @@ public class ShuiyinView extends FrameLayout {
 
     private void initView(Context context) {
         if (BuildConfig.DEBUG) {
-            visibility = View.VISIBLE;
+            visibility = View.GONE;
         } else {
             visibility = View.GONE;
         }

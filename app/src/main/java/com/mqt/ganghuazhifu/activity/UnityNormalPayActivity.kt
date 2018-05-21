@@ -50,7 +50,8 @@ class UnityNormalPayActivity : BaseActivity(), OnPasswordsCompletedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityUnityNormalPayBinding = DataBindingUtil.setContentView<ActivityUnityNormalPayBinding>(this, R.layout.activity_unity_normal_pay)
+        activityUnityNormalPayBinding = DataBindingUtil.setContentView<ActivityUnityNormalPayBinding>(this,
+                        R.layout.activity_unity_normal_pay)
         lianDong = Parcels.unwrap<LianDong>(intent.getParcelableExtra<Parcelable>("LianDong"))
         idCard = IDCard()
         initView()
@@ -190,7 +191,7 @@ class UnityNormalPayActivity : BaseActivity(), OnPasswordsCompletedListener {
             if (isError) {
                 Logger.e(error.toString())
             } else {
-                Logger.d(response.toString())
+                Logger.i(response.toString())
                 val ResponseHead = response.getJSONObject("ResponseHead")
                 val ResponseFields = response.getString("ResponseFields")
                 val ProcessCode = ResponseHead.getString("ProcessCode")
@@ -218,7 +219,7 @@ class UnityNormalPayActivity : BaseActivity(), OnPasswordsCompletedListener {
             if (isError) {
                 Logger.e(error.toString())
             } else {
-                Logger.d(response.toString())
+                Logger.i(response.toString())
                 val ResponseHead = response.getJSONObject("ResponseHead")
                 val ResponseFields = response.getString("ResponseFields")
                 val ProcessCode = ResponseHead.getString("ProcessCode")
@@ -245,7 +246,7 @@ class UnityNormalPayActivity : BaseActivity(), OnPasswordsCompletedListener {
             if (isError) {
                 Logger.e(error.toString())
             } else {
-                Logger.d(response.toString())
+                Logger.i(response.toString())
                 val ResponseHead = response.getJSONObject("ResponseHead")
                 val ResponseFields = response.getString("ResponseFields")
                 val ProcessCode = ResponseHead.getString("ProcessCode")

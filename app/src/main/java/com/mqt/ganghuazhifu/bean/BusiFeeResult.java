@@ -25,6 +25,7 @@ public class BusiFeeResult {
 	public String AllBusifee;//营业欠费总额
 
 	public String PRESAVING;//营业预存总额
+	public String PreStore;//营业预存标识
 
 	public List<BusiFeeRecord> BusifeeCountDetail;//速记号
 	public String QueryId;//营业欠费总额

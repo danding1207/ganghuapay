@@ -54,7 +54,6 @@ class ConnectUsActivity : BaseActivity() {
         activityConnectUsBinding!!.connectWebView.setWebViewClient(WebViewClientDemo())
         activityConnectUsBinding!!.connectWebView.loadUrl(HttpURLS.ip + "/www/help4Mbl.html")
 
-
     }
 
     override fun onStart() {

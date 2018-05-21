@@ -9,6 +9,16 @@
         android:layout_width="match_parent"
         android:layout_height="50dp" >
 
+        <ImageView
+                android:id="@+id/iv_cancle"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/history_cancle"
+                android:layout_alignParentLeft="true"
+                android:layout_margin="8dp"
+                android:layout_centerVertical="true"
+        />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"

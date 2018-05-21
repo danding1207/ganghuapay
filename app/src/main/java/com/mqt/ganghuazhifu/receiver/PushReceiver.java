@@ -90,7 +90,7 @@ public class PushReceiver extends PushMessageReceiver {
 			String requestId) {
 		String responseString = "onBind errorCode=" + errorCode + " appid=" + appid + " userId=" + userId
 				+ " channelId=" + channelId + " requestId=" + requestId;
-		Logger.d(TAG, responseString);
+		Logger.i(TAG, responseString);
 		if (errorCode == 0) {
 			BaiduPushData baiduPushData = new BaiduPushData(Integer.toString(errorCode), appid, userId, channelId,
 					requestId);

@@ -22,6 +22,18 @@ import com.orhanobut.logger.Logger
 import com.xtkj.nfcjar.bean.PayResultBean
 import org.parceler.Parcels
 import java.math.BigDecimal
+import android.databinding.adapters.TextViewBindingAdapter.setText
+import android.graphics.Color
+import android.text.method.LinkMovementMethod
+import android.text.Spannable
+import android.graphics.Color.parseColor
+import android.text.style.ForegroundColorSpan
+import android.widget.Toast
+import com.mqt.ganghuazhifu.MainActivity
+import android.text.style.ClickableSpan
+import android.text.SpannableStringBuilder
+
+
 
 /**
  * NFC燃气表读表数据显示
@@ -71,6 +83,7 @@ class NFCInfoActivity : BaseActivity() {
                     if (ProcessCode == "0000") {
                         Logger.i("EventBus.getDefault().post")
                         RxBus.get().post(RecordChangedEvent())
+
                         MaterialDialog.Builder(this@NFCInfoActivity)
                                 .title("提醒")
                                 .content("回抄成功，感谢您的使用，如有问题请联系我们")
@@ -142,7 +155,7 @@ class NFCInfoActivity : BaseActivity() {
                 }
             }
 
-            tv_result.append("充值结果：" + "\n\n")
+//            tv_result.append("充值结果：" + "\n\n")
             tv_result.append("充值次数：" + bean!!.payTimes + "\n")
             tv_result.append("累计用气量（m3）：" + toatalUseGasString + "\n")
             tv_result.append("表状态：" + bean!!.meterState)

@@ -1,6 +1,5 @@
 package com.mqt.ganghuazhifu.activity
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
@@ -100,7 +99,7 @@ class VerifyUserActivity : BaseActivity() {
             if (isError) {
                 Logger.e(error.toString())
             } else {
-                Logger.d(response.toString())
+                Logger.i(response.toString())
                 val ResponseHead = response.getJSONObject("ResponseHead")
                 val ProcessCode = ResponseHead.getString("ProcessCode")
                 val ProcessDes = ResponseHead.getString("ProcessDes")
@@ -118,10 +117,10 @@ class VerifyUserActivity : BaseActivity() {
     fun onUnitySelectedEvent(event: UnitySelectedEvent) {
         Logger.e("UnitySelectedEvent")
         if (event != null) {
-            if (event.data!=null) {
-                if(event.data.getParcelableExtra<Parcelable>("Unity")!=null){
+            if (event.data != null) {
+                if (event.data.getParcelableExtra<Parcelable>("Unity") != null) {
                     unit = Parcels.unwrap<Unit>(event.data.getParcelableExtra<Parcelable>("Unity"))
-                    if (unit != null && activityVerifyUserBinding!=null) {
+                    if (unit != null && activityVerifyUserBinding != null) {
                         activityVerifyUserBinding!!.tvUnit.text = unit!!.PayeeNm
                     }
                 }
@@ -153,7 +152,7 @@ class VerifyUserActivity : BaseActivity() {
 
         fun startActivity(context: Context, generalContact: GeneralContact?) {
             val intent = Intent(context, VerifyUserActivity::class.java)
-            if(generalContact!=null)
+            if (generalContact != null)
                 intent.putExtra("GeneralContact", Parcels.wrap(generalContact))
             context.startActivity(intent)
         }

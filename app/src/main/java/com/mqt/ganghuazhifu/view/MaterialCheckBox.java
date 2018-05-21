@@ -82,7 +82,12 @@ public class MaterialCheckBox extends View {
         paintCenter = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintCenter.setColor(ContextCompat.getColor(context, R.color.white));
         paintCenter.setStrokeWidth(borderWidth);
-        setOnClickListener(v -> setChecked(!isChecked()));
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setChecked(!isChecked());
+            }
+        });
         drawRecting = true;
     }
 
@@ -177,17 +182,20 @@ public class MaterialCheckBox extends View {
         isAnim = true;
         drawRecting = true;
         ValueAnimator va = ValueAnimator.ofFloat(0, 1).setDuration(DURATION);
-        va.addUpdateListener(animation -> {
-            float p = (float) animation.getAnimatedValue();
-            float c = 1f - p;
-            borderWidth = (int) (baseWidth + c * (width - baseWidth));
-            paintBlue.setColor(evaluate(c, borderColor, backgroundColor));
-            invalidate();
-            if (p >= 1) {
-                isAnim = false;
-                if (listener != null) {
-                    checked = false;
-                    listener.onCheckedChanged(MaterialCheckBox.this, checked);
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float p = (float) animation.getAnimatedValue();
+                float c = 1f - p;
+                borderWidth = (int) (baseWidth + c * (width - baseWidth));
+                paintBlue.setColor(evaluate(c, borderColor, backgroundColor));
+                invalidate();
+                if (p >= 1) {
+                    isAnim = false;
+                    if (listener != null) {
+                        checked = false;
+                        listener.onCheckedChanged(MaterialCheckBox.this, checked);
+                    }
                 }
             }
         });
@@ -201,15 +209,18 @@ public class MaterialCheckBox extends View {
         isAnim = true;
         drawRecting = true;
         ValueAnimator va = ValueAnimator.ofFloat(0, 1).setDuration(DURATION);
-        va.addUpdateListener(animation -> {
-            float p = (float) animation.getAnimatedValue();
-            borderWidth = (int) (10 + p * (width - 10));
-            paintBlue.setColor(evaluate(p, borderColor, backgroundColor));
-            invalidate();
-            if (p >= 1) {
-                isAnim = false;
-                drawRecting = false;
-                showCorrect();
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float p = (float) animation.getAnimatedValue();
+                borderWidth = (int) (10 + p * (width - 10));
+                paintBlue.setColor(evaluate(p, borderColor, backgroundColor));
+                invalidate();
+                if (p >= 1) {
+                    isAnim = false;
+                    drawRecting = false;
+                    showCorrect();
+                }
             }
         });
         va.start();
@@ -223,14 +234,17 @@ public class MaterialCheckBox extends View {
         correctProgress = 0;
         drawRecting = false;
         ValueAnimator va = ValueAnimator.ofFloat(0, 1).setDuration(DURATION);
-        va.addUpdateListener(animation -> {
-            correctProgress = (float) animation.getAnimatedValue();
-            invalidate();
-            if (correctProgress >= 1) {
-                isAnim = false;
-                if (listener != null) {
-                    checked = true;
-                    listener.onCheckedChanged(MaterialCheckBox.this, checked);
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                correctProgress = (float) animation.getAnimatedValue();
+                invalidate();
+                if (correctProgress >= 1) {
+                    isAnim = false;
+                    if (listener != null) {
+                        checked = true;
+                        listener.onCheckedChanged(MaterialCheckBox.this, checked);
+                    }
                 }
             }
         });
@@ -245,13 +259,16 @@ public class MaterialCheckBox extends View {
         correctProgress = 1;
         drawRecting = false;
         ValueAnimator va = ValueAnimator.ofFloat(0, 1).setDuration(DURATION);
-        va.addUpdateListener(animation -> {
-            float p = (float) animation.getAnimatedValue();
-            correctProgress = 1f - p;
-            invalidate();
-            if (p >= 1) {
-                isAnim = false;
-                hideRect();
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float p = (float) animation.getAnimatedValue();
+                correctProgress = 1f - p;
+                invalidate();
+                if (p >= 1) {
+                    isAnim = false;
+                    hideRect();
+                }
             }
         });
         va.start();

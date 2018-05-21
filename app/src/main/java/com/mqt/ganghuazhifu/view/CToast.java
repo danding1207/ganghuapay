@@ -180,9 +180,19 @@ public class CToast {
         mHandler.post(mHide);
     }
 
-    private final Runnable mShow = () -> handleShow();
+    private final Runnable mShow = new Runnable() {
+        @Override
+        public void run() {
+            handleShow();
+        }
+    };
 
-    private final Runnable mHide = () -> handleHide();
+    private final Runnable mHide = new Runnable() {
+        @Override
+        public void run() {
+            handleHide();
+        }
+    };
 
     private void init(Context context) {
         mHandler = new Handler(context.getMainLooper());

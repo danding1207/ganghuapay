@@ -3,6 +3,7 @@ package com.mqt.ganghuazhifu.http
 import android.annotation.SuppressLint
 import android.text.TextUtils
 import com.mqt.ganghuazhifu.App
+import com.mqt.ganghuazhifu.http.CusFormBody
 import com.mqt.ganghuazhifu.utils.AESCipher
 import com.mqt.ganghuazhifu.utils.Encrypt
 import com.mqt.ganghuazhifu.utils.EncryptedPreferencesUtils
@@ -58,7 +59,12 @@ object HttpRequestParams {
      */
     fun getParamsForVerificationCode(phoneNb: String, getType: String?, verificationCode: String?,
                                      imageKey: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011014").add("PhoneNb", if (getType != "02") phoneNb else "").add("GetType", getType ?: "").add("VerificationCode", verificationCode ?: "").add("ImageKey", imageKey ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011014")
+                .add("PhoneNb", if (getType != "02") phoneNb else "")
+                .add("GetType", getType ?: "")
+                .add("VerificationCode", verificationCode ?: "")
+                .add("ImageKey", imageKey ?: "")
         return getParamsRequestHead(builder, phoneNb)
     }
 
@@ -72,7 +78,12 @@ object HttpRequestParams {
      */
     fun getParamsForChangePhoneVerificationCode(phoneNb: String, getType: String?, verificationCode: String?,
                                                 imageKey: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011014").add("PhoneNb", if (getType != "02") phoneNb else "").add("GetType", getType ?: "").add("VerificationCode", verificationCode ?: "").add("ImageKey", imageKey ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011014")
+                .add("PhoneNb", if (getType != "02") phoneNb else "")
+                .add("GetType", getType ?: "")
+                .add("VerificationCode", verificationCode ?: "")
+                .add("ImageKey", imageKey ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -83,7 +94,10 @@ object HttpRequestParams {
      * @return
      */
     fun getParamsForcheckData(checkData: String?, checkType: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011010").add("CheckData", checkData ?: "").add("CheckType", checkType ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011010")
+                .add("CheckData", checkData ?: "")
+                .add("CheckType", checkType ?: "")
         return getParamsRequestHead(builder, checkData)
     }
 
@@ -129,7 +143,12 @@ object HttpRequestParams {
      */
     fun getParamsForWaterFee(ProvinceCode: String?, CityCode: String?, UserNb: String?,
                              PayeeCode: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011028").add("ProvinceCode", ProvinceCode ?: "").add("CityCode", CityCode ?: "").add("UserNb", UserNb ?: "").add("PayeeCode", PayeeCode ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011028")
+                .add("ProvinceCode", ProvinceCode ?: "")
+                .add("CityCode", CityCode ?: "")
+                .add("UserNb", UserNb ?: "")
+                .add("PayeeCode", PayeeCode ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -242,7 +261,6 @@ object HttpRequestParams {
                 .add("PayeeCode", PayeeCode ?: "")
                 .add("UserCanAmount", UserCanAmount ?: "")
                 .add("NoType", NoType ?: "")
-//                .add("Arrears", Arrears ?: "")
                 .add("QueryId", QueryId ?: "")
         return getParamsRequestHead(builder, null)
     }
@@ -260,7 +278,12 @@ object HttpRequestParams {
      */
     fun getParamsForNanJingGasFee(ProvinceCode: String?, CityCode: String?, UserNb: String?,
                                   PayeeCode: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011033").add("ProvinceCode", ProvinceCode ?: "").add("CityCode", CityCode ?: "").add("UserNb", UserNb ?: "").add("PayeeCode", PayeeCode ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011033")
+                .add("ProvinceCode", ProvinceCode ?: "")
+                .add("CityCode", CityCode ?: "")
+                .add("UserNb", UserNb ?: "")
+                .add("PayeeCode", PayeeCode ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -315,7 +338,9 @@ object HttpRequestParams {
      * @return
      */
     fun getParamsForQueryPayHistory(Pmttp: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011017").add("Pmttp", Pmttp ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011017")
+                .add("Pmttp", Pmttp ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -329,7 +354,12 @@ object HttpRequestParams {
      */
     fun getParamsForQueryCancleHistory(Pmttp: String?, LoginAccount: String?, PayeeCode: String?,
                                        UserNb: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011023").add("Pmttp", Pmttp ?: "").add("LoginAccount", LoginAccount ?: "").add("PayeeCode", PayeeCode ?: "").add("UserNb", UserNb ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011023")
+                .add("Pmttp", Pmttp ?: "")
+                .add("LoginAccount", LoginAccount ?: "")
+                .add("PayeeCode", PayeeCode ?: "")
+                .add("UserNb", UserNb ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -344,7 +374,14 @@ object HttpRequestParams {
      */
     fun getParamsForBusiFee(ProvinceCode: String?, CityCode: String?, UserNb: String?, NbType: String?,
                             PayeeCode: String?, CheckType: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011002").add("ProvinceCode", ProvinceCode ?: "").add("CityCode", CityCode ?: "").add("UserNb", UserNb ?: "").add("PayeeCode", PayeeCode ?: "").add("NbType", NbType ?: "").add("CheckType", CheckType ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011002")
+                .add("ProvinceCode", ProvinceCode ?: "")
+                .add("CityCode", CityCode ?: "")
+                .add("UserNb", UserNb ?: "")
+                .add("PayeeCode", PayeeCode ?: "")
+                .add("NbType", NbType ?: "")
+                .add("CheckType", CheckType ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -361,7 +398,15 @@ object HttpRequestParams {
      */
     fun getParamsForGasBill(ProvinceCode: String?, CityCode: String?, UserNb: String?, NbType: String?,
                             PayeeCode: String?, StartDate: String?, EndDate: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011003").add("ProvinceCode", ProvinceCode ?: "").add("CityCode", CityCode ?: "").add("UserNb", UserNb ?: "").add("PayeeCode", PayeeCode ?: "").add("NbType", NbType ?: "").add("StartDate", StartDate ?: "").add("EndDate", EndDate ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011003")
+                .add("ProvinceCode", ProvinceCode ?: "")
+                .add("CityCode", CityCode ?: "")
+                .add("UserNb", UserNb ?: "")
+                .add("PayeeCode", PayeeCode ?: "")
+                .add("NbType", NbType ?: "")
+                .add("StartDate", StartDate ?: "")
+                .add("EndDate", EndDate ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -378,7 +423,15 @@ object HttpRequestParams {
      */
     fun getParamsForBusiBill(ProvinceCode: String?, CityCode: String?, UserNb: String?, NbType: String?,
                              PayeeCode: String?, StartDate: String?, EndDate: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011004").add("ProvinceCode", ProvinceCode ?: "").add("CityCode", CityCode ?: "").add("UserNb", UserNb ?: "").add("PayeeCode", PayeeCode ?: "").add("NbType", NbType ?: "").add("StartDate", StartDate ?: "").add("EndDate", EndDate ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011004")
+                .add("ProvinceCode", ProvinceCode ?: "")
+                .add("CityCode", CityCode ?: "")
+                .add("UserNb", UserNb ?: "")
+                .add("PayeeCode", PayeeCode ?: "")
+                .add("NbType", NbType ?: "")
+                .add("StartDate", StartDate ?: "")
+                .add("EndDate", EndDate ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -407,7 +460,7 @@ object HttpRequestParams {
     fun getParamsForOrderSubmit(Pmttp: String?, Amount: String?, UserNb: String?, UserNm: String?,
                                 UserAddr: String?, CityCode: String?, ProvinceCode: String?, PayeeCode: String?, LoginAccount: String?,
                                 FeeCount: String?, QuerySeq: String?, DueMonth: String?, NFCFlag: String?, PrestoreFlag: String?,
-                                StaffPhone: String?, NFCICSumCount: Int, ICcardNo: String?, QueryId: String?
+                                StaffPhone: String?, NFCICSumCount: String?, ICcardNo: String?, QueryId: String?
                                 , Mount: String?): CusFormBody {
         val builder = CusFormBody.Builder()
                 .add("TransactionId", "10011005")
@@ -436,8 +489,8 @@ object HttpRequestParams {
             builder.add("StaffPhone", StaffPhone)
         if (ICcardNo != null)
             builder.add("ICcardNo", ICcardNo)
-        if (NFCICSumCount != 0)
-            builder.add("NFCICSumCount", NFCICSumCount.toString())
+        if (NFCICSumCount != null)
+            builder.add("NFCICSumCount", NFCICSumCount)
         return getParamsRequestHead(builder, null)
     }
 
@@ -542,6 +595,7 @@ object HttpRequestParams {
         val builder = CusFormBody.Builder()
                 .add("TransactionId", "10011058")
                 .add("OrderNb", order_id)
+                .add("AuthCode", "")
                 .add("PayChannel", "07-01")
         return getParamsRequestHead(builder, null)
     }
@@ -668,7 +722,12 @@ object HttpRequestParams {
      */
     fun getParamsForUpdateNFCPayStatus(OrderNb: String?, NFCPayStatus: String?,
                                        TcisModifyPriceCode: String?, ModifyPriceCode: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011038").add("OrderNb", OrderNb ?: "").add("NFCPayStatus", NFCPayStatus ?: "").add("TcisModifyPriceCode", TcisModifyPriceCode ?: "").add("ModifyPriceCode", ModifyPriceCode ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011038")
+                .add("OrderNb", OrderNb ?: "")
+                .add("NFCPayStatus", NFCPayStatus ?: "")
+                .add("TcisModifyPriceCode", TcisModifyPriceCode ?: "")
+                .add("ModifyPriceCode", ModifyPriceCode ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -722,7 +781,10 @@ object HttpRequestParams {
      * @return
      */
     fun getParamsForOrderConfig(orderNb: String?, payChannel: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011019").add("OrderNb", orderNb ?: "").add("PayChannel", payChannel ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011019")
+                .add("OrderNb", orderNb ?: "")
+                .add("PayChannel", payChannel ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -753,7 +815,10 @@ object HttpRequestParams {
      * @return
      */
     fun getParamsForValidateGestureCode(loginAccount: String?, GesturePwd: String): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011015").add("loginAccount", loginAccount ?: "").add("GesturePwd", MD5Util.getMD5String(GesturePwd).toUpperCase(Locale.CHINA))
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011015")
+                .add("loginAccount", loginAccount ?: "")
+                .add("GesturePwd", MD5Util.getMD5String(GesturePwd).toUpperCase(Locale.CHINA))
         return getParamsRequestHead(builder, loginAccount)
     }
 
@@ -813,7 +878,14 @@ object HttpRequestParams {
      */
     fun getParamsForAddGeneralContact(UserId: String?,
                                       PayeeCode: String?, UserNb: String?, UserNm: String?, IsDefault: String?, Remark: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011046").add("UserId", UserId ?: "").add("PayeeCode", PayeeCode ?: "").add("UserNb", UserNb ?: "").add("UserNm", UserNm ?: "").add("IsDefault", IsDefault ?: "").add("Remark", Remark ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011046")
+                .add("UserId", UserId ?: "")
+                .add("PayeeCode", PayeeCode ?: "")
+                .add("UserNb", UserNb ?: "")
+                .add("UserNm", UserNm ?: "")
+                .add("IsDefault", IsDefault ?: "")
+                .add("Remark", Remark ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -926,7 +998,11 @@ object HttpRequestParams {
      * @return
      */
     fun getParamsForSetNewPayee(LoginAccount: String?, PayeeCode: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011009").add("ModifyType", "J").add("LoginAccount", LoginAccount ?: "").add("PayeeCode", PayeeCode ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011009")
+                .add("ModifyType", "J")
+                .add("LoginAccount", LoginAccount ?: "")
+                .add("PayeeCode", PayeeCode ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -938,7 +1014,12 @@ object HttpRequestParams {
      * @return
      */
     fun getParamsForSetIDCardNbNewRealName(LoginAccount: String?, RealName: String?, IDCardNb: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011009").add("ModifyType", "D").add("LoginAccount", LoginAccount ?: "").add("RealName", RealName ?: "").add("IDCardNb", IDCardNb ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011009")
+                .add("ModifyType", "D")
+                .add("LoginAccount", LoginAccount ?: "")
+                .add("RealName", RealName ?: "")
+                .add("IDCardNb", IDCardNb ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -986,7 +1067,11 @@ object HttpRequestParams {
      * @return
      */
     fun getParamsForSetFuntion(LoginAccount: String?, Ext1: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011009").add("ModifyType", "K").add("LoginAccount", LoginAccount ?: "").add("Ext1", Ext1 ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011009")
+                .add("ModifyType", "K")
+                .add("LoginAccount", LoginAccount ?: "")
+                .add("Ext1", Ext1 ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -1008,7 +1093,7 @@ object HttpRequestParams {
         val builder = CusFormBody.Builder()
                 .add("TransactionId", "10011009")
                 .add("ModifyType", "E")
-                .add("RetrieveType", "2")
+                .add("RetrieveType", "1")
                 .add("LoginAccount", LoginAccount ?: "")
                 .add("VerificationKey", VerificationKey ?: "")
                 .add("VerificationCode", VerificationCode ?: "")
@@ -1050,7 +1135,12 @@ object HttpRequestParams {
      * @return
      */
     fun getParamsForFeedBack(phone: String?, titles: String?, content: String?, contactWay: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011016").add("LoginAccount", phone ?: "").add("Title", titles ?: "").add("FeekbackQuestion", content ?: "").add("ContactWay", contactWay ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011016")
+                .add("LoginAccount", phone ?: "")
+                .add("Title", titles ?: "")
+                .add("FeekbackQuestion", content ?: "")
+                .add("ContactWay", contactWay ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -1142,7 +1232,12 @@ object HttpRequestParams {
      * @return
      */
     fun getParamsForPushUserNb(LoginAccount: String?, UserNb: String?, PayeeCode: String?, Type: String?): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011041").add("LoginAccount", LoginAccount ?: "").add("UserNb", UserNb ?: "").add("PayeeCode", PayeeCode ?: "").add("Type", Type ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011041")
+                .add("LoginAccount", LoginAccount ?: "")
+                .add("UserNb", UserNb ?: "")
+                .add("PayeeCode", PayeeCode ?: "")
+                .add("Type", Type ?: "")
         return getParamsRequestHead(builder, null)
     }
 
@@ -1220,10 +1315,15 @@ object HttpRequestParams {
                                      SumTotalTwentyFour: String?, SecurityCheckNb: String?, ThreeSecurityCheck: String?,
                                      NFCPaySumAmount: String?
     ): CusFormBody {
-        val builder = CusFormBody.Builder().add("TransactionId", "10011044").add("OrderNb", OrderNb ?: "")
-                .add("UserNb", UserNb ?: "").add("Type", Type ?: "")
-                .add("CardID", CardID ?: "").add("Random", Random ?: "")
-                .add("NFCPayTime", NFCPayTime ?: "").add("CardMsg", CardMsg ?: "")
+        val builder = CusFormBody.Builder()
+                .add("TransactionId", "10011044")
+                .add("OrderNb", OrderNb ?: "")
+                .add("UserNb", UserNb ?: "")
+                .add("Type", Type ?: "")
+                .add("CardID", CardID ?: "")
+                .add("Random", Random ?: "")
+                .add("NFCPayTime", NFCPayTime ?: "")
+                .add("CardMsg", CardMsg ?: "")
                 .add("QuanRes", QuanRes ?: "")
                 .add("NFCPayAmount", NFCPayAmount ?: "0")
                 .add("QuanTime", QuanTime ?: "")

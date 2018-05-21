@@ -33,6 +33,21 @@
         android:textColor="@color/dark_green_slow"
         android:textSize="@dimen/font_size_Medium"
         />
+    <View
+            android:layout_width="100dp"
+            android:layout_height="1px"
+            android:background="@drawable/cutting_line_city_list"
+    />
+
+    <TextView
+            android:id="@+id/tv_busi_yucun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="营业费预存"
+            android:padding="4dp"
+            android:textColor="@color/dark_green_slow"
+            android:textSize="@dimen/font_size_Medium"
+    />
     <View 
         android:layout_width="100dp"
         android:layout_height="1px"

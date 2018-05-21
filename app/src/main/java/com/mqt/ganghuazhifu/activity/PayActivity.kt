@@ -310,7 +310,7 @@ open class PayActivity : BaseActivity() {
                 val ProcessDes = ResponseHead.getString("ProcessDes")
                 if (ProcessCode == "0000") {
                     val lianDong = JSONObject.parseObject(ResponseFields, LianDong::class.java)
-                    Logger.d(lianDong.toString())
+                    Logger.i(lianDong.toString())
                     val intent: Intent? = null
                     if ("11" == lianDong.flag) {
                         UnityQuickPayActivity.startActivity(this@PayActivity, lianDong)

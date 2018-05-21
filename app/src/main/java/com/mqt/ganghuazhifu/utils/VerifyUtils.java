@@ -18,21 +18,17 @@ public class VerifyUtils {
 		 *
 		 * 170  171 虚拟运营商号段
 		 * 1700 1705 1709
+		 *
+		 * 新加 198，199，166号段（time-20180226）
 		 */
         String telRegex;
-        telRegex = "^((13[0-9])|(15[^4,\\D])|(18[0-9])|(14[579])|(17[2-3])|(17[5-8]))\\d{8}$";
+        telRegex = "^((13[0-9])|(15[^4,\\D])|(18[0-9])|(14[579])|(17[2-3])|(17[5-8])|(16[6])|(19[8-9]))\\d{8}$";
         if (TextUtils.isEmpty(mobiles)) {
             return false;
         } else {
-//			if (mobiles.matches(telRegex)) {
-//				return true;
-//			} else {
-//				telRegex = "^(170[059])\\d{7}$";
             return mobiles.matches(telRegex);
-//			}
         }
     }
-
 
     /**
      * 校验银行卡卡号

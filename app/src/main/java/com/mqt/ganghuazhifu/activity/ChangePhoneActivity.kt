@@ -138,7 +138,6 @@ class ChangePhoneActivity : BaseActivity() {
 
     /**
      * 检查输入数据是否合格，并给出提示信息
-
      * @return
      */
     private fun checkEmpty(): Boolean {
@@ -167,32 +166,6 @@ class ChangePhoneActivity : BaseActivity() {
         when (v.id) {
             R.id.tv_get_yzm -> {
                 getCaptcha()
-//                phone = activityChangePhoneBinding!!.etSetPhone.text.toString().trim { it <= ' ' }
-//                if (!VerifyUtils.isMobileNO(activityChangePhoneBinding!!.etSetPhone.text.toString().trim { it <= ' ' })) {
-//                    ToastUtil.toastWarning("手机号码错误!")
-//                    activityChangePhoneBinding!!.etSetPhone.setText("")
-//                } else {
-//                    val body = HttpRequestParams.getParamsForcheckData(phone, "02")
-//                    post(HttpURLS.checkData, true, "checkData", body, OnHttpRequestListener { isError, response, type, error ->
-//                        if (isError) {
-//                            Logger.e(error.toString())
-//                        } else {
-//                            Logger.i(response.toString())
-//                            val Response = response.getString("ResponseHead")
-//                            if (Response != null) {
-//                                val head = JSONObject.parseObject(Response, ResponseHead::class.java)
-//                                if (head != null && head.ProcessCode == "0000") {
-//                                    getCaptcha()
-//                                } else {
-//                                    if (head != null && head.ProcessDes != null) {
-//                                        ToastUtil.toastError(head.ProcessDes)
-//                                        activityChangePhoneBinding!!.etSetPhone.setText("")
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    })
-//                }
             }
             R.id.cardView_next -> if (checkEmpty()) {
                 submit()

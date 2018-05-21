@@ -21,6 +21,6 @@
     <!-- pulltorefresh -->
 
     <dimen name="dp">10dp</dimen>
-    <dimen name="home_menu_height">440dp</dimen>
+    <dimen name="home_menu_height">220dp</dimen>
 
 </resources>
